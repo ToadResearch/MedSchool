@@ -1,0 +1,29 @@
+enabled:
+  - fhir_query
+  - python_exec
+  - shell_exec
+
+disabled_by_default:
+  - snomed_to_icd10
+  - code_lookup
+  - icd10_to_snomed
+  - fhir_validate
+  - fhir_doc
+  - fhir_submit_bundle
+  - notepad_write
+  - notepad_read
+  - notepad_clear
+
+limits:
+  fhir_query:
+    max_results: 50
+    timeout_s: 15
+  code_lookup:
+    timeout_s: 10         # optional
+  python_exec:
+    timeout_s: 10
+  shell_exec:
+    timeout_s: 10
+
+auth:
+  passthrough: bearer

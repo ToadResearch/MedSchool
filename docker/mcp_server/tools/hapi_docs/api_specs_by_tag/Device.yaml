@@ -1,0 +1,1124 @@
+openapi: 3.0.1
+info:
+  title: HAPI FHIR Server
+  contact: {}
+  version: 8.2.0
+servers:
+- url: http://localhost:8080/fhir
+  description: HAPI FHIR Server
+components:
+  schemas:
+    FHIR-JSON-RESOURCE:
+      type: object
+      description: A FHIR resource
+    FHIR-XML-RESOURCE:
+      type: object
+      description: A FHIR resource
+tags:
+- name: Device
+  description: 'The Device FHIR resource type<br/>Base profile: http://hl7.org/fhir/StructureDefinition/Device'
+paths:
+  /Device/{id}:
+    get:
+      tags:
+      - Device
+      summary: 'read-instance: Read Device instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    put:
+      tags:
+      - Device
+      summary: 'update-instance: Update an existing Device instance, or create using
+        a client-assigned ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Device"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <Device xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    delete:
+      tags:
+      - Device
+      summary: 'instance-delete: Perform a logical delete on a resource instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    patch:
+      tags:
+      - Device
+      summary: 'instance-patch: Patch a resource instance of type Device by ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "operation",
+                  "part": [ {
+                    "name": "type",
+                    "valueString": "add"
+                  }, {
+                    "name": "path",
+                    "valueString": "Patient"
+                  }, {
+                    "name": "name",
+                    "valueString": "birthDate"
+                  }, {
+                    "name": "value",
+                    "valueDate": "1930-01-01"
+                  } ]
+                } ]
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: |-
+              <Parameters xmlns="http://hl7.org/fhir">
+                 <parameter>
+                    <name value="operation"/>
+                    <part>
+                       <name value="type"/>
+                       <valueString value="add"/>
+                    </part>
+                    <part>
+                       <name value="path"/>
+                       <valueString value="Patient"/>
+                    </part>
+                    <part>
+                       <name value="name"/>
+                       <valueString value="birthDate"/>
+                    </part>
+                    <part>
+                       <name value="value"/>
+                       <valueDate value="1930-01-01"/>
+                    </part>
+                 </parameter>
+              </Parameters>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/{id}/_history/{version_id}:
+    get:
+      tags:
+      - Device
+      summary: 'vread-instance: Read Device instance with specific version'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: version_id
+        in: path
+        description: The resource version ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '1'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device:
+    get:
+      tags:
+      - Device
+      summary: 'search-type: Search for Device instances'
+      description: This is a search type
+      parameters:
+      - name: udi-di
+        in: query
+        description: The udi Device Identifier (DI)
+        required: false
+        schema:
+          type: string
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: Instance id from manufacturer, owner, and others
+        required: false
+        schema:
+          type: string
+      - name: udi-carrier
+        in: query
+        description: UDI Barcode (RFID or other technology) string in *HRF* format.
+        required: false
+        schema:
+          type: string
+      - name: device-name
+        in: query
+        description: A server defined search that may match any of the string fields
+          in Device.deviceName or Device.type.
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: type
+        in: query
+        description: The type of the device
+        required: false
+        schema:
+          type: string
+      - name: url
+        in: query
+        description: Network address to contact device
+        required: false
+        schema:
+          type: string
+      - name: manufacturer
+        in: query
+        description: The manufacturer of the device
+        required: false
+        schema:
+          type: string
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: patient
+        in: query
+        description: Patient information, if the resource is affixed to a person
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: organization
+        in: query
+        description: The organization responsible for the device
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: location
+        in: query
+        description: A location, where the resource is found
+        required: false
+        schema:
+          type: string
+      - name: model
+        in: query
+        description: The model of the device
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: active | inactive | entered-in-error | unknown
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Device
+      summary: 'create-type: Create a new Device instance'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Device"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <Device xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/_history:
+    get:
+      tags:
+      - Device
+      summary: 'type-history: Fetch the resource change history for all resources
+        of type Device'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/{id}/_history:
+    get:
+      tags:
+      - Device
+      summary: 'instance-history: Fetch the resource change history for all resources
+        of type Device'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/_search:
+    get:
+      tags:
+      - Device
+      summary: 'search-type: Search for Device instances'
+      description: This is a search type
+      parameters:
+      - name: udi-di
+        in: query
+        description: The udi Device Identifier (DI)
+        required: false
+        schema:
+          type: string
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: Instance id from manufacturer, owner, and others
+        required: false
+        schema:
+          type: string
+      - name: udi-carrier
+        in: query
+        description: UDI Barcode (RFID or other technology) string in *HRF* format.
+        required: false
+        schema:
+          type: string
+      - name: device-name
+        in: query
+        description: A server defined search that may match any of the string fields
+          in Device.deviceName or Device.type.
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: type
+        in: query
+        description: The type of the device
+        required: false
+        schema:
+          type: string
+      - name: url
+        in: query
+        description: Network address to contact device
+        required: false
+        schema:
+          type: string
+      - name: manufacturer
+        in: query
+        description: The manufacturer of the device
+        required: false
+        schema:
+          type: string
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: patient
+        in: query
+        description: Patient information, if the resource is affixed to a person
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: organization
+        in: query
+        description: The organization responsible for the device
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: location
+        in: query
+        description: A location, where the resource is found
+        required: false
+        schema:
+          type: string
+      - name: model
+        in: query
+        description: The model of the device
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: active | inactive | entered-in-error | unknown
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/$validate:
+    get:
+      tags:
+      - Device
+      summary: 'GET: /Device/$validate'
+      parameters:
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Device
+      summary: 'POST: /Device/$validate'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "Device",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/{id}/$validate:
+    get:
+      tags:
+      - Device
+      summary: 'GET: /Device/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Device
+      summary: 'POST: /Device/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "Device",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/{id}/$meta-delete:
+    post:
+      tags:
+      - Device
+      summary: 'POST: /Device/{id}/$meta-delete'
+      description: Delete tags, profiles, and/or security labels from a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/{id}/$meta-add:
+    post:
+      tags:
+      - Device
+      summary: 'POST: /Device/{id}/$meta-add'
+      description: Add tags, profiles, and/or security labels to a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/$meta:
+    get:
+      tags:
+      - Device
+      summary: 'GET: /Device/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Device
+      summary: 'POST: /Device/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/{id}/$meta:
+    get:
+      tags:
+      - Device
+      summary: 'GET: /Device/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Device
+      summary: 'POST: /Device/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/$expunge:
+    post:
+      tags:
+      - Device
+      summary: 'POST: /Device/$expunge'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/{id}/$expunge:
+    post:
+      tags:
+      - Device
+      summary: 'POST: /Device/{id}/$expunge'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Device/{id}/$diff:
+    get:
+      tags:
+      - Device
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: from
+        in: query
+        description: The resource ID and version to diff from
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/1
+      - name: to
+        in: query
+        description: The resource ID and version to diff to
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/2
+      - name: includeMeta
+        in: query
+        description: Should differences in the Resource.meta element be included in
+          the diff
+        required: false
+        schema:
+          type: string
+        example: 'false'
+      - name: fromVersion
+        in: query
+        description: The resource ID and version to diff from
+        required: false
+        schema:
+          type: string
+        example: Patient/example/version/1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Device
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "from"
+                }, {
+                  "name": "to"
+                }, {
+                  "name": "includeMeta",
+                  "valueBoolean": false
+                }, {
+                  "name": "fromVersion",
+                  "valueString": "example"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'

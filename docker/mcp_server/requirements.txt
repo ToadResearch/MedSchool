@@ -1,0 +1,28 @@
+# FastMCP Server Dependencies
+fastmcp>=0.4.0
+uvicorn>=0.23.0
+
+# Optional: For better performance
+# uvloop>=0.17.0  # Faster event loop on Linux/macOS (auto-installed with uvicorn[standard])
+
+
+# "python-dotenv",
+# "mcp[cli]" # https://modelcontextprotocol.io/quickstart/server
+# fastapi>=0.111
+# uvicorn[standard]>=0.29
+# httpx>=0.27
+# pydantic>=2.7
+# python-dotenv>=1.0
+# pyyaml>=6.0
+# mcp[cli]
+# redis>=5.0
+# slowapi>=0.1.8
+
+
+# fastmcp>=2.12.0
+# uvicorn>=0.30
+# httpx>=0.27
+# starlette>=0.37
+# fastmcp 
+# httpx
+# aiohttp

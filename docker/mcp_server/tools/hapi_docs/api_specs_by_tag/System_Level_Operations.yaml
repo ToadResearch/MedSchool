@@ -1,0 +1,447 @@
+openapi: 3.0.1
+info:
+  title: HAPI FHIR Server
+  contact: {}
+  version: 8.2.0
+servers:
+- url: http://localhost:8080/fhir
+  description: HAPI FHIR Server
+components:
+  schemas:
+    FHIR-JSON-RESOURCE:
+      type: object
+      description: A FHIR resource
+    FHIR-XML-RESOURCE:
+      type: object
+      description: A FHIR resource
+tags:
+- name: System Level Operations
+  description: Server-level operations
+paths:
+  /metadata:
+    get:
+      tags:
+      - System Level Operations
+      summary: 'server-capabilities: Fetch the server FHIR CapabilityStatement'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+              example: |-
+                {
+                  "resourceType": "CapabilityStatement"
+                }
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+              example: <CapabilityStatement xmlns="http://hl7.org/fhir"/>
+  /:
+    post:
+      tags:
+      - System Level Operations
+      summary: 'server-transaction: Execute a FHIR Transaction (or FHIR Batch) Bundle'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /_history:
+    get:
+      tags:
+      - System Level Operations
+      summary: 'server-history: Fetch the resource change history across all resource
+        types on the server'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /$diff:
+    get:
+      tags:
+      - System Level Operations
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: from
+        in: query
+        description: The resource ID and version to diff from
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/1
+      - name: to
+        in: query
+        description: The resource ID and version to diff to
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/2
+      - name: includeMeta
+        in: query
+        description: Should differences in the Resource.meta element be included in
+          the diff
+        required: false
+        schema:
+          type: string
+        example: 'false'
+      - name: fromVersion
+        in: query
+        description: The resource ID and version to diff from
+        required: false
+        schema:
+          type: string
+        example: Patient/example/version/1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - System Level Operations
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "from"
+                }, {
+                  "name": "to"
+                }, {
+                  "name": "includeMeta",
+                  "valueBoolean": false
+                }, {
+                  "name": "fromVersion",
+                  "valueString": "example"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /$reindex:
+    post:
+      tags:
+      - System Level Operations
+      summary: 'POST: /$reindex'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "url",
+                  "valueString": "example"
+                }, {
+                  "name": "reindexSearchParameters",
+                  "valueCode": "example"
+                }, {
+                  "name": "optimizeStorage",
+                  "valueCode": "example"
+                }, {
+                  "name": "optimisticLock",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /$perform-reindexing-pass:
+    post:
+      tags:
+      - System Level Operations
+      summary: 'POST: /$perform-reindexing-pass'
+      description: Forces a single pass of the resource reindexing processor
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /$meta:
+    get:
+      tags:
+      - System Level Operations
+      summary: 'GET: /$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - System Level Operations
+      summary: 'POST: /$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /$mark-all-resources-for-reindexing:
+    post:
+      tags:
+      - System Level Operations
+      summary: 'POST: /$mark-all-resources-for-reindexing'
+      description: Marks all currently existing resources of a given type, or all
+        resources of all types, for reindexing.
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "type",
+                  "valueCode": "example"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /$get-resource-counts:
+    get:
+      tags:
+      - System Level Operations
+      summary: Provides the number of resources currently stored on the server, broken
+        down by resource type
+      description: Provides the number of resources currently stored on the server,
+        broken down by resource type
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - System Level Operations
+      summary: Provides the number of resources currently stored on the server, broken
+        down by resource type
+      description: Provides the number of resources currently stored on the server,
+        broken down by resource type
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /$expunge:
+    post:
+      tags:
+      - System Level Operations
+      summary: 'POST: /$expunge'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /$reindex-terminology:
+    post:
+      tags:
+      - System Level Operations
+      summary: 'POST: /$reindex-terminology'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /$hapi.fhir.replace-references:
+    post:
+      tags:
+      - System Level Operations
+      summary: Repoints referencing resources to another resources instance
+      description: This operation searches for all references matching the provided
+        id and updates them to references to the provided target-reference-id.
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "source-reference-id",
+                  "valueString": "example"
+                }, {
+                  "name": "target-reference-id",
+                  "valueString": "example"
+                }, {
+                  "name": "resource-limit"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'

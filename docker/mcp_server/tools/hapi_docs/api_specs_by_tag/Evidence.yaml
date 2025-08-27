@@ -1,0 +1,1264 @@
+openapi: 3.0.1
+info:
+  title: HAPI FHIR Server
+  contact: {}
+  version: 8.2.0
+servers:
+- url: http://localhost:8080/fhir
+  description: HAPI FHIR Server
+components:
+  schemas:
+    FHIR-JSON-RESOURCE:
+      type: object
+      description: A FHIR resource
+    FHIR-XML-RESOURCE:
+      type: object
+      description: A FHIR resource
+tags:
+- name: Evidence
+  description: 'The Evidence FHIR resource type<br/>Base profile: http://hl7.org/fhir/StructureDefinition/Evidence'
+paths:
+  /Evidence/{id}:
+    get:
+      tags:
+      - Evidence
+      summary: 'read-instance: Read Evidence instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    put:
+      tags:
+      - Evidence
+      summary: 'update-instance: Update an existing Evidence instance, or create using
+        a client-assigned ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Evidence"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <Evidence xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    delete:
+      tags:
+      - Evidence
+      summary: 'instance-delete: Perform a logical delete on a resource instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    patch:
+      tags:
+      - Evidence
+      summary: 'instance-patch: Patch a resource instance of type Evidence by ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "operation",
+                  "part": [ {
+                    "name": "type",
+                    "valueString": "add"
+                  }, {
+                    "name": "path",
+                    "valueString": "Patient"
+                  }, {
+                    "name": "name",
+                    "valueString": "birthDate"
+                  }, {
+                    "name": "value",
+                    "valueDate": "1930-01-01"
+                  } ]
+                } ]
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: |-
+              <Parameters xmlns="http://hl7.org/fhir">
+                 <parameter>
+                    <name value="operation"/>
+                    <part>
+                       <name value="type"/>
+                       <valueString value="add"/>
+                    </part>
+                    <part>
+                       <name value="path"/>
+                       <valueString value="Patient"/>
+                    </part>
+                    <part>
+                       <name value="name"/>
+                       <valueString value="birthDate"/>
+                    </part>
+                    <part>
+                       <name value="value"/>
+                       <valueDate value="1930-01-01"/>
+                    </part>
+                 </parameter>
+              </Parameters>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/{id}/_history/{version_id}:
+    get:
+      tags:
+      - Evidence
+      summary: 'vread-instance: Read Evidence instance with specific version'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: version_id
+        in: path
+        description: The resource version ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '1'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence:
+    get:
+      tags:
+      - Evidence
+      summary: 'search-type: Search for Evidence instances'
+      description: This is a search type
+      parameters:
+      - name: date
+        in: query
+        description: The evidence publication date
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: successor
+        in: query
+        description: What resource is being referenced
+        required: false
+        schema:
+          type: string
+      - name: context-type-value
+        in: query
+        description: A use context type and value assigned to the evidence
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: jurisdiction
+        in: query
+        description: Intended jurisdiction for the evidence
+        required: false
+        schema:
+          type: string
+      - name: derived-from
+        in: query
+        description: What resource is being referenced
+        required: false
+        schema:
+          type: string
+      - name: description
+        in: query
+        description: The description of the evidence
+        required: false
+        schema:
+          type: string
+      - name: context-type
+        in: query
+        description: A type of use context assigned to the evidence
+        required: false
+        schema:
+          type: string
+      - name: predecessor
+        in: query
+        description: What resource is being referenced
+        required: false
+        schema:
+          type: string
+      - name: composed-of
+        in: query
+        description: What resource is being referenced
+        required: false
+        schema:
+          type: string
+      - name: title
+        in: query
+        description: The human-friendly name of the evidence
+        required: false
+        schema:
+          type: string
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: context-quantity
+        in: query
+        description: A quantity- or range-valued use context assigned to the evidence
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: number
+      - name: depends-on
+        in: query
+        description: What resource is being referenced
+        required: false
+        schema:
+          type: string
+      - name: effective
+        in: query
+        description: The time during which the evidence is intended to be in use
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: context
+        in: query
+        description: A use context assigned to the evidence
+        required: false
+        schema:
+          type: string
+      - name: context-type-quantity
+        in: query
+        description: A use context type and quantity- or range-based value assigned
+          to the evidence
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: External identifier for the evidence
+        required: false
+        schema:
+          type: string
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: version
+        in: query
+        description: The business version of the evidence
+        required: false
+        schema:
+          type: string
+      - name: url
+        in: query
+        description: The uri that identifies the evidence
+        required: false
+        schema:
+          type: string
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: name
+        in: query
+        description: Computationally friendly name of the evidence
+        required: false
+        schema:
+          type: string
+      - name: publisher
+        in: query
+        description: Name of the publisher of the evidence
+        required: false
+        schema:
+          type: string
+      - name: topic
+        in: query
+        description: Topics associated with the Evidence
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: The current status of the evidence
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Evidence
+      summary: 'create-type: Create a new Evidence instance'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Evidence"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <Evidence xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/_history:
+    get:
+      tags:
+      - Evidence
+      summary: 'type-history: Fetch the resource change history for all resources
+        of type Evidence'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/{id}/_history:
+    get:
+      tags:
+      - Evidence
+      summary: 'instance-history: Fetch the resource change history for all resources
+        of type Evidence'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/_search:
+    get:
+      tags:
+      - Evidence
+      summary: 'search-type: Search for Evidence instances'
+      description: This is a search type
+      parameters:
+      - name: date
+        in: query
+        description: The evidence publication date
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: successor
+        in: query
+        description: What resource is being referenced
+        required: false
+        schema:
+          type: string
+      - name: context-type-value
+        in: query
+        description: A use context type and value assigned to the evidence
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: jurisdiction
+        in: query
+        description: Intended jurisdiction for the evidence
+        required: false
+        schema:
+          type: string
+      - name: derived-from
+        in: query
+        description: What resource is being referenced
+        required: false
+        schema:
+          type: string
+      - name: description
+        in: query
+        description: The description of the evidence
+        required: false
+        schema:
+          type: string
+      - name: context-type
+        in: query
+        description: A type of use context assigned to the evidence
+        required: false
+        schema:
+          type: string
+      - name: predecessor
+        in: query
+        description: What resource is being referenced
+        required: false
+        schema:
+          type: string
+      - name: composed-of
+        in: query
+        description: What resource is being referenced
+        required: false
+        schema:
+          type: string
+      - name: title
+        in: query
+        description: The human-friendly name of the evidence
+        required: false
+        schema:
+          type: string
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: context-quantity
+        in: query
+        description: A quantity- or range-valued use context assigned to the evidence
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: number
+      - name: depends-on
+        in: query
+        description: What resource is being referenced
+        required: false
+        schema:
+          type: string
+      - name: effective
+        in: query
+        description: The time during which the evidence is intended to be in use
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: context
+        in: query
+        description: A use context assigned to the evidence
+        required: false
+        schema:
+          type: string
+      - name: context-type-quantity
+        in: query
+        description: A use context type and quantity- or range-based value assigned
+          to the evidence
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: External identifier for the evidence
+        required: false
+        schema:
+          type: string
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: version
+        in: query
+        description: The business version of the evidence
+        required: false
+        schema:
+          type: string
+      - name: url
+        in: query
+        description: The uri that identifies the evidence
+        required: false
+        schema:
+          type: string
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: name
+        in: query
+        description: Computationally friendly name of the evidence
+        required: false
+        schema:
+          type: string
+      - name: publisher
+        in: query
+        description: Name of the publisher of the evidence
+        required: false
+        schema:
+          type: string
+      - name: topic
+        in: query
+        description: Topics associated with the Evidence
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: The current status of the evidence
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/$validate:
+    get:
+      tags:
+      - Evidence
+      summary: 'GET: /Evidence/$validate'
+      parameters:
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Evidence
+      summary: 'POST: /Evidence/$validate'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "Evidence",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/{id}/$validate:
+    get:
+      tags:
+      - Evidence
+      summary: 'GET: /Evidence/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Evidence
+      summary: 'POST: /Evidence/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "Evidence",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/{id}/$meta-delete:
+    post:
+      tags:
+      - Evidence
+      summary: 'POST: /Evidence/{id}/$meta-delete'
+      description: Delete tags, profiles, and/or security labels from a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/{id}/$meta-add:
+    post:
+      tags:
+      - Evidence
+      summary: 'POST: /Evidence/{id}/$meta-add'
+      description: Add tags, profiles, and/or security labels to a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/$meta:
+    get:
+      tags:
+      - Evidence
+      summary: 'GET: /Evidence/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Evidence
+      summary: 'POST: /Evidence/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/{id}/$meta:
+    get:
+      tags:
+      - Evidence
+      summary: 'GET: /Evidence/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Evidence
+      summary: 'POST: /Evidence/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/$expunge:
+    post:
+      tags:
+      - Evidence
+      summary: 'POST: /Evidence/$expunge'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/{id}/$expunge:
+    post:
+      tags:
+      - Evidence
+      summary: 'POST: /Evidence/{id}/$expunge'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Evidence/{id}/$diff:
+    get:
+      tags:
+      - Evidence
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: from
+        in: query
+        description: The resource ID and version to diff from
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/1
+      - name: to
+        in: query
+        description: The resource ID and version to diff to
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/2
+      - name: includeMeta
+        in: query
+        description: Should differences in the Resource.meta element be included in
+          the diff
+        required: false
+        schema:
+          type: string
+        example: 'false'
+      - name: fromVersion
+        in: query
+        description: The resource ID and version to diff from
+        required: false
+        schema:
+          type: string
+        example: Patient/example/version/1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Evidence
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "from"
+                }, {
+                  "name": "to"
+                }, {
+                  "name": "includeMeta",
+                  "valueBoolean": false
+                }, {
+                  "name": "fromVersion",
+                  "valueString": "example"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'

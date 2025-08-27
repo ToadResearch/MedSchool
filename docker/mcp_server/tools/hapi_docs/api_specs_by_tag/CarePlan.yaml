@@ -1,0 +1,1396 @@
+openapi: 3.0.1
+info:
+  title: HAPI FHIR Server
+  contact: {}
+  version: 8.2.0
+servers:
+- url: http://localhost:8080/fhir
+  description: HAPI FHIR Server
+components:
+  schemas:
+    FHIR-JSON-RESOURCE:
+      type: object
+      description: A FHIR resource
+    FHIR-XML-RESOURCE:
+      type: object
+      description: A FHIR resource
+tags:
+- name: CarePlan
+  description: 'The CarePlan FHIR resource type<br/>Base profile: http://hl7.org/fhir/StructureDefinition/CarePlan'
+paths:
+  /CarePlan/{id}:
+    get:
+      tags:
+      - CarePlan
+      summary: 'read-instance: Read CarePlan instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    put:
+      tags:
+      - CarePlan
+      summary: 'update-instance: Update an existing CarePlan instance, or create using
+        a client-assigned ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "CarePlan"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <CarePlan xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    delete:
+      tags:
+      - CarePlan
+      summary: 'instance-delete: Perform a logical delete on a resource instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    patch:
+      tags:
+      - CarePlan
+      summary: 'instance-patch: Patch a resource instance of type CarePlan by ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "operation",
+                  "part": [ {
+                    "name": "type",
+                    "valueString": "add"
+                  }, {
+                    "name": "path",
+                    "valueString": "Patient"
+                  }, {
+                    "name": "name",
+                    "valueString": "birthDate"
+                  }, {
+                    "name": "value",
+                    "valueDate": "1930-01-01"
+                  } ]
+                } ]
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: |-
+              <Parameters xmlns="http://hl7.org/fhir">
+                 <parameter>
+                    <name value="operation"/>
+                    <part>
+                       <name value="type"/>
+                       <valueString value="add"/>
+                    </part>
+                    <part>
+                       <name value="path"/>
+                       <valueString value="Patient"/>
+                    </part>
+                    <part>
+                       <name value="name"/>
+                       <valueString value="birthDate"/>
+                    </part>
+                    <part>
+                       <name value="value"/>
+                       <valueDate value="1930-01-01"/>
+                    </part>
+                 </parameter>
+              </Parameters>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/{id}/_history/{version_id}:
+    get:
+      tags:
+      - CarePlan
+      summary: 'vread-instance: Read CarePlan instance with specific version'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: version_id
+        in: path
+        description: The resource version ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '1'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan:
+    get:
+      tags:
+      - CarePlan
+      summary: 'search-type: Search for CarePlan instances'
+      description: This is a search type
+      parameters:
+      - name: date
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [AllergyIntolerance](allergyintolerance.html):\
+          \ Date first version of the resource instance was recorded\r\n* [CarePlan](careplan.html):\
+          \ Time period plan covers\r\n* [CareTeam](careteam.html): Time period team\
+          \ covers\r\n* [ClinicalImpression](clinicalimpression.html): When the assessment\
+          \ was documented\r\n* [Composition](composition.html): Composition editing\
+          \ time\r\n* [Consent](consent.html): When this Consent was created or indexed\r\
+          \n* [DiagnosticReport](diagnosticreport.html): The clinically relevant time\
+          \ of the report\r\n* [Encounter](encounter.html): A date within the period\
+          \ the Encounter lasted\r\n* [EpisodeOfCare](episodeofcare.html): The provided\
+          \ date search value falls within the episode of care's period\r\n* [FamilyMemberHistory](familymemberhistory.html):\
+          \ When history was recorded or last updated\r\n* [Flag](flag.html): Time\
+          \ period when flag is active\r\n* [Immunization](immunization.html): Vaccination\
+          \  (non)-Administration Date\r\n* [List](list.html): When the list was prepared\r\
+          \n* [Observation](observation.html): Obtained date/time. If the obtained\
+          \ element is a period, a date that falls in the period\r\n* [Procedure](procedure.html):\
+          \ When the procedure was performed\r\n* [RiskAssessment](riskassessment.html):\
+          \ When was assessment made?\r\n* [SupplyRequest](supplyrequest.html): When\
+          \ the request was made"
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: care-team
+        in: query
+        description: Who's involved in plan?
+        required: false
+        schema:
+          type: string
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: subject
+        in: query
+        description: Who the care plan is for
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: part-of
+        in: query
+        description: Part of referenced CarePlan
+        required: false
+        schema:
+          type: string
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: based-on
+        in: query
+        description: Fulfills CarePlan
+        required: false
+        schema:
+          type: string
+      - name: patient
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [AllergyIntolerance](allergyintolerance.html):\
+          \ Who the sensitivity is for\r\n* [CarePlan](careplan.html): Who the care\
+          \ plan is for\r\n* [CareTeam](careteam.html): Who care team is for\r\n*\
+          \ [ClinicalImpression](clinicalimpression.html): Patient or group assessed\r\
+          \n* [Composition](composition.html): Who and/or what the composition is\
+          \ about\r\n* [Condition](condition.html): Who has the condition?\r\n* [Consent](consent.html):\
+          \ Who the consent applies to\r\n* [DetectedIssue](detectedissue.html): Associated\
+          \ patient\r\n* [DeviceRequest](devicerequest.html): Individual the service\
+          \ is ordered for\r\n* [DeviceUseStatement](deviceusestatement.html): Search\
+          \ by subject - a patient\r\n* [DiagnosticReport](diagnosticreport.html):\
+          \ The subject of the report if a patient\r\n* [DocumentManifest](documentmanifest.html):\
+          \ The subject of the set of documents\r\n* [DocumentReference](documentreference.html):\
+          \ Who/what is the subject of the document\r\n* [Encounter](encounter.html):\
+          \ The patient or group present at the encounter\r\n* [EpisodeOfCare](episodeofcare.html):\
+          \ The patient who is the focus of this episode of care\r\n* [FamilyMemberHistory](familymemberhistory.html):\
+          \ The identity of a subject to list family member history items for\r\n\
+          * [Flag](flag.html): The identity of a subject to list flags for\r\n* [Goal](goal.html):\
+          \ Who this goal is intended for\r\n* [ImagingStudy](imagingstudy.html):\
+          \ Who the study is about\r\n* [Immunization](immunization.html): The patient\
+          \ for the vaccination record\r\n* [List](list.html): If all resources have\
+          \ the same subject\r\n* [MedicationAdministration](medicationadministration.html):\
+          \ The identity of a patient to list administrations  for\r\n* [MedicationDispense](medicationdispense.html):\
+          \ The identity of a patient to list dispenses  for\r\n* [MedicationRequest](medicationrequest.html):\
+          \ Returns prescriptions for a specific patient\r\n* [MedicationStatement](medicationstatement.html):\
+          \ Returns statements for a specific patient.\r\n* [NutritionOrder](nutritionorder.html):\
+          \ The identity of the person who requires the diet, formula or nutritional\
+          \ supplement\r\n* [Observation](observation.html): The subject that the\
+          \ observation is about (if patient)\r\n* [Procedure](procedure.html): Search\
+          \ by subject - a patient\r\n* [RiskAssessment](riskassessment.html): Who/what\
+          \ does assessment apply to?\r\n* [ServiceRequest](servicerequest.html):\
+          \ Search by subject - a patient\r\n* [SupplyDelivery](supplydelivery.html):\
+          \ Patient for whom the item is supplied\r\n* [VisionPrescription](visionprescription.html):\
+          \ The identity of a patient to list dispenses for"
+        required: false
+        schema:
+          type: string
+      - name: activity-date
+        in: query
+        description: Specified date occurs within period specified by CarePlan.activity.detail.scheduled[x]
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: instantiates-uri
+        in: query
+        description: Instantiates external protocol or definition
+        required: false
+        schema:
+          type: string
+      - name: activity-code
+        in: query
+        description: Detail type of activity
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [AllergyIntolerance](allergyintolerance.html):\
+          \ External ids for this item\r\n* [CarePlan](careplan.html): External Ids\
+          \ for this plan\r\n* [CareTeam](careteam.html): External Ids for this team\r\
+          \n* [Composition](composition.html): Version-independent identifier for\
+          \ the Composition\r\n* [Condition](condition.html): A unique identifier\
+          \ of the condition record\r\n* [Consent](consent.html): Identifier for this\
+          \ record (external references)\r\n* [DetectedIssue](detectedissue.html):\
+          \ Unique id for the detected issue\r\n* [DeviceRequest](devicerequest.html):\
+          \ Business identifier for request/order\r\n* [DiagnosticReport](diagnosticreport.html):\
+          \ An identifier for the report\r\n* [DocumentManifest](documentmanifest.html):\
+          \ Unique Identifier for the set of documents\r\n* [DocumentReference](documentreference.html):\
+          \ Master Version Specific Identifier\r\n* [Encounter](encounter.html): Identifier(s)\
+          \ by which this encounter is known\r\n* [EpisodeOfCare](episodeofcare.html):\
+          \ Business Identifier(s) relevant for this EpisodeOfCare\r\n* [FamilyMemberHistory](familymemberhistory.html):\
+          \ A search by a record identifier\r\n* [Goal](goal.html): External Ids for\
+          \ this goal\r\n* [ImagingStudy](imagingstudy.html): Identifiers for the\
+          \ Study, such as DICOM Study Instance UID and Accession number\r\n* [Immunization](immunization.html):\
+          \ Business identifier\r\n* [List](list.html): Business identifier\r\n* [MedicationAdministration](medicationadministration.html):\
+          \ Return administrations with this external identifier\r\n* [MedicationDispense](medicationdispense.html):\
+          \ Returns dispenses with this external identifier\r\n* [MedicationRequest](medicationrequest.html):\
+          \ Return prescriptions with this external identifier\r\n* [MedicationStatement](medicationstatement.html):\
+          \ Return statements with this external identifier\r\n* [NutritionOrder](nutritionorder.html):\
+          \ Return nutrition orders with this external identifier\r\n* [Observation](observation.html):\
+          \ The unique id for a particular observation\r\n* [Procedure](procedure.html):\
+          \ A unique identifier for a procedure\r\n* [RiskAssessment](riskassessment.html):\
+          \ Unique identifier for the assessment\r\n* [ServiceRequest](servicerequest.html):\
+          \ Identifiers assigned to this order\r\n* [SupplyDelivery](supplydelivery.html):\
+          \ External identifier\r\n* [SupplyRequest](supplyrequest.html): Business\
+          \ Identifier for SupplyRequest\r\n* [VisionPrescription](visionprescription.html):\
+          \ Return prescriptions with this external identifier"
+        required: false
+        schema:
+          type: string
+      - name: goal
+        in: query
+        description: Desired outcome of plan
+        required: false
+        schema:
+          type: string
+      - name: performer
+        in: query
+        description: Matches if the practitioner is listed as a performer in any of
+          the "simple" activities.  (For performers of the detailed activities, chain
+          through the activitydetail search parameter.)
+        required: false
+        schema:
+          type: string
+      - name: replaces
+        in: query
+        description: CarePlan replaced by this CarePlan
+        required: false
+        schema:
+          type: string
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: instantiates-canonical
+        in: query
+        description: Instantiates FHIR protocol or definition
+        required: false
+        schema:
+          type: string
+      - name: encounter
+        in: query
+        description: Encounter created as part of
+        required: false
+        schema:
+          type: string
+      - name: intent
+        in: query
+        description: proposal | plan | order | option
+        required: false
+        schema:
+          type: string
+      - name: activity-reference
+        in: query
+        description: Activity details defined in specific resource
+        required: false
+        schema:
+          type: string
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: condition
+        in: query
+        description: Health issues this plan addresses
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: category
+        in: query
+        description: Type of plan
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: draft | active | on-hold | revoked | completed | entered-in-error
+          | unknown
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - CarePlan
+      summary: 'create-type: Create a new CarePlan instance'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "CarePlan"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <CarePlan xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/_history:
+    get:
+      tags:
+      - CarePlan
+      summary: 'type-history: Fetch the resource change history for all resources
+        of type CarePlan'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/{id}/_history:
+    get:
+      tags:
+      - CarePlan
+      summary: 'instance-history: Fetch the resource change history for all resources
+        of type CarePlan'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/_search:
+    get:
+      tags:
+      - CarePlan
+      summary: 'search-type: Search for CarePlan instances'
+      description: This is a search type
+      parameters:
+      - name: date
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [AllergyIntolerance](allergyintolerance.html):\
+          \ Date first version of the resource instance was recorded\r\n* [CarePlan](careplan.html):\
+          \ Time period plan covers\r\n* [CareTeam](careteam.html): Time period team\
+          \ covers\r\n* [ClinicalImpression](clinicalimpression.html): When the assessment\
+          \ was documented\r\n* [Composition](composition.html): Composition editing\
+          \ time\r\n* [Consent](consent.html): When this Consent was created or indexed\r\
+          \n* [DiagnosticReport](diagnosticreport.html): The clinically relevant time\
+          \ of the report\r\n* [Encounter](encounter.html): A date within the period\
+          \ the Encounter lasted\r\n* [EpisodeOfCare](episodeofcare.html): The provided\
+          \ date search value falls within the episode of care's period\r\n* [FamilyMemberHistory](familymemberhistory.html):\
+          \ When history was recorded or last updated\r\n* [Flag](flag.html): Time\
+          \ period when flag is active\r\n* [Immunization](immunization.html): Vaccination\
+          \  (non)-Administration Date\r\n* [List](list.html): When the list was prepared\r\
+          \n* [Observation](observation.html): Obtained date/time. If the obtained\
+          \ element is a period, a date that falls in the period\r\n* [Procedure](procedure.html):\
+          \ When the procedure was performed\r\n* [RiskAssessment](riskassessment.html):\
+          \ When was assessment made?\r\n* [SupplyRequest](supplyrequest.html): When\
+          \ the request was made"
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: care-team
+        in: query
+        description: Who's involved in plan?
+        required: false
+        schema:
+          type: string
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: subject
+        in: query
+        description: Who the care plan is for
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: part-of
+        in: query
+        description: Part of referenced CarePlan
+        required: false
+        schema:
+          type: string
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: based-on
+        in: query
+        description: Fulfills CarePlan
+        required: false
+        schema:
+          type: string
+      - name: patient
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [AllergyIntolerance](allergyintolerance.html):\
+          \ Who the sensitivity is for\r\n* [CarePlan](careplan.html): Who the care\
+          \ plan is for\r\n* [CareTeam](careteam.html): Who care team is for\r\n*\
+          \ [ClinicalImpression](clinicalimpression.html): Patient or group assessed\r\
+          \n* [Composition](composition.html): Who and/or what the composition is\
+          \ about\r\n* [Condition](condition.html): Who has the condition?\r\n* [Consent](consent.html):\
+          \ Who the consent applies to\r\n* [DetectedIssue](detectedissue.html): Associated\
+          \ patient\r\n* [DeviceRequest](devicerequest.html): Individual the service\
+          \ is ordered for\r\n* [DeviceUseStatement](deviceusestatement.html): Search\
+          \ by subject - a patient\r\n* [DiagnosticReport](diagnosticreport.html):\
+          \ The subject of the report if a patient\r\n* [DocumentManifest](documentmanifest.html):\
+          \ The subject of the set of documents\r\n* [DocumentReference](documentreference.html):\
+          \ Who/what is the subject of the document\r\n* [Encounter](encounter.html):\
+          \ The patient or group present at the encounter\r\n* [EpisodeOfCare](episodeofcare.html):\
+          \ The patient who is the focus of this episode of care\r\n* [FamilyMemberHistory](familymemberhistory.html):\
+          \ The identity of a subject to list family member history items for\r\n\
+          * [Flag](flag.html): The identity of a subject to list flags for\r\n* [Goal](goal.html):\
+          \ Who this goal is intended for\r\n* [ImagingStudy](imagingstudy.html):\
+          \ Who the study is about\r\n* [Immunization](immunization.html): The patient\
+          \ for the vaccination record\r\n* [List](list.html): If all resources have\
+          \ the same subject\r\n* [MedicationAdministration](medicationadministration.html):\
+          \ The identity of a patient to list administrations  for\r\n* [MedicationDispense](medicationdispense.html):\
+          \ The identity of a patient to list dispenses  for\r\n* [MedicationRequest](medicationrequest.html):\
+          \ Returns prescriptions for a specific patient\r\n* [MedicationStatement](medicationstatement.html):\
+          \ Returns statements for a specific patient.\r\n* [NutritionOrder](nutritionorder.html):\
+          \ The identity of the person who requires the diet, formula or nutritional\
+          \ supplement\r\n* [Observation](observation.html): The subject that the\
+          \ observation is about (if patient)\r\n* [Procedure](procedure.html): Search\
+          \ by subject - a patient\r\n* [RiskAssessment](riskassessment.html): Who/what\
+          \ does assessment apply to?\r\n* [ServiceRequest](servicerequest.html):\
+          \ Search by subject - a patient\r\n* [SupplyDelivery](supplydelivery.html):\
+          \ Patient for whom the item is supplied\r\n* [VisionPrescription](visionprescription.html):\
+          \ The identity of a patient to list dispenses for"
+        required: false
+        schema:
+          type: string
+      - name: activity-date
+        in: query
+        description: Specified date occurs within period specified by CarePlan.activity.detail.scheduled[x]
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: instantiates-uri
+        in: query
+        description: Instantiates external protocol or definition
+        required: false
+        schema:
+          type: string
+      - name: activity-code
+        in: query
+        description: Detail type of activity
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [AllergyIntolerance](allergyintolerance.html):\
+          \ External ids for this item\r\n* [CarePlan](careplan.html): External Ids\
+          \ for this plan\r\n* [CareTeam](careteam.html): External Ids for this team\r\
+          \n* [Composition](composition.html): Version-independent identifier for\
+          \ the Composition\r\n* [Condition](condition.html): A unique identifier\
+          \ of the condition record\r\n* [Consent](consent.html): Identifier for this\
+          \ record (external references)\r\n* [DetectedIssue](detectedissue.html):\
+          \ Unique id for the detected issue\r\n* [DeviceRequest](devicerequest.html):\
+          \ Business identifier for request/order\r\n* [DiagnosticReport](diagnosticreport.html):\
+          \ An identifier for the report\r\n* [DocumentManifest](documentmanifest.html):\
+          \ Unique Identifier for the set of documents\r\n* [DocumentReference](documentreference.html):\
+          \ Master Version Specific Identifier\r\n* [Encounter](encounter.html): Identifier(s)\
+          \ by which this encounter is known\r\n* [EpisodeOfCare](episodeofcare.html):\
+          \ Business Identifier(s) relevant for this EpisodeOfCare\r\n* [FamilyMemberHistory](familymemberhistory.html):\
+          \ A search by a record identifier\r\n* [Goal](goal.html): External Ids for\
+          \ this goal\r\n* [ImagingStudy](imagingstudy.html): Identifiers for the\
+          \ Study, such as DICOM Study Instance UID and Accession number\r\n* [Immunization](immunization.html):\
+          \ Business identifier\r\n* [List](list.html): Business identifier\r\n* [MedicationAdministration](medicationadministration.html):\
+          \ Return administrations with this external identifier\r\n* [MedicationDispense](medicationdispense.html):\
+          \ Returns dispenses with this external identifier\r\n* [MedicationRequest](medicationrequest.html):\
+          \ Return prescriptions with this external identifier\r\n* [MedicationStatement](medicationstatement.html):\
+          \ Return statements with this external identifier\r\n* [NutritionOrder](nutritionorder.html):\
+          \ Return nutrition orders with this external identifier\r\n* [Observation](observation.html):\
+          \ The unique id for a particular observation\r\n* [Procedure](procedure.html):\
+          \ A unique identifier for a procedure\r\n* [RiskAssessment](riskassessment.html):\
+          \ Unique identifier for the assessment\r\n* [ServiceRequest](servicerequest.html):\
+          \ Identifiers assigned to this order\r\n* [SupplyDelivery](supplydelivery.html):\
+          \ External identifier\r\n* [SupplyRequest](supplyrequest.html): Business\
+          \ Identifier for SupplyRequest\r\n* [VisionPrescription](visionprescription.html):\
+          \ Return prescriptions with this external identifier"
+        required: false
+        schema:
+          type: string
+      - name: goal
+        in: query
+        description: Desired outcome of plan
+        required: false
+        schema:
+          type: string
+      - name: performer
+        in: query
+        description: Matches if the practitioner is listed as a performer in any of
+          the "simple" activities.  (For performers of the detailed activities, chain
+          through the activitydetail search parameter.)
+        required: false
+        schema:
+          type: string
+      - name: replaces
+        in: query
+        description: CarePlan replaced by this CarePlan
+        required: false
+        schema:
+          type: string
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: instantiates-canonical
+        in: query
+        description: Instantiates FHIR protocol or definition
+        required: false
+        schema:
+          type: string
+      - name: encounter
+        in: query
+        description: Encounter created as part of
+        required: false
+        schema:
+          type: string
+      - name: intent
+        in: query
+        description: proposal | plan | order | option
+        required: false
+        schema:
+          type: string
+      - name: activity-reference
+        in: query
+        description: Activity details defined in specific resource
+        required: false
+        schema:
+          type: string
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: condition
+        in: query
+        description: Health issues this plan addresses
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: category
+        in: query
+        description: Type of plan
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: draft | active | on-hold | revoked | completed | entered-in-error
+          | unknown
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/$validate:
+    get:
+      tags:
+      - CarePlan
+      summary: 'GET: /CarePlan/$validate'
+      parameters:
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - CarePlan
+      summary: 'POST: /CarePlan/$validate'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "CarePlan",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/{id}/$validate:
+    get:
+      tags:
+      - CarePlan
+      summary: 'GET: /CarePlan/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - CarePlan
+      summary: 'POST: /CarePlan/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "CarePlan",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/{id}/$meta-delete:
+    post:
+      tags:
+      - CarePlan
+      summary: 'POST: /CarePlan/{id}/$meta-delete'
+      description: Delete tags, profiles, and/or security labels from a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/{id}/$meta-add:
+    post:
+      tags:
+      - CarePlan
+      summary: 'POST: /CarePlan/{id}/$meta-add'
+      description: Add tags, profiles, and/or security labels to a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/$meta:
+    get:
+      tags:
+      - CarePlan
+      summary: 'GET: /CarePlan/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - CarePlan
+      summary: 'POST: /CarePlan/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/{id}/$meta:
+    get:
+      tags:
+      - CarePlan
+      summary: 'GET: /CarePlan/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - CarePlan
+      summary: 'POST: /CarePlan/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/$expunge:
+    post:
+      tags:
+      - CarePlan
+      summary: 'POST: /CarePlan/$expunge'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/{id}/$expunge:
+    post:
+      tags:
+      - CarePlan
+      summary: 'POST: /CarePlan/{id}/$expunge'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /CarePlan/{id}/$diff:
+    get:
+      tags:
+      - CarePlan
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: from
+        in: query
+        description: The resource ID and version to diff from
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/1
+      - name: to
+        in: query
+        description: The resource ID and version to diff to
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/2
+      - name: includeMeta
+        in: query
+        description: Should differences in the Resource.meta element be included in
+          the diff
+        required: false
+        schema:
+          type: string
+        example: 'false'
+      - name: fromVersion
+        in: query
+        description: The resource ID and version to diff from
+        required: false
+        schema:
+          type: string
+        example: Patient/example/version/1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - CarePlan
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "from"
+                }, {
+                  "name": "to"
+                }, {
+                  "name": "includeMeta",
+                  "valueBoolean": false
+                }, {
+                  "name": "fromVersion",
+                  "valueString": "example"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'

@@ -1,0 +1,15 @@
+# project specific
+extras
+todo.txt
+**/old/**
+.DS_Store
+notes 
+logs
+ehr_env/*
+synthea_data
+ehr_env
+gemini-mcp
+
+# other stuff
+.env
+__pycache__

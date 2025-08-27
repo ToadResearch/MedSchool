@@ -1,0 +1,1177 @@
+openapi: 3.0.1
+info:
+  title: HAPI FHIR Server
+  contact: {}
+  version: 8.2.0
+servers:
+- url: http://localhost:8080/fhir
+  description: HAPI FHIR Server
+components:
+  schemas:
+    FHIR-JSON-RESOURCE:
+      type: object
+      description: A FHIR resource
+    FHIR-XML-RESOURCE:
+      type: object
+      description: A FHIR resource
+tags:
+- name: Communication
+  description: 'The Communication FHIR resource type<br/>Base profile: http://hl7.org/fhir/StructureDefinition/Communication'
+paths:
+  /Communication/{id}:
+    get:
+      tags:
+      - Communication
+      summary: 'read-instance: Read Communication instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    put:
+      tags:
+      - Communication
+      summary: 'update-instance: Update an existing Communication instance, or create
+        using a client-assigned ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Communication"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <Communication xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    delete:
+      tags:
+      - Communication
+      summary: 'instance-delete: Perform a logical delete on a resource instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    patch:
+      tags:
+      - Communication
+      summary: 'instance-patch: Patch a resource instance of type Communication by
+        ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "operation",
+                  "part": [ {
+                    "name": "type",
+                    "valueString": "add"
+                  }, {
+                    "name": "path",
+                    "valueString": "Patient"
+                  }, {
+                    "name": "name",
+                    "valueString": "birthDate"
+                  }, {
+                    "name": "value",
+                    "valueDate": "1930-01-01"
+                  } ]
+                } ]
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: |-
+              <Parameters xmlns="http://hl7.org/fhir">
+                 <parameter>
+                    <name value="operation"/>
+                    <part>
+                       <name value="type"/>
+                       <valueString value="add"/>
+                    </part>
+                    <part>
+                       <name value="path"/>
+                       <valueString value="Patient"/>
+                    </part>
+                    <part>
+                       <name value="name"/>
+                       <valueString value="birthDate"/>
+                    </part>
+                    <part>
+                       <name value="value"/>
+                       <valueDate value="1930-01-01"/>
+                    </part>
+                 </parameter>
+              </Parameters>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/{id}/_history/{version_id}:
+    get:
+      tags:
+      - Communication
+      summary: 'vread-instance: Read Communication instance with specific version'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: version_id
+        in: path
+        description: The resource version ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '1'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication:
+    get:
+      tags:
+      - Communication
+      summary: 'search-type: Search for Communication instances'
+      description: This is a search type
+      parameters:
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: subject
+        in: query
+        description: Focus of message
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: part-of
+        in: query
+        description: Part of this action
+        required: false
+        schema:
+          type: string
+      - name: medium
+        in: query
+        description: A channel of communication
+        required: false
+        schema:
+          type: string
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: based-on
+        in: query
+        description: Request fulfilled by this communication
+        required: false
+        schema:
+          type: string
+      - name: patient
+        in: query
+        description: Focus of message
+        required: false
+        schema:
+          type: string
+      - name: instantiates-uri
+        in: query
+        description: Instantiates external protocol or definition
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: Unique identifier
+        required: false
+        schema:
+          type: string
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: instantiates-canonical
+        in: query
+        description: Instantiates FHIR protocol or definition
+        required: false
+        schema:
+          type: string
+      - name: received
+        in: query
+        description: When received
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: encounter
+        in: query
+        description: Encounter created as part of
+        required: false
+        schema:
+          type: string
+      - name: sent
+        in: query
+        description: When sent
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: sender
+        in: query
+        description: Message sender
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: recipient
+        in: query
+        description: Message recipient
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: category
+        in: query
+        description: Message category
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: preparation | in-progress | not-done | on-hold | stopped | completed
+          | entered-in-error | unknown
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Communication
+      summary: 'create-type: Create a new Communication instance'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Communication"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <Communication xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/_history:
+    get:
+      tags:
+      - Communication
+      summary: 'type-history: Fetch the resource change history for all resources
+        of type Communication'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/{id}/_history:
+    get:
+      tags:
+      - Communication
+      summary: 'instance-history: Fetch the resource change history for all resources
+        of type Communication'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/_search:
+    get:
+      tags:
+      - Communication
+      summary: 'search-type: Search for Communication instances'
+      description: This is a search type
+      parameters:
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: subject
+        in: query
+        description: Focus of message
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: part-of
+        in: query
+        description: Part of this action
+        required: false
+        schema:
+          type: string
+      - name: medium
+        in: query
+        description: A channel of communication
+        required: false
+        schema:
+          type: string
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: based-on
+        in: query
+        description: Request fulfilled by this communication
+        required: false
+        schema:
+          type: string
+      - name: patient
+        in: query
+        description: Focus of message
+        required: false
+        schema:
+          type: string
+      - name: instantiates-uri
+        in: query
+        description: Instantiates external protocol or definition
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: Unique identifier
+        required: false
+        schema:
+          type: string
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: instantiates-canonical
+        in: query
+        description: Instantiates FHIR protocol or definition
+        required: false
+        schema:
+          type: string
+      - name: received
+        in: query
+        description: When received
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: encounter
+        in: query
+        description: Encounter created as part of
+        required: false
+        schema:
+          type: string
+      - name: sent
+        in: query
+        description: When sent
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: sender
+        in: query
+        description: Message sender
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: recipient
+        in: query
+        description: Message recipient
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: category
+        in: query
+        description: Message category
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: preparation | in-progress | not-done | on-hold | stopped | completed
+          | entered-in-error | unknown
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/$validate:
+    get:
+      tags:
+      - Communication
+      summary: 'GET: /Communication/$validate'
+      parameters:
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Communication
+      summary: 'POST: /Communication/$validate'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "Communication",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/{id}/$validate:
+    get:
+      tags:
+      - Communication
+      summary: 'GET: /Communication/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Communication
+      summary: 'POST: /Communication/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "Communication",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/{id}/$meta-delete:
+    post:
+      tags:
+      - Communication
+      summary: 'POST: /Communication/{id}/$meta-delete'
+      description: Delete tags, profiles, and/or security labels from a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/{id}/$meta-add:
+    post:
+      tags:
+      - Communication
+      summary: 'POST: /Communication/{id}/$meta-add'
+      description: Add tags, profiles, and/or security labels to a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/$meta:
+    get:
+      tags:
+      - Communication
+      summary: 'GET: /Communication/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Communication
+      summary: 'POST: /Communication/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/{id}/$meta:
+    get:
+      tags:
+      - Communication
+      summary: 'GET: /Communication/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Communication
+      summary: 'POST: /Communication/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/$expunge:
+    post:
+      tags:
+      - Communication
+      summary: 'POST: /Communication/$expunge'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/{id}/$expunge:
+    post:
+      tags:
+      - Communication
+      summary: 'POST: /Communication/{id}/$expunge'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Communication/{id}/$diff:
+    get:
+      tags:
+      - Communication
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: from
+        in: query
+        description: The resource ID and version to diff from
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/1
+      - name: to
+        in: query
+        description: The resource ID and version to diff to
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/2
+      - name: includeMeta
+        in: query
+        description: Should differences in the Resource.meta element be included in
+          the diff
+        required: false
+        schema:
+          type: string
+        example: 'false'
+      - name: fromVersion
+        in: query
+        description: The resource ID and version to diff from
+        required: false
+        schema:
+          type: string
+        example: Patient/example/version/1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Communication
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "from"
+                }, {
+                  "name": "to"
+                }, {
+                  "name": "includeMeta",
+                  "valueBoolean": false
+                }, {
+                  "name": "fromVersion",
+                  "valueString": "example"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'

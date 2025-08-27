@@ -1,0 +1,1150 @@
+openapi: 3.0.1
+info:
+  title: HAPI FHIR Server
+  contact: {}
+  version: 8.2.0
+servers:
+- url: http://localhost:8080/fhir
+  description: HAPI FHIR Server
+components:
+  schemas:
+    FHIR-JSON-RESOURCE:
+      type: object
+      description: A FHIR resource
+    FHIR-XML-RESOURCE:
+      type: object
+      description: A FHIR resource
+tags:
+- name: Invoice
+  description: 'The Invoice FHIR resource type<br/>Base profile: http://hl7.org/fhir/StructureDefinition/Invoice'
+paths:
+  /Invoice/{id}:
+    get:
+      tags:
+      - Invoice
+      summary: 'read-instance: Read Invoice instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    put:
+      tags:
+      - Invoice
+      summary: 'update-instance: Update an existing Invoice instance, or create using
+        a client-assigned ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Invoice"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <Invoice xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    delete:
+      tags:
+      - Invoice
+      summary: 'instance-delete: Perform a logical delete on a resource instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    patch:
+      tags:
+      - Invoice
+      summary: 'instance-patch: Patch a resource instance of type Invoice by ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "operation",
+                  "part": [ {
+                    "name": "type",
+                    "valueString": "add"
+                  }, {
+                    "name": "path",
+                    "valueString": "Patient"
+                  }, {
+                    "name": "name",
+                    "valueString": "birthDate"
+                  }, {
+                    "name": "value",
+                    "valueDate": "1930-01-01"
+                  } ]
+                } ]
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: |-
+              <Parameters xmlns="http://hl7.org/fhir">
+                 <parameter>
+                    <name value="operation"/>
+                    <part>
+                       <name value="type"/>
+                       <valueString value="add"/>
+                    </part>
+                    <part>
+                       <name value="path"/>
+                       <valueString value="Patient"/>
+                    </part>
+                    <part>
+                       <name value="name"/>
+                       <valueString value="birthDate"/>
+                    </part>
+                    <part>
+                       <name value="value"/>
+                       <valueDate value="1930-01-01"/>
+                    </part>
+                 </parameter>
+              </Parameters>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/{id}/_history/{version_id}:
+    get:
+      tags:
+      - Invoice
+      summary: 'vread-instance: Read Invoice instance with specific version'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: version_id
+        in: path
+        description: The resource version ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '1'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice:
+    get:
+      tags:
+      - Invoice
+      summary: 'search-type: Search for Invoice instances'
+      description: This is a search type
+      parameters:
+      - name: date
+        in: query
+        description: Invoice date / posting date
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: participant-role
+        in: query
+        description: Type of involvement in creation of this Invoice
+        required: false
+        schema:
+          type: string
+      - name: subject
+        in: query
+        description: Recipient(s) of goods and services
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: type
+        in: query
+        description: Type of Invoice
+        required: false
+        schema:
+          type: string
+      - name: issuer
+        in: query
+        description: Issuing Organization of Invoice
+        required: false
+        schema:
+          type: string
+      - name: participant
+        in: query
+        description: Individual who was involved
+        required: false
+        schema:
+          type: string
+      - name: totalnet
+        in: query
+        description: Net total of this Invoice
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: number
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: patient
+        in: query
+        description: Recipient(s) of goods and services
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: Business Identifier for item
+        required: false
+        schema:
+          type: string
+      - name: totalgross
+        in: query
+        description: Gross total of this Invoice
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: number
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: recipient
+        in: query
+        description: Recipient of this invoice
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: account
+        in: query
+        description: Account that is being balanced
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: draft | issued | balanced | cancelled | entered-in-error
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Invoice
+      summary: 'create-type: Create a new Invoice instance'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Invoice"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <Invoice xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/_history:
+    get:
+      tags:
+      - Invoice
+      summary: 'type-history: Fetch the resource change history for all resources
+        of type Invoice'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/{id}/_history:
+    get:
+      tags:
+      - Invoice
+      summary: 'instance-history: Fetch the resource change history for all resources
+        of type Invoice'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/_search:
+    get:
+      tags:
+      - Invoice
+      summary: 'search-type: Search for Invoice instances'
+      description: This is a search type
+      parameters:
+      - name: date
+        in: query
+        description: Invoice date / posting date
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: participant-role
+        in: query
+        description: Type of involvement in creation of this Invoice
+        required: false
+        schema:
+          type: string
+      - name: subject
+        in: query
+        description: Recipient(s) of goods and services
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: type
+        in: query
+        description: Type of Invoice
+        required: false
+        schema:
+          type: string
+      - name: issuer
+        in: query
+        description: Issuing Organization of Invoice
+        required: false
+        schema:
+          type: string
+      - name: participant
+        in: query
+        description: Individual who was involved
+        required: false
+        schema:
+          type: string
+      - name: totalnet
+        in: query
+        description: Net total of this Invoice
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: number
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: patient
+        in: query
+        description: Recipient(s) of goods and services
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: Business Identifier for item
+        required: false
+        schema:
+          type: string
+      - name: totalgross
+        in: query
+        description: Gross total of this Invoice
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: number
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: recipient
+        in: query
+        description: Recipient of this invoice
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: account
+        in: query
+        description: Account that is being balanced
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: draft | issued | balanced | cancelled | entered-in-error
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/$validate:
+    get:
+      tags:
+      - Invoice
+      summary: 'GET: /Invoice/$validate'
+      parameters:
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Invoice
+      summary: 'POST: /Invoice/$validate'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "Invoice",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/{id}/$validate:
+    get:
+      tags:
+      - Invoice
+      summary: 'GET: /Invoice/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Invoice
+      summary: 'POST: /Invoice/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "Invoice",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/{id}/$meta-delete:
+    post:
+      tags:
+      - Invoice
+      summary: 'POST: /Invoice/{id}/$meta-delete'
+      description: Delete tags, profiles, and/or security labels from a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/{id}/$meta-add:
+    post:
+      tags:
+      - Invoice
+      summary: 'POST: /Invoice/{id}/$meta-add'
+      description: Add tags, profiles, and/or security labels to a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/$meta:
+    get:
+      tags:
+      - Invoice
+      summary: 'GET: /Invoice/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Invoice
+      summary: 'POST: /Invoice/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/{id}/$meta:
+    get:
+      tags:
+      - Invoice
+      summary: 'GET: /Invoice/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Invoice
+      summary: 'POST: /Invoice/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/$expunge:
+    post:
+      tags:
+      - Invoice
+      summary: 'POST: /Invoice/$expunge'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/{id}/$expunge:
+    post:
+      tags:
+      - Invoice
+      summary: 'POST: /Invoice/{id}/$expunge'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Invoice/{id}/$diff:
+    get:
+      tags:
+      - Invoice
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: from
+        in: query
+        description: The resource ID and version to diff from
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/1
+      - name: to
+        in: query
+        description: The resource ID and version to diff to
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/2
+      - name: includeMeta
+        in: query
+        description: Should differences in the Resource.meta element be included in
+          the diff
+        required: false
+        schema:
+          type: string
+        example: 'false'
+      - name: fromVersion
+        in: query
+        description: The resource ID and version to diff from
+        required: false
+        schema:
+          type: string
+        example: Patient/example/version/1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Invoice
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "from"
+                }, {
+                  "name": "to"
+                }, {
+                  "name": "includeMeta",
+                  "valueBoolean": false
+                }, {
+                  "name": "fromVersion",
+                  "valueString": "example"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'

@@ -1,0 +1,12 @@
+# api deps
+fastapi
+uvicorn
+
+# packages available in sandbox to use
+numpy
+pandas
+matplotlib
+scipy
+scikit-learn
+rapidfuzz
+python-dateutil

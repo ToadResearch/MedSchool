@@ -1,0 +1,1299 @@
+openapi: 3.0.1
+info:
+  title: HAPI FHIR Server
+  contact: {}
+  version: 8.2.0
+servers:
+- url: http://localhost:8080/fhir
+  description: HAPI FHIR Server
+components:
+  schemas:
+    FHIR-JSON-RESOURCE:
+      type: object
+      description: A FHIR resource
+    FHIR-XML-RESOURCE:
+      type: object
+      description: A FHIR resource
+tags:
+- name: Practitioner
+  description: 'The Practitioner FHIR resource type<br/>Base profile: http://hl7.org/fhir/StructureDefinition/Practitioner'
+paths:
+  /Practitioner/{id}:
+    get:
+      tags:
+      - Practitioner
+      summary: 'read-instance: Read Practitioner instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    put:
+      tags:
+      - Practitioner
+      summary: 'update-instance: Update an existing Practitioner instance, or create
+        using a client-assigned ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Practitioner"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <Practitioner xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    delete:
+      tags:
+      - Practitioner
+      summary: 'instance-delete: Perform a logical delete on a resource instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    patch:
+      tags:
+      - Practitioner
+      summary: 'instance-patch: Patch a resource instance of type Practitioner by
+        ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "operation",
+                  "part": [ {
+                    "name": "type",
+                    "valueString": "add"
+                  }, {
+                    "name": "path",
+                    "valueString": "Patient"
+                  }, {
+                    "name": "name",
+                    "valueString": "birthDate"
+                  }, {
+                    "name": "value",
+                    "valueDate": "1930-01-01"
+                  } ]
+                } ]
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: |-
+              <Parameters xmlns="http://hl7.org/fhir">
+                 <parameter>
+                    <name value="operation"/>
+                    <part>
+                       <name value="type"/>
+                       <valueString value="add"/>
+                    </part>
+                    <part>
+                       <name value="path"/>
+                       <valueString value="Patient"/>
+                    </part>
+                    <part>
+                       <name value="name"/>
+                       <valueString value="birthDate"/>
+                    </part>
+                    <part>
+                       <name value="value"/>
+                       <valueDate value="1930-01-01"/>
+                    </part>
+                 </parameter>
+              </Parameters>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/{id}/_history/{version_id}:
+    get:
+      tags:
+      - Practitioner
+      summary: 'vread-instance: Read Practitioner instance with specific version'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: version_id
+        in: path
+        description: The resource version ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '1'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner:
+    get:
+      tags:
+      - Practitioner
+      summary: 'search-type: Search for Practitioner instances'
+      description: This is a search type
+      parameters:
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: address-state
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A state\
+          \ specified in an address\r\n* [Person](person.html): A state specified\
+          \ in an address\r\n* [Practitioner](practitioner.html): A state specified\
+          \ in an address\r\n* [RelatedPerson](relatedperson.html): A state specified\
+          \ in an address"
+        required: false
+        schema:
+          type: string
+      - name: gender
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): Gender\
+          \ of the patient\r\n* [Person](person.html): The gender of the person\r\n\
+          * [Practitioner](practitioner.html): Gender of the practitioner\r\n* [RelatedPerson](relatedperson.html):\
+          \ Gender of the related person"
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: address-country
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A country\
+          \ specified in an address\r\n* [Person](person.html): A country specified\
+          \ in an address\r\n* [Practitioner](practitioner.html): A country specified\
+          \ in an address\r\n* [RelatedPerson](relatedperson.html): A country specified\
+          \ in an address"
+        required: false
+        schema:
+          type: string
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: phonetic
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A portion\
+          \ of either family or given name using some kind of phonetic matching algorithm\r\
+          \n* [Person](person.html): A portion of name using some kind of phonetic\
+          \ matching algorithm\r\n* [Practitioner](practitioner.html): A portion of\
+          \ either family or given name using some kind of phonetic matching algorithm\r\
+          \n* [RelatedPerson](relatedperson.html): A portion of name using some kind\
+          \ of phonetic matching algorithm"
+        required: false
+        schema:
+          type: string
+      - name: telecom
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): The value\
+          \ in any kind of telecom details of the patient\r\n* [Person](person.html):\
+          \ The value in any kind of contact\r\n* [Practitioner](practitioner.html):\
+          \ The value in any kind of contact\r\n* [PractitionerRole](practitionerrole.html):\
+          \ The value in any kind of contact\r\n* [RelatedPerson](relatedperson.html):\
+          \ The value in any kind of contact"
+        required: false
+        schema:
+          type: string
+      - name: address-city
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A city\
+          \ specified in an address\r\n* [Person](person.html): A city specified in\
+          \ an address\r\n* [Practitioner](practitioner.html): A city specified in\
+          \ an address\r\n* [RelatedPerson](relatedperson.html): A city specified\
+          \ in an address"
+        required: false
+        schema:
+          type: string
+      - name: communication
+        in: query
+        description: One of the languages that the practitioner can communicate with
+        required: false
+        schema:
+          type: string
+      - name: email
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A value\
+          \ in an email contact\r\n* [Person](person.html): A value in an email contact\r\
+          \n* [Practitioner](practitioner.html): A value in an email contact\r\n*\
+          \ [PractitionerRole](practitionerrole.html): A value in an email contact\r\
+          \n* [RelatedPerson](relatedperson.html): A value in an email contact"
+        required: false
+        schema:
+          type: string
+      - name: given
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A portion\
+          \ of the given name of the patient\r\n* [Practitioner](practitioner.html):\
+          \ A portion of the given name"
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: A practitioner's Identifier
+        required: false
+        schema:
+          type: string
+      - name: address
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A server\
+          \ defined search that may match any of the string fields in the Address,\
+          \ including line, city, district, state, country, postalCode, and/or text\r\
+          \n* [Person](person.html): A server defined search that may match any of\
+          \ the string fields in the Address, including line, city, district, state,\
+          \ country, postalCode, and/or text\r\n* [Practitioner](practitioner.html):\
+          \ A server defined search that may match any of the string fields in the\
+          \ Address, including line, city, district, state, country, postalCode, and/or\
+          \ text\r\n* [RelatedPerson](relatedperson.html): A server defined search\
+          \ that may match any of the string fields in the Address, including line,\
+          \ city, district, state, country, postalCode, and/or text"
+        required: false
+        schema:
+          type: string
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: active
+        in: query
+        description: Whether the practitioner record is active
+        required: false
+        schema:
+          type: string
+      - name: address-postalcode
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A postalCode\
+          \ specified in an address\r\n* [Person](person.html): A postal code specified\
+          \ in an address\r\n* [Practitioner](practitioner.html): A postalCode specified\
+          \ in an address\r\n* [RelatedPerson](relatedperson.html): A postal code\
+          \ specified in an address"
+        required: false
+        schema:
+          type: string
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: phone
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A value\
+          \ in a phone contact\r\n* [Person](person.html): A value in a phone contact\r\
+          \n* [Practitioner](practitioner.html): A value in a phone contact\r\n* [PractitionerRole](practitionerrole.html):\
+          \ A value in a phone contact\r\n* [RelatedPerson](relatedperson.html): A\
+          \ value in a phone contact"
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: address-use
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A use\
+          \ code specified in an address\r\n* [Person](person.html): A use code specified\
+          \ in an address\r\n* [Practitioner](practitioner.html): A use code specified\
+          \ in an address\r\n* [RelatedPerson](relatedperson.html): A use code specified\
+          \ in an address"
+        required: false
+        schema:
+          type: string
+      - name: name
+        in: query
+        description: A server defined search that may match any of the string fields
+          in the HumanName, including family, give, prefix, suffix, suffix, and/or
+          text
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: family
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A portion\
+          \ of the family name of the patient\r\n* [Practitioner](practitioner.html):\
+          \ A portion of the family name"
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Practitioner
+      summary: 'create-type: Create a new Practitioner instance'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Practitioner"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <Practitioner xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/_history:
+    get:
+      tags:
+      - Practitioner
+      summary: 'type-history: Fetch the resource change history for all resources
+        of type Practitioner'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/{id}/_history:
+    get:
+      tags:
+      - Practitioner
+      summary: 'instance-history: Fetch the resource change history for all resources
+        of type Practitioner'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/_search:
+    get:
+      tags:
+      - Practitioner
+      summary: 'search-type: Search for Practitioner instances'
+      description: This is a search type
+      parameters:
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: address-state
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A state\
+          \ specified in an address\r\n* [Person](person.html): A state specified\
+          \ in an address\r\n* [Practitioner](practitioner.html): A state specified\
+          \ in an address\r\n* [RelatedPerson](relatedperson.html): A state specified\
+          \ in an address"
+        required: false
+        schema:
+          type: string
+      - name: gender
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): Gender\
+          \ of the patient\r\n* [Person](person.html): The gender of the person\r\n\
+          * [Practitioner](practitioner.html): Gender of the practitioner\r\n* [RelatedPerson](relatedperson.html):\
+          \ Gender of the related person"
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: address-country
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A country\
+          \ specified in an address\r\n* [Person](person.html): A country specified\
+          \ in an address\r\n* [Practitioner](practitioner.html): A country specified\
+          \ in an address\r\n* [RelatedPerson](relatedperson.html): A country specified\
+          \ in an address"
+        required: false
+        schema:
+          type: string
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: phonetic
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A portion\
+          \ of either family or given name using some kind of phonetic matching algorithm\r\
+          \n* [Person](person.html): A portion of name using some kind of phonetic\
+          \ matching algorithm\r\n* [Practitioner](practitioner.html): A portion of\
+          \ either family or given name using some kind of phonetic matching algorithm\r\
+          \n* [RelatedPerson](relatedperson.html): A portion of name using some kind\
+          \ of phonetic matching algorithm"
+        required: false
+        schema:
+          type: string
+      - name: telecom
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): The value\
+          \ in any kind of telecom details of the patient\r\n* [Person](person.html):\
+          \ The value in any kind of contact\r\n* [Practitioner](practitioner.html):\
+          \ The value in any kind of contact\r\n* [PractitionerRole](practitionerrole.html):\
+          \ The value in any kind of contact\r\n* [RelatedPerson](relatedperson.html):\
+          \ The value in any kind of contact"
+        required: false
+        schema:
+          type: string
+      - name: address-city
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A city\
+          \ specified in an address\r\n* [Person](person.html): A city specified in\
+          \ an address\r\n* [Practitioner](practitioner.html): A city specified in\
+          \ an address\r\n* [RelatedPerson](relatedperson.html): A city specified\
+          \ in an address"
+        required: false
+        schema:
+          type: string
+      - name: communication
+        in: query
+        description: One of the languages that the practitioner can communicate with
+        required: false
+        schema:
+          type: string
+      - name: email
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A value\
+          \ in an email contact\r\n* [Person](person.html): A value in an email contact\r\
+          \n* [Practitioner](practitioner.html): A value in an email contact\r\n*\
+          \ [PractitionerRole](practitionerrole.html): A value in an email contact\r\
+          \n* [RelatedPerson](relatedperson.html): A value in an email contact"
+        required: false
+        schema:
+          type: string
+      - name: given
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A portion\
+          \ of the given name of the patient\r\n* [Practitioner](practitioner.html):\
+          \ A portion of the given name"
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: A practitioner's Identifier
+        required: false
+        schema:
+          type: string
+      - name: address
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A server\
+          \ defined search that may match any of the string fields in the Address,\
+          \ including line, city, district, state, country, postalCode, and/or text\r\
+          \n* [Person](person.html): A server defined search that may match any of\
+          \ the string fields in the Address, including line, city, district, state,\
+          \ country, postalCode, and/or text\r\n* [Practitioner](practitioner.html):\
+          \ A server defined search that may match any of the string fields in the\
+          \ Address, including line, city, district, state, country, postalCode, and/or\
+          \ text\r\n* [RelatedPerson](relatedperson.html): A server defined search\
+          \ that may match any of the string fields in the Address, including line,\
+          \ city, district, state, country, postalCode, and/or text"
+        required: false
+        schema:
+          type: string
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: active
+        in: query
+        description: Whether the practitioner record is active
+        required: false
+        schema:
+          type: string
+      - name: address-postalcode
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A postalCode\
+          \ specified in an address\r\n* [Person](person.html): A postal code specified\
+          \ in an address\r\n* [Practitioner](practitioner.html): A postalCode specified\
+          \ in an address\r\n* [RelatedPerson](relatedperson.html): A postal code\
+          \ specified in an address"
+        required: false
+        schema:
+          type: string
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: phone
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A value\
+          \ in a phone contact\r\n* [Person](person.html): A value in a phone contact\r\
+          \n* [Practitioner](practitioner.html): A value in a phone contact\r\n* [PractitionerRole](practitionerrole.html):\
+          \ A value in a phone contact\r\n* [RelatedPerson](relatedperson.html): A\
+          \ value in a phone contact"
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: address-use
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A use\
+          \ code specified in an address\r\n* [Person](person.html): A use code specified\
+          \ in an address\r\n* [Practitioner](practitioner.html): A use code specified\
+          \ in an address\r\n* [RelatedPerson](relatedperson.html): A use code specified\
+          \ in an address"
+        required: false
+        schema:
+          type: string
+      - name: name
+        in: query
+        description: A server defined search that may match any of the string fields
+          in the HumanName, including family, give, prefix, suffix, suffix, and/or
+          text
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      - name: family
+        in: query
+        description: "Multiple Resources: \r\n\r\n* [Patient](patient.html): A portion\
+          \ of the family name of the patient\r\n* [Practitioner](practitioner.html):\
+          \ A portion of the family name"
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/$validate:
+    get:
+      tags:
+      - Practitioner
+      summary: 'GET: /Practitioner/$validate'
+      parameters:
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Practitioner
+      summary: 'POST: /Practitioner/$validate'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "Practitioner",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/{id}/$validate:
+    get:
+      tags:
+      - Practitioner
+      summary: 'GET: /Practitioner/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Practitioner
+      summary: 'POST: /Practitioner/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "Practitioner",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/{id}/$meta-delete:
+    post:
+      tags:
+      - Practitioner
+      summary: 'POST: /Practitioner/{id}/$meta-delete'
+      description: Delete tags, profiles, and/or security labels from a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/{id}/$meta-add:
+    post:
+      tags:
+      - Practitioner
+      summary: 'POST: /Practitioner/{id}/$meta-add'
+      description: Add tags, profiles, and/or security labels to a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/$meta:
+    get:
+      tags:
+      - Practitioner
+      summary: 'GET: /Practitioner/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Practitioner
+      summary: 'POST: /Practitioner/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/{id}/$meta:
+    get:
+      tags:
+      - Practitioner
+      summary: 'GET: /Practitioner/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Practitioner
+      summary: 'POST: /Practitioner/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/$expunge:
+    post:
+      tags:
+      - Practitioner
+      summary: 'POST: /Practitioner/$expunge'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/{id}/$expunge:
+    post:
+      tags:
+      - Practitioner
+      summary: 'POST: /Practitioner/{id}/$expunge'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /Practitioner/{id}/$diff:
+    get:
+      tags:
+      - Practitioner
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: from
+        in: query
+        description: The resource ID and version to diff from
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/1
+      - name: to
+        in: query
+        description: The resource ID and version to diff to
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/2
+      - name: includeMeta
+        in: query
+        description: Should differences in the Resource.meta element be included in
+          the diff
+        required: false
+        schema:
+          type: string
+        example: 'false'
+      - name: fromVersion
+        in: query
+        description: The resource ID and version to diff from
+        required: false
+        schema:
+          type: string
+        example: Patient/example/version/1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - Practitioner
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "from"
+                }, {
+                  "name": "to"
+                }, {
+                  "name": "includeMeta",
+                  "valueBoolean": false
+                }, {
+                  "name": "fromVersion",
+                  "valueString": "example"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'

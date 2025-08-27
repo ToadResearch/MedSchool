@@ -1,0 +1,77 @@
+spring:
+  datasource:
+    url: "jdbc:postgresql://db:5432/hapi"
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
+    driverClassName: org.postgresql.Driver
+    
+    # HikariCP settings for connection pool
+    hikari:
+      maximum-pool-size: 20  # Increase to handle concurrency (default is 10)
+      minimum-idle: 5        # Keep some idle connections
+      idle-timeout: 30000    # 30s idle before close
+      max-lifetime: 600000   # 10min max connection life
+      connection-timeout: 60000  # 60s wait (from 30s to reduce timeouts)
+
+  jpa:
+    open-in-view: false
+    properties:
+      # Required for Postgres with HAPI JPA
+      hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
+      # database-platform: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
+      # properties:
+      #   hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
+      # Keep full-text off for now; can re-enable or switch to ES later
+      hibernate.search.enabled: false
+
+  # internal hapi auth not working now -- maybe revisit later 
+  # security:
+  #   oauth2:
+  #     resourceserver:
+  #       jwt:
+  #         # HAPI (via Spring Security) will verify HS256 signatures
+  #         # with this secret pulled from the container env.
+  #         secret: ${JWT_SHARED_SECRET}
+
+hapi:
+  fhir:
+    version: R4
+
+    validation:
+      # Validate all write requests (POST/PUT/Bundle, etc.)
+      # true causes jvm OOM error during data ingestion -- expensive to validate all synthea data
+      # modified docker-compose to increase memory limit with mem_limit key to keep true on.
+      # Also... all the synthea data fails to upload when this is true -- figure out why later :)
+      requests_enabled: false 
+      # Validate outgoing responses (optional; off to save CPU)
+      responses_enabled: false
+
+    # installing codes would increase image size, so trade off size for latency -- for now!
+    terminology:
+      remove_terminology_service_enabled: true
+      remote_terminology_server_base_url: "https://tx.fhir.org/r4"   # or HL7 test server
+
+
+    # Make validation blocking: fail when severity >= error
+    server:
+      validation:
+        flag:
+          fail_on_severity: error
+          enforce_requirement: true
+
+    # Validate again at repository/storage layer (catches non-HTTP writes too)
+    enable_repository_validating_interceptor: true
+
+    # https://smilecdr.com/docs/fhir_repository/creating_data.html#auto-create-placeholder-reference-targets
+    # https://smilecdr.com/docs/fhir_repository/creating_data.html#auto-create-placeholder-reference-targets-with-identifier
+    # https://smilecdr.com/docs/configuration_categories/fhir_configuration.html#property-allow-inline-match-url-references-enabled
+    # allow_inline_match_urls: true
+    # auto_create_placeholder_reference_targets: true
+
+    # TODO: investigate the 6 synthe problem files further: from a change in run_uploader.sh with --workers 1
+    #   figure out how to increase worker size, while handling FHIR url references. 
+    #   in docker/fhir_server/config/application.yaml we set allow_inline_... and auto_create... are set to true 
+    #   this ensures that FHIR references to resources that haven't been uploaded yet are auto-created.
+    #   when multiple bundles are uploaded concurrently, the same conditional reference (e.g., Practitioner?identifier=system|value) 
+    #   can be processed simultaneously, causing HAPI to create duplicate placeholder resources instead of resolving to one.
+    #   this is very slow, but works.

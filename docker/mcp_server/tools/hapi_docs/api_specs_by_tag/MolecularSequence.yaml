@@ -1,0 +1,1235 @@
+openapi: 3.0.1
+info:
+  title: HAPI FHIR Server
+  contact: {}
+  version: 8.2.0
+servers:
+- url: http://localhost:8080/fhir
+  description: HAPI FHIR Server
+components:
+  schemas:
+    FHIR-JSON-RESOURCE:
+      type: object
+      description: A FHIR resource
+    FHIR-XML-RESOURCE:
+      type: object
+      description: A FHIR resource
+tags:
+- name: MolecularSequence
+  description: 'The MolecularSequence FHIR resource type<br/>Base profile: http://hl7.org/fhir/StructureDefinition/MolecularSequence'
+paths:
+  /MolecularSequence/{id}:
+    get:
+      tags:
+      - MolecularSequence
+      summary: 'read-instance: Read MolecularSequence instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    put:
+      tags:
+      - MolecularSequence
+      summary: 'update-instance: Update an existing MolecularSequence instance, or
+        create using a client-assigned ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "MolecularSequence"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <MolecularSequence xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    delete:
+      tags:
+      - MolecularSequence
+      summary: 'instance-delete: Perform a logical delete on a resource instance'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    patch:
+      tags:
+      - MolecularSequence
+      summary: 'instance-patch: Patch a resource instance of type MolecularSequence
+        by ID'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "operation",
+                  "part": [ {
+                    "name": "type",
+                    "valueString": "add"
+                  }, {
+                    "name": "path",
+                    "valueString": "Patient"
+                  }, {
+                    "name": "name",
+                    "valueString": "birthDate"
+                  }, {
+                    "name": "value",
+                    "valueDate": "1930-01-01"
+                  } ]
+                } ]
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: |-
+              <Parameters xmlns="http://hl7.org/fhir">
+                 <parameter>
+                    <name value="operation"/>
+                    <part>
+                       <name value="type"/>
+                       <valueString value="add"/>
+                    </part>
+                    <part>
+                       <name value="path"/>
+                       <valueString value="Patient"/>
+                    </part>
+                    <part>
+                       <name value="name"/>
+                       <valueString value="birthDate"/>
+                    </part>
+                    <part>
+                       <name value="value"/>
+                       <valueDate value="1930-01-01"/>
+                    </part>
+                 </parameter>
+              </Parameters>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/{id}/_history/{version_id}:
+    get:
+      tags:
+      - MolecularSequence
+      summary: 'vread-instance: Read MolecularSequence instance with specific version'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: version_id
+        in: path
+        description: The resource version ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '1'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence:
+    get:
+      tags:
+      - MolecularSequence
+      summary: 'search-type: Search for MolecularSequence instances'
+      description: This is a search type
+      parameters:
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: type
+        in: query
+        description: Amino Acid Sequence/ DNA Sequence / RNA Sequence
+        required: false
+        schema:
+          type: string
+      - name: window-end
+        in: query
+        description: End position (0-based exclusive, which menas the acid at this
+          position will not be included, 1-based inclusive, which means the acid at
+          this position will be included) of the reference sequence.
+        required: false
+        schema:
+          type: number
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: patient
+        in: query
+        description: The subject that the observation is about
+        required: false
+        schema:
+          type: string
+      - name: variant-start
+        in: query
+        description: Start position (0-based inclusive, 1-based inclusive, that means
+          the nucleic acid or amino acid at this position will be included) of the
+          variant.
+        required: false
+        schema:
+          type: number
+      - name: chromosome-window-coordinate
+        in: query
+        description: Search parameter by chromosome and window. This will refer to
+          part of a locus or part of a gene where search region will be represented
+          in 1-based system. Since the coordinateSystem can either be 0-based or 1-based,
+          this search query will include the result of both coordinateSystem that
+          contains the equivalent segment of the gene or whole genome sequence. For
+          example, a search for sequence can be represented as `chromosome-window-coordinate=1$lt345$gt123`,
+          this means it will search for the MolecularSequence resource with a window
+          on chromosome 1 and with position >123 and <345, where in 1-based system
+          resource, all strings within region 1:124-344 will be revealed, while in
+          0-based system resource, all strings within region 1:123-344 will be revealed.
+          You may want to check detail about 0-based v.s. 1-based above.
+        required: false
+        schema:
+          type: string
+      - name: referenceseqid-window-coordinate
+        in: query
+        description: Search parameter by reference sequence and window. This will
+          refer to part of a locus or part of a gene where search region will be represented
+          in 1-based system. Since the coordinateSystem can either be 0-based or 1-based,
+          this search query will include the result of both coordinateSystem that
+          contains the equivalent segment of the gene or whole genome sequence. For
+          example, a search for sequence can be represented as `referenceSeqId-window-coordinate=NC_000001.11$lt345$gt123`,
+          this means it will search for the MolecularSequence resource with a window
+          on NC_000001.11 and with position >123 and <345, where in 1-based system
+          resource, all strings within region NC_000001.11:124-344 will be revealed,
+          while in 0-based system resource, all strings within region NC_000001.11:123-344
+          will be revealed. You may want to check detail about 0-based v.s. 1-based
+          above.
+        required: false
+        schema:
+          type: string
+      - name: referenceseqid
+        in: query
+        description: Reference Sequence of the sequence
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: The unique identity for a particular sequence
+        required: false
+        schema:
+          type: string
+      - name: referenceseqid-variant-coordinate
+        in: query
+        description: Search parameter by reference sequence and variant coordinate.
+          This will refer to part of a locus or part of a gene where search region
+          will be represented in 1-based system. Since the coordinateSystem can either
+          be 0-based or 1-based, this search query will include the result of both
+          coordinateSystem that contains the equivalent segment of the gene or whole
+          genome sequence. For example, a search for sequence can be represented as
+          `referenceSeqId-variant-coordinate=NC_000001.11$lt345$gt123`, this means
+          it will search for the MolecularSequence resource with variants on NC_000001.11
+          and with position >123 and <345, where in 1-based system resource, all strings
+          within region NC_000001.11:124-344 will be revealed, while in 0-based system
+          resource, all strings within region NC_000001.11:123-344 will be revealed.
+          You may want to check detail about 0-based v.s. 1-based above.
+        required: false
+        schema:
+          type: string
+      - name: chromosome
+        in: query
+        description: Chromosome number of the reference sequence
+        required: false
+        schema:
+          type: string
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: window-start
+        in: query
+        description: Start position (0-based inclusive, 1-based inclusive, that means
+          the nucleic acid or amino acid at this position will be included) of the
+          reference sequence.
+        required: false
+        schema:
+          type: number
+      - name: variant-end
+        in: query
+        description: End position (0-based exclusive, which menas the acid at this
+          position will not be included, 1-based inclusive, which means the acid at
+          this position will be included) of the variant.
+        required: false
+        schema:
+          type: number
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: chromosome-variant-coordinate
+        in: query
+        description: Search parameter by chromosome and variant coordinate. This will
+          refer to part of a locus or part of a gene where search region will be represented
+          in 1-based system. Since the coordinateSystem can either be 0-based or 1-based,
+          this search query will include the result of both coordinateSystem that
+          contains the equivalent segment of the gene or whole genome sequence. For
+          example, a search for sequence can be represented as `chromosome-variant-coordinate=1$lt345$gt123`,
+          this means it will search for the MolecularSequence resource with variants
+          on chromosome 1 and with position >123 and <345, where in 1-based system
+          resource, all strings within region 1:124-344 will be revealed, while in
+          0-based system resource, all strings within region 1:123-344 will be revealed.
+          You may want to check detail about 0-based v.s. 1-based above.
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - MolecularSequence
+      summary: 'create-type: Create a new MolecularSequence instance'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            example: |-
+              {
+                "resourceType": "MolecularSequence"
+              }
+          application/fhir+xml:
+            schema:
+              $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+            example: <MolecularSequence xmlns="http://hl7.org/fhir"/>
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/_history:
+    get:
+      tags:
+      - MolecularSequence
+      summary: 'type-history: Fetch the resource change history for all resources
+        of type MolecularSequence'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/{id}/_history:
+    get:
+      tags:
+      - MolecularSequence
+      summary: 'instance-history: Fetch the resource change history for all resources
+        of type MolecularSequence'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/_search:
+    get:
+      tags:
+      - MolecularSequence
+      summary: 'search-type: Search for MolecularSequence instances'
+      description: This is a search type
+      parameters:
+      - name: _language
+        in: query
+        description: The language of the resource
+        required: false
+        schema:
+          type: string
+      - name: _lastUpdated
+        in: query
+        description: When the resource version last changed
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: string
+            format: date
+      - name: type
+        in: query
+        description: Amino Acid Sequence/ DNA Sequence / RNA Sequence
+        required: false
+        schema:
+          type: string
+      - name: window-end
+        in: query
+        description: End position (0-based exclusive, which menas the acid at this
+          position will not be included, 1-based inclusive, which means the acid at
+          this position will be included) of the reference sequence.
+        required: false
+        schema:
+          type: number
+      - name: _list
+        in: query
+        description: Search the contents of the resource's data using a list
+        required: false
+        schema:
+          type: string
+      - name: patient
+        in: query
+        description: The subject that the observation is about
+        required: false
+        schema:
+          type: string
+      - name: variant-start
+        in: query
+        description: Start position (0-based inclusive, 1-based inclusive, that means
+          the nucleic acid or amino acid at this position will be included) of the
+          variant.
+        required: false
+        schema:
+          type: number
+      - name: chromosome-window-coordinate
+        in: query
+        description: Search parameter by chromosome and window. This will refer to
+          part of a locus or part of a gene where search region will be represented
+          in 1-based system. Since the coordinateSystem can either be 0-based or 1-based,
+          this search query will include the result of both coordinateSystem that
+          contains the equivalent segment of the gene or whole genome sequence. For
+          example, a search for sequence can be represented as `chromosome-window-coordinate=1$lt345$gt123`,
+          this means it will search for the MolecularSequence resource with a window
+          on chromosome 1 and with position >123 and <345, where in 1-based system
+          resource, all strings within region 1:124-344 will be revealed, while in
+          0-based system resource, all strings within region 1:123-344 will be revealed.
+          You may want to check detail about 0-based v.s. 1-based above.
+        required: false
+        schema:
+          type: string
+      - name: referenceseqid-window-coordinate
+        in: query
+        description: Search parameter by reference sequence and window. This will
+          refer to part of a locus or part of a gene where search region will be represented
+          in 1-based system. Since the coordinateSystem can either be 0-based or 1-based,
+          this search query will include the result of both coordinateSystem that
+          contains the equivalent segment of the gene or whole genome sequence. For
+          example, a search for sequence can be represented as `referenceSeqId-window-coordinate=NC_000001.11$lt345$gt123`,
+          this means it will search for the MolecularSequence resource with a window
+          on NC_000001.11 and with position >123 and <345, where in 1-based system
+          resource, all strings within region NC_000001.11:124-344 will be revealed,
+          while in 0-based system resource, all strings within region NC_000001.11:123-344
+          will be revealed. You may want to check detail about 0-based v.s. 1-based
+          above.
+        required: false
+        schema:
+          type: string
+      - name: referenceseqid
+        in: query
+        description: Reference Sequence of the sequence
+        required: false
+        schema:
+          type: string
+      - name: identifier
+        in: query
+        description: The unique identity for a particular sequence
+        required: false
+        schema:
+          type: string
+      - name: referenceseqid-variant-coordinate
+        in: query
+        description: Search parameter by reference sequence and variant coordinate.
+          This will refer to part of a locus or part of a gene where search region
+          will be represented in 1-based system. Since the coordinateSystem can either
+          be 0-based or 1-based, this search query will include the result of both
+          coordinateSystem that contains the equivalent segment of the gene or whole
+          genome sequence. For example, a search for sequence can be represented as
+          `referenceSeqId-variant-coordinate=NC_000001.11$lt345$gt123`, this means
+          it will search for the MolecularSequence resource with variants on NC_000001.11
+          and with position >123 and <345, where in 1-based system resource, all strings
+          within region NC_000001.11:124-344 will be revealed, while in 0-based system
+          resource, all strings within region NC_000001.11:123-344 will be revealed.
+          You may want to check detail about 0-based v.s. 1-based above.
+        required: false
+        schema:
+          type: string
+      - name: chromosome
+        in: query
+        description: Chromosome number of the reference sequence
+        required: false
+        schema:
+          type: string
+      - name: _security
+        in: query
+        description: Security Labels applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: window-start
+        in: query
+        description: Start position (0-based inclusive, 1-based inclusive, that means
+          the nucleic acid or amino acid at this position will be included) of the
+          reference sequence.
+        required: false
+        schema:
+          type: number
+      - name: variant-end
+        in: query
+        description: End position (0-based exclusive, which menas the acid at this
+          position will not be included, 1-based inclusive, which means the acid at
+          this position will be included) of the variant.
+        required: false
+        schema:
+          type: number
+      - name: _filter
+        in: query
+        description: Search the contents of the resource's data using a filter
+        required: false
+        schema:
+          type: string
+      - name: chromosome-variant-coordinate
+        in: query
+        description: Search parameter by chromosome and variant coordinate. This will
+          refer to part of a locus or part of a gene where search region will be represented
+          in 1-based system. Since the coordinateSystem can either be 0-based or 1-based,
+          this search query will include the result of both coordinateSystem that
+          contains the equivalent segment of the gene or whole genome sequence. For
+          example, a search for sequence can be represented as `chromosome-variant-coordinate=1$lt345$gt123`,
+          this means it will search for the MolecularSequence resource with variants
+          on chromosome 1 and with position >123 and <345, where in 1-based system
+          resource, all strings within region 1:124-344 will be revealed, while in
+          0-based system resource, all strings within region 1:123-344 will be revealed.
+          You may want to check detail about 0-based v.s. 1-based above.
+        required: false
+        schema:
+          type: string
+      - name: _profile
+        in: query
+        description: Profiles this resource claims to conform to
+        required: false
+        schema:
+          type: string
+      - name: _tag
+        in: query
+        description: Tags applied to this resource
+        required: false
+        schema:
+          type: string
+      - name: _has
+        in: query
+        description: Return resources linked to by the given target
+        required: false
+        schema:
+          type: string
+      - name: _source
+        in: query
+        description: Identifies where the resource comes from
+        required: false
+        schema:
+          type: string
+      - name: _id
+        in: query
+        description: Logical id of this artifact
+        required: false
+        schema:
+          type: string
+      - name: _text
+        in: query
+        description: Search on the narrative of the resource
+        required: false
+        schema:
+          type: string
+      - name: _content
+        in: query
+        description: Search on the entire content of the resource
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/$validate:
+    get:
+      tags:
+      - MolecularSequence
+      summary: 'GET: /MolecularSequence/$validate'
+      parameters:
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - MolecularSequence
+      summary: 'POST: /MolecularSequence/$validate'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "MolecularSequence",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/{id}/$validate:
+    get:
+      tags:
+      - MolecularSequence
+      summary: 'GET: /MolecularSequence/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - MolecularSequence
+      summary: 'POST: /MolecularSequence/{id}/$validate'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "resource",
+                  "resource": {
+                    "resourceType": "MolecularSequence",
+                    "id": "1"
+                  }
+                }, {
+                  "name": "mode",
+                  "valueCode": "example"
+                }, {
+                  "name": "profile"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/{id}/$meta-delete:
+    post:
+      tags:
+      - MolecularSequence
+      summary: 'POST: /MolecularSequence/{id}/$meta-delete'
+      description: Delete tags, profiles, and/or security labels from a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/{id}/$meta-add:
+    post:
+      tags:
+      - MolecularSequence
+      summary: 'POST: /MolecularSequence/{id}/$meta-add'
+      description: Add tags, profiles, and/or security labels to a resource
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "meta"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/$meta:
+    get:
+      tags:
+      - MolecularSequence
+      summary: 'GET: /MolecularSequence/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - MolecularSequence
+      summary: 'POST: /MolecularSequence/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/{id}/$meta:
+    get:
+      tags:
+      - MolecularSequence
+      summary: 'GET: /MolecularSequence/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - MolecularSequence
+      summary: 'POST: /MolecularSequence/{id}/$meta'
+      description: Request a list of tags, profiles, and security labels for a specfic
+        resource instance
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters"
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/$expunge:
+    post:
+      tags:
+      - MolecularSequence
+      summary: 'POST: /MolecularSequence/$expunge'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/{id}/$expunge:
+    post:
+      tags:
+      - MolecularSequence
+      summary: 'POST: /MolecularSequence/{id}/$expunge'
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "limit",
+                  "valueInteger": 0
+                }, {
+                  "name": "expungeDeletedResources",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungePreviousVersions",
+                  "valueBoolean": false
+                }, {
+                  "name": "expungeEverything",
+                  "valueBoolean": false
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+  /MolecularSequence/{id}/$diff:
+    get:
+      tags:
+      - MolecularSequence
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      - name: from
+        in: query
+        description: The resource ID and version to diff from
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/1
+      - name: to
+        in: query
+        description: The resource ID and version to diff to
+        required: true
+        schema:
+          type: string
+        example: Patient/example/version/2
+      - name: includeMeta
+        in: query
+        description: Should differences in the Resource.meta element be included in
+          the diff
+        required: false
+        schema:
+          type: string
+        example: 'false'
+      - name: fromVersion
+        in: query
+        description: The resource ID and version to diff from
+        required: false
+        schema:
+          type: string
+        example: Patient/example/version/1
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
+    post:
+      tags:
+      - MolecularSequence
+      summary: Comparte two resources or two versions of a single resource
+      description: This operation examines two resource versions (can be two versions
+        of the same resource, or two different resources) and generates a FHIR Patch
+        document showing the differences.
+      parameters:
+      - name: id
+        in: path
+        description: The resource ID
+        required: true
+        style: simple
+        schema:
+          minimum: 1
+          type: string
+        example: '123'
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              title: FHIR Resource
+              type: object
+            example: |-
+              {
+                "resourceType": "Parameters",
+                "parameter": [ {
+                  "name": "from"
+                }, {
+                  "name": "to"
+                }, {
+                  "name": "includeMeta",
+                  "valueBoolean": false
+                }, {
+                  "name": "fromVersion",
+                  "valueString": "example"
+                } ]
+              }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/FHIR-JSON-RESOURCE'
+            application/fhir+xml:
+              schema:
+                $ref: '#/components/schemas/FHIR-XML-RESOURCE'
