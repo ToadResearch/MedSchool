@@ -1,5 +1,4 @@
 # MedSchool 🩺 🤗 
----
 
 > Imagine if all major coding benchmarks were multiple-choice QA
 
