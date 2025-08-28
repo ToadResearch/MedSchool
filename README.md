@@ -6,7 +6,7 @@ That's the current state of affairs for medical/clinical benchmarking, outside o
 
 Medical/clinical data is semi-verifiable: it's a mix of objective and subjective statements, free-text and discrete fields, etc. EHRs store all this data and serve as ground truth repositories for documented clinical realities, and because they are highly structured, they are implicitly verifiable. But to the best of our knowledge, there have been no public works applying RLVR to agentic EHR tasks. We aim to change that!
 
-We think that EHRs are the gateway to most clinical tasks. From what we've seen with programming, we believe the best way to train clinical intelligence is by giving models the ability to take action and learn from experience within EHR environments. Some more about *the plan* can be found [here](https://x.com/mkieffer1107/status/1958644405411225788). We might spruce this up in the future and turn it into a blog post.
+We think that EHRs are the gateway to most clinical tasks. From what we've seen with programming, we believe the best way to develop clinical intelligence is by giving models the ability to take action and learn from experience within EHR environments. Some more about *the plan* can be found [here](https://x.com/mkieffer1107/status/1958644405411225788). We might spruce this up in the future and turn it into a blog post.
 
 ---
 ### Want to help?
