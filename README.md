@@ -31,7 +31,7 @@ If you're interested in clinical intelligence, developing realistic health/medic
 - **python_exec**: execute a python
 - **shell_exec**: execute shell command
 
-Note: It might be better to migrate most work into a shell because FHIR records are very large json objects that quickly fill context windows. For example, if you're doing payment analysis over a patient record, it might be best to pipe FHIR query results directly into a python process, rather than wasting context to copy and paste it in. This is especially a problem when running models locally. Notepads to store additional context could help as long as no data is leaked between patients.
+Note: It might be better to migrate most work into a shell because FHIR records are very large json objects that quickly fill context windows. For example, if you're doing payment analysis over a patient record, it might be best to pipe FHIR query results directly into a python process, rather than wasting context to copy and paste it in. This is especially a problem when running models locally. Notepads (like in Claude plays Pokemon, [here](https://x.com/omarsar0/status/1961073840706203804), or even [here](https://x.com/EyubogluSabri/status/1932106746446905552)) to store additional context could help as long as no data is leaked between patients.
 
 ---
 
