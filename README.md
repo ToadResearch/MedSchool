@@ -18,8 +18,8 @@ We think that EHRs are the gateway to most clinical tasks. From what we've seen 
 
 Right now we only have basic MCP support, and are beginning to work on the environment itself. The two biggest challenges to solve:
 
-1) Figure out the minimal MCP toolset to best handle EHR tasks
-2) Figure out how to generate env tasks automatically
+1) Figure out the minimal MCP toolset to best handle EHR tasks. Many to choose from [here](https://zitniklab.hms.harvard.edu/TxAgent/).
+2) Figure out how to generate enviroment tasks automatically. It should be *relatively* easy to generate single-hop tasks.
 
 If you're interested in clinical intelligence, developing realistic health/medical benchmarks, or creating an open-source copilot for doctors, consider helping out!
 
