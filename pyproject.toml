@@ -1,0 +1,17 @@
+[project]
+name = "medschool"
+version = "0.1.0"
+description = "Train a clinical agent."
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "openai",
+    "mcp",
+    "python-dotenv",
+    "fastmcp",
+    "pydantic"
+]
+
+[project.optional-dependencies]
+train = []

@@ -216,7 +216,10 @@ services:
       timeout: 5s
       retries: 40
     ports:
-      - "${MCP_PORT:-8000}:${MCP_PORT:-8000}"
+      # - "${MCP_PORT:-8000}:${MCP_PORT:-8000}"
+      # pin port to loopback to only allow access to host machine
+      - "127.0.0.1:${MCP_PORT:-8000}:${MCP_PORT:-8000}"
+
 
 networks:
   medschool-net:

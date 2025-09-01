@@ -9,6 +9,7 @@ ehr_env/*
 synthea_data
 ehr_env
 gemini-mcp
+*_prompt.txt
 
 # other stuff
 .env

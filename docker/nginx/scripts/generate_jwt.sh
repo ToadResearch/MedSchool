@@ -95,17 +95,17 @@ echo "Important: Please copy the token above into the FHIR_BEARER_TOKEN variable
 echo ""
 
 
-# --- Recreate gateway to ensure it has the latest secret from .env ---
+# --- Recreate gateway to ensure it has the latest secret from .env and mcp to get latest JWT ---
 COMPOSE_FILE="$REPO_ROOT/docker-compose.yaml"
 GATEWAY_CONTAINER_NAME="medschool-gateway"
 if command -v docker >/dev/null 2>&1 && [[ -f "$COMPOSE_FILE" ]]; then
   if [[ "$(docker inspect -f '{{.State.Running}}' "$GATEWAY_CONTAINER_NAME" 2>/dev/null || echo "false")" == "true" ]]; then
-    echo "Recreating the Nginx gateway container to apply the latest JWT secret..."
-    docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --force-recreate gateway | cat
-    echo "Gateway recreated."
+    echo "Recreating the Nginx gateway and MCP server containers to apply the latest JWT secret..."
+    docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --force-recreate gateway mcp | cat
+    echo "Gateway and MCP server recreated."
   else
-    echo "Docker services are not running. Skipping gateway restart."
+    echo "Docker services are not running. Skipping gateway and MCP server restart."
   fi
 else
-  echo "Warning: Could not automatically restart the gateway."
+  echo "Warning: Could not automatically restart the gateway and MCP server."
 fi

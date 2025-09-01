@@ -65,14 +65,38 @@ Note: It might be better to migrate most work into a shell because FHIR records 
 5.  **Run `./startup.sh --synthea`**
     *   This command starts all the Docker services and runs a job to download and load synthetic patient data into the server.
 
-6. **Add the MCP client config to your `mcp.json` of choice**
-    ```json
-    {
-      "medschool-mcp": {
-        "url": "http://127.0.0.1:8000/mcp"
-      }
+6. **Use the MCP server (two options)**
+
+
+**Option A:** Update the `mcp.json` used by your client and add:
+
+```json
+{
+  "mcpServers": {
+    "medschool-mcp": {
+      "url": "http://127.0.0.1:8000/mcp"
     }
-    ```
+  }
+}
+```
+
+**Option B:** Run the `api_repl.py` file.
+
+Examples: 
+```bash
+# Cerebras
+python api_repl.py \
+  -m gpt-oss-120b \
+  -k GROQ_API_KEY \
+  -b https://api.cerebras.ai/v1
+
+# Groq
+python api_repl.py \
+  -m openai/gpt-oss-120b \
+  -k GROQ_API_KEY \
+  -b https://api.groq.com/openai/v1
+
+```
 
 ---
 
