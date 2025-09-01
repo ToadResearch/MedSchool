@@ -67,36 +67,38 @@ Note: It might be better to migrate most work into a shell because FHIR records 
 
 6. **Use the MCP server (two options)**
 
+    **Option A:** Update the `mcp.json` used by your client and add:
 
-**Option A:** Update the `mcp.json` used by your client and add:
-
-```json
-{
-  "mcpServers": {
-    "medschool-mcp": {
-      "url": "http://127.0.0.1:8000/mcp"
+    ```json
+    {
+      "mcpServers": {
+        "medschool-mcp": {
+          "url": "http://127.0.0.1:8000/mcp"
+        }
+      }
     }
-  }
-}
-```
+    ```
 
-**Option B:** Run the `api_repl.py` file.
+    **Option B:** Run the `api_repl.py` file.
 
-Examples: 
-```bash
-# Cerebras
-python api_repl.py \
-  -m gpt-oss-120b \
-  -k GROQ_API_KEY \
-  -b https://api.cerebras.ai/v1
+    - Examples usage:
 
-# Groq
-python api_repl.py \
-  -m openai/gpt-oss-120b \
-  -k GROQ_API_KEY \
-  -b https://api.groq.com/openai/v1
+        ```sh
+        # Cerebras
+        python api_repl.py \
+          -m gpt-oss-120b \
+          -k CEREBRAS_API_KEY \
+          -b https://api.cerebras.ai/v1
+        ```
 
-```
+        ```sh
+        # Groq
+        python api_repl.py \
+          -m openai/gpt-oss-120b \
+          -k GROQ_API_KEY \
+          -b https://api.groq.com/openai/v1
+        ```
+
 
 ---
 
