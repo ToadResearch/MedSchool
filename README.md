@@ -82,7 +82,7 @@ Note: It might be better to migrate most work into a shell because FHIR records 
 
     **Option B:** Run the `api_repl.py` file.
 
-    - Examples usage:
+    - Example usage:
 
         ```sh
         # Cerebras
