@@ -18,7 +18,7 @@ We think that EHRs are the gateway to most clinical tasks. From what we've seen 
 
 Right now we only have basic MCP support, and are beginning to work on the environment itself. The two biggest challenges to solve:
 
-1) Figure out the minimal MCP toolset to best handle EHR tasks. Many to choose from [here](https://zitniklab.hms.harvard.edu/TxAgent/).
+1) Figure out the minimal MCP toolset to best handle EHR tasks. Many to choose from [here](https://zitniklab.hms.harvard.edu/TxAgent/) and [here](https://github.com/snap-stanford/Biomni).
 2) Figure out how to generate enviroment tasks automatically. It should be *relatively* easy to generate single-hop tasks.
 
 If you're interested in clinical intelligence, developing realistic health/medical benchmarks, or creating an open-source copilot for doctors, consider helping out!
@@ -32,7 +32,7 @@ If you're interested in clinical intelligence, developing realistic health/medic
 - **shell_exec**: execute shell command
 - **code_lookup**: get display name and synonyms for a given code (e.g., ICD-10, CPT/HCPCS, SNOMED, LOINC, RxNorm)
 
-Note: It might be better to migrate most work into a shell because FHIR records are very large json objects that quickly fill context windows. For example, if you're doing payment analysis over a patient record, it might be best to pipe FHIR query results directly into a python process, rather than wasting context to copy and paste it in. This is especially a problem when running models locally. Notepads (like in Claude plays Pokemon, [here](https://x.com/omarsar0/status/1961073840706203804), or even [here](https://x.com/EyubogluSabri/status/1932106746446905552)) to store additional context could help as long as no data is leaked between patients. Working in the shell would also let us use the [CLI FHIR validator](https://github.com/hapifhir/org.hl7.fhir.validator-wrapper), instead of pinging the server.
+Note: It might be better to migrate most work into a terminal environment because FHIR records are very large json objects that quickly fill context windows. For example, if you're doing payment analysis over a patient record, it might be best to pipe FHIR query results directly into a python process, rather than wasting context to copy and paste it in. This is especially a problem when running models locally. Notepads (like in Claude plays Pokemon, [here](https://x.com/omarsar0/status/1961073840706203804), or even [here](https://x.com/EyubogluSabri/status/1932106746446905552)) to store additional context could help as long as no data is leaked between patients. Working inside a terminal would also let us use the [CLI FHIR validator](https://github.com/hapifhir/org.hl7.fhir.validator-wrapper), instead of pinging the server.
 
 ---
 
