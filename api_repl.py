@@ -6,7 +6,6 @@ from typing import List, Dict, Optional, Union, Generator, Any, Tuple, Callable
 from openai import OpenAI
 from pathlib import Path
 
-# --- FastMCP MUST be installed; import at top (no try/except) ---
 from fastmcp import Client as MCPClient
 # NOTE: use transport inference so the client stays compatible with the current MCP spec
 # (Streamable HTTP at /mcp, SSE at /sse, headers from config, etc.)
@@ -18,6 +17,7 @@ import json
 import argparse
 import asyncio
 import threading
+import textwrap
 import importlib
 from datetime import datetime, timezone
 from dotenv import load_dotenv
@@ -73,7 +73,12 @@ YELLOW = "\033[33m"
 GREEN = "\033[32m"
 MAGENTA = "\033[35m"
 BLUE = "\033[34m"   # tag for "tool call>"
-GRAY = "\033[90m"   # indented args/result/progress lines
+GRAY = "\033[90m"   # indented args/result/progress lines (light gray)
+# bright variants for clearer section headers
+BRIGHT_CYAN = "\033[96m"
+BRIGHT_GREEN = "\033[92m"
+BRIGHT_BLUE = "\033[94m"
+WHITE = "\033[97m"
 
 def info(msg: str): print(f"{DIM}{msg}{RESET}")
 def warn(msg: str): print(f"{YELLOW}{msg}{RESET}")
@@ -134,6 +139,10 @@ def load_transcript(path: str) -> List[Dict[str, Any]]:
 
 def save_transcript(path: str, messages: List[Dict[str, Any]]):
     # Use timezone-aware UTC
+    default_dir = "chat_logs"
+    os.makedirs(default_dir, exist_ok=True)
+    if not path.startswith("/"):
+        path = os.path.join(default_dir, path)
     out = {"created_at": datetime.now(timezone.utc).isoformat(), "messages": messages}
     with open(path, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2, ensure_ascii=False)
@@ -530,7 +539,7 @@ def get_model_response(
     mcp_manager: Optional[MCPManager] = None,
     enable_mcp_tools: bool = False,
     max_tool_rounds: int = 2,
-    # CLI tool-call printing (clean single tag + indented colored sublines)
+    # CLI tool-call printing (clean single tag + indented, colorized sections)
     tool_print_tag: Optional[Callable[[str], None]] = None,
     tool_print_sub: Optional[Callable[[str], None]] = None,
     **kwargs: Any,
@@ -554,7 +563,7 @@ def get_model_response(
       tool_calls array, followed by one tool message per call). This makes /save logs
       replayable across OpenAI-compatible systems.
     - If `tool_print_tag`/`tool_print_sub` are provided, prints a single
-      "tool call> <tool_name>" tag line per call and then indented, colored arg/result lines.
+      "tool call> <tool_name>" tag line per call, plus colorized ARGS/RESULT sections.
     """
     if messages is None and not prompt:
         raise ValueError("Provide either `messages` or `prompt`.")
@@ -658,7 +667,8 @@ def get_model_response(
                         tool_print_tag(name or "<unknown>")
                     if tool_print_sub:
                         try:
-                            tool_print_sub(f"args: {_shorten(argstr_for_print)}")
+                            # Pass the raw JSON so our pretty-printer can render it nicely.
+                            tool_print_sub(f"args: {argstr_for_print}")
                         except Exception:
                             tool_print_sub("args: <unprintable>")
 
@@ -679,7 +689,8 @@ def get_model_response(
                     if tool_print_sub:
                         try:
                             rendered = result if isinstance(result, str) else json.dumps(result, ensure_ascii=False)
-                            tool_print_sub(f"result: {_shorten(rendered)}")
+                            # Again, don't shorten; let pretty-printer handle truncation gracefully.
+                            tool_print_sub(f"result: {rendered}")
                         except Exception:
                             tool_print_sub("result: <unprintable>")
                 continue
@@ -797,11 +808,93 @@ def run_repl(
         else:
             msgs.insert(0, {"role": "system", "content": payload})
 
-    # tool-call printers: one tag line, then indented colored sublines (no tag)
+    # tool-call printers: one tag line, then indented, colorized sublines (ARGS/RESULT)
     def _print_tool_tag(name: str):
-        print(f"{BLUE}tool call>{RESET} {name}")
+        # Add a little spacing before each new tool section; style the tag distinctly.
+        print()
+        print(f"{BRIGHT_BLUE}{BOLD}tool call>{RESET} {BOLD}{name}{RESET}")
+
+    # ---------- pretty printing helpers for tool sections ----------
+    def _maybe_pretty_json(raw: str) -> str:
+        """
+        Try to pretty-print JSON; otherwise return the original text.
+        """
+        s = raw.strip()
+        try:
+            obj = json.loads(s)
+            return json.dumps(obj, ensure_ascii=False, indent=2)
+        except Exception:
+            return s
+
+    def _truncate_block(text: str) -> str:
+        """
+        Abbreviate long content for TTY readability.
+        - Caps total chars, total lines, and per-line length.
+        - Appends a friendly note when truncation happens.
+        """
+        MAX_CHARS_TOTAL = 6000
+        MAX_LINES = 60
+        MAX_LINE_LEN = 160
+
+        truncated = False
+
+        if len(text) > MAX_CHARS_TOTAL:
+            text = text[:MAX_CHARS_TOTAL]
+            truncated = True
+
+        lines = text.splitlines()
+        if len(lines) > MAX_LINES:
+            lines = lines[:MAX_LINES]
+            truncated = True
+
+        clipped: List[str] = []
+        for ln in lines:
+            if len(ln) > MAX_LINE_LEN:
+                clipped.append(ln[:MAX_LINE_LEN] + "…")
+                truncated = True
+            else:
+                clipped.append(ln)
+
+        out = "\n".join(clipped)
+        if truncated:
+            out += "\n…(output truncated for readability)…"
+        return out
+
+    def _indent_block(text: str, n: int = 2) -> str:
+        return textwrap.indent(text, " " * n)
+
+    def _rule_light(width: int = 60) -> str:
+        return "─" * width
 
     def _print_tool_sub(line: str):
+        """
+        Render two structured lines ("args: …" and "result: …") as colorized,
+        clearly separated blocks with pretty-printed JSON. Content is light gray
+        (to match prior styling) and is truncated to avoid flooding the screen.
+        Other lines (progress/log) remain subtle and gray.
+        """
+        lower = line.lower()
+        if lower.startswith("args:"):
+            content = line.split(":", 1)[1]
+            header = f"{BRIGHT_CYAN}{BOLD}ARGS{RESET}"
+            body = _truncate_block(_maybe_pretty_json(content))
+            print(f"{BRIGHT_CYAN}{_rule_light()}{RESET}")
+            print(header)
+            print(f"{BRIGHT_CYAN}{_rule_light()}{RESET}")
+            print(f"{GRAY}{_indent_block(body, 2)}{RESET}")
+            print()
+            return
+        if lower.startswith("result:"):
+            content = line.split(":", 1)[1]
+            header = f"{BRIGHT_GREEN}{BOLD}RESULT{RESET}"
+            body = _truncate_block(_maybe_pretty_json(content))
+            print(f"{BRIGHT_GREEN}{_rule_light()}{RESET}")
+            print(header)
+            print(f"{BRIGHT_GREEN}{_rule_light()}{RESET}")
+            print(f"{GRAY}{_indent_block(body, 2)}{RESET}")
+            print()
+            return
+        # Fallback (progress/log or unknown): keep it subtle
         print(f"{GRAY}    {line}{RESET}")
 
     # NEW: wire MCP streaming event printers (progress/log) so they show live during tool runs
@@ -874,7 +967,7 @@ def run_repl(
                 tools_enabled = (v == "on")
                 if tools_enabled:
                     # Keep the LLM informed of available tools
-                    _upsert_tools_manifest(messages, _compose_tool_capabilities(mcp_manager))
+                    # _upsert_tools_manifest(messages, _compose_tool_capabilities(mcp_manager))
                     info("Tool calling enabled (tool progress/log will stream if supported by server).")
                 print_state(model, stream_enabled, tools_enabled, mcp_manager)
                 continue
@@ -903,7 +996,7 @@ def run_repl(
                         if not tools_enabled:
                             tools_enabled = True
                             # inform model about capabilities
-                            _upsert_tools_manifest(messages, _compose_tool_capabilities(mcp_manager))
+                            # _upsert_tools_manifest(messages, _compose_tool_capabilities(mcp_manager))
                         print_state(model, stream_enabled, tools_enabled, mcp_manager)
                         info("MCP server streaming active (progress/log).")
                     except Exception as e:
@@ -995,7 +1088,7 @@ def run_repl(
                 "mcp_manager": mcp_manager,
                 "max_tool_rounds": max_tool_rounds,
                 "stream": False,  # assistant non-stream; tool streams via FastMCP
-                # print tool calls with a single tag + indented colored sublines
+                # print tool calls with a single tag + colorized ARGS/RESULT sections
                 "tool_print_tag": _print_tool_tag,
                 "tool_print_sub": _print_tool_sub,
             })
@@ -1071,19 +1164,3 @@ if __name__ == "__main__":
         temperature=args.temperature,
         max_tokens=args.max_tokens,
     )
-
-
-"""
-
-python api_repl.py \
-  -m gpt-oss-120b \
-  -k CEREBRAS_API_KEY \
-  -b https://api.cerebras.ai/v1
-
-  
-python api_repl.py \
-  -m openai/gpt-oss-120b \
-  -k GROQ_API_KEY \
-  -b https://api.groq.com/openai/v1
-
-"""

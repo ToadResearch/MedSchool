@@ -2,10 +2,10 @@ enabled:
   - fhir_query
   - python_exec
   - shell_exec
+  - code_lookup
 
 disabled_by_default:
   - snomed_to_icd10
-  - code_lookup
   - icd10_to_snomed
   - fhir_validate
   - fhir_doc

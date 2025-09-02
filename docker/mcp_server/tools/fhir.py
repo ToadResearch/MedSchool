@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from ..mcp_app import mcp  # shared FastMCP instance
+from ..mcp_app import mcp
 from ..config import get_settings
 from ..utils.fhir_client import http_get, http_post
 

@@ -141,7 +141,7 @@ GET [base]/Observation
 GET [base]/Patient/1754bc7d-28cd-4933-fc72-3d9a0d77cf54
 ```
 
-10) “Compute encounter payment stats for Patient/1754bc7d-28cd-4933-fc72-3d9a0d77cf54 (total paid, patient responsibility, allowed vs submitted), and summarize by encounter.”**
+10) “Compute encounter payment stats for Patient 1126 (total paid, patient responsibility, allowed vs submitted), and summarize by encounter.”**
 
 
 ```http
@@ -296,6 +296,7 @@ GET [base]/$get-resource-counts
 3. *“What is the display for **RxNorm 617314**?”*
 4. *“I have **ICD‑10‑CM E11.9**—what’s the official title and any alternate names?”*
 5. *“Confirm the system and preferred term for code **‘I10’**.”*
+6. *“What is the official long descriptor and short description for **CPT 93000**? Include common synonyms and whether interpretation/report is included.”*
 
 ---
 

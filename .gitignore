@@ -5,10 +5,9 @@ todo.txt
 .DS_Store
 notes 
 logs
-ehr_env/*
-synthea_data
 ehr_env
-gemini-mcp
+synthea_data
+chat_logs
 *_prompt.txt
 
 # other stuff

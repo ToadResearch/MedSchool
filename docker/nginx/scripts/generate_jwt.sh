@@ -95,6 +95,9 @@ echo "Important: Please copy the token above into the FHIR_BEARER_TOKEN variable
 echo ""
 
 
+# TODO: when restarting gateway/mcp, the JWT is refreshed and they start up before JWT is added to .env, so mcp server doesn't have proper fhir auth
+# need to either automatically insert new JWT into .env file before restarting, or do something else
+
 # --- Recreate gateway to ensure it has the latest secret from .env and mcp to get latest JWT ---
 COMPOSE_FILE="$REPO_ROOT/docker-compose.yaml"
 GATEWAY_CONTAINER_NAME="medschool-gateway"

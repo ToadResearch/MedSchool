@@ -30,7 +30,7 @@ class Settings(BaseModel):
     )
     bearer_token: str | None = Field(default_factory=lambda: os.getenv("FHIR_BEARER_TOKEN"))
 
-    # ── external terminology server ─────────────────────────────
+    # ── terminology server ─────────────────────────────
     terminology_base_url: str = Field(
         default_factory=lambda: os.getenv("TERMINOLOGY_BASE_URL", "https://tx.fhir.org/r4")
     )
