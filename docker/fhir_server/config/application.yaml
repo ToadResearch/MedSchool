@@ -46,6 +46,7 @@ hapi:
       # Validate outgoing responses (optional; off to save CPU)
       responses_enabled: false
 
+    # TODO: run local terminology server
     # installing codes would increase image size, so trade off size for latency -- for now!
     terminology:
       remove_terminology_service_enabled: true
