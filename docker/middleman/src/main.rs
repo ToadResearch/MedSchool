@@ -1,6 +1,7 @@
 use poem::{listener::TcpListener, Route, Server, Response, http::StatusCode, Request, endpoint::make};
 use poem_openapi::{param::Query, payload::PlainText, OpenApi, OpenApiService};
 use reqwest::Client;
+use std::env;
 
 struct Api;
 
@@ -19,18 +20,21 @@ impl Api {
 async fn main() -> Result<(), std::io::Error> {
     tracing_subscriber::fmt::init();
 
+    let port = env::var("MIDDLEMAN_PORT").unwrap_or_else(|_| "3000".to_string());
+    let bind_addr = format!("0.0.0.0:{}", port);
+
     let api_service =
-        OpenApiService::new(Api, "Hello World", "1.0").server("http://localhost:3000/api");
+        OpenApiService::new(Api, "Hello World", "1.0").server(&format!("http://localhost:{}/api", port));
     let ui = api_service.swagger_ui();
 
-    Server::new(TcpListener::bind("0.0.0.0:3000"))
+    Server::new(TcpListener::bind(&bind_addr))
         .run(Route::new()
             .nest("/api", api_service)
             .nest("/docs", ui)
             .at("/*", make(|req: Request| async move {
                 let client = Client::new();
                 let path_and_query = req.uri().path_and_query().map(|pq| pq.as_str().to_string()).unwrap_or(req.uri().path().to_string());
-                // let url = format!("http://hapi:8080{}", path_and_query);
+                let url = format!("http://hapi:8080{}", path_and_query);
                 let method = req.method().clone();
                 let mut request_builder = client.request(method.clone(), &url);
 

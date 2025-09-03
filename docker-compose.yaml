@@ -216,8 +216,10 @@ services:
     depends_on:
       hapi:
         condition: service_healthy
+    environment:
+      MIDDLEMAN_PORT: ${MIDDLEMAN_PORT:-3000}
     ports:
-      - "${HAPI_PORT:-8081}:3000"
+      - "${MIDDLEMAN_PORT:-3000}:3000"
     networks:
       - medschool-net
 
