@@ -48,57 +48,60 @@ Note: It might be better to migrate most work into a terminal environment becaus
 
 ---
 
-### Setup:
+### Basic tool-calling demo:
 
-1.  **`cp .env.example .env`**
-    *   This copies the example environment configuration file to a new `.env` file that you will use.
+Copy the example environment file to `.env`:
 
-2.  **Run `./startup.sh --synthea`**
-    *   This command starts all the Docker services and runs a job to download and load synthetic patient data into the server.
+```bash
+cp .env.example .env
+```
 
-3. **Use the MCP server (two options)**
+Start all Docker services and download/load synthetic patient data into the server:
 
-    **Option A:** Update the `mcp.json` used by your client and add:
+```bash
+./startup.sh --synthea
+```
+Connect the MCP server to the client of your choice:
 
-    ```json
-    {
-      "mcpServers": {
-        "medschool-mcp": {
-          "url": "http://127.0.0.1:8000/mcp"
-        }
-      }
+**Option A — Update your local client’s `mcp.json`:**
+
+```json
+{
+  "mcpServers": {
+    "medschool-mcp": {
+      "url": "http://127.0.0.1:8000/mcp"
     }
-    ```
+  }
+}
+```
 
-    **Option B:** Run the `api_repl.py` file.
+**Option B — Use the interactive API REPL:**
 
-    - Example usage:
+Run `api_repl.py` with your provider of choice.
 
-        ```sh
-        # Cerebras
-        python api_repl.py \
-          -m gpt-oss-120b \
-          -k CEREBRAS_API_KEY \
-          -b https://api.cerebras.ai/v1
-        ```
+```sh
+# Cerebras
+python api_repl.py \
+  -m gpt-oss-120b \
+  -k CEREBRAS_API_KEY \
+  -b https://api.cerebras.ai/v1
+```
 
-        ```sh
-        # Groq
-        python api_repl.py \
-          -m openai/gpt-oss-120b \
-          -k GROQ_API_KEY \
-          -b https://api.groq.com/openai/v1
-        ```
+```sh
+# Groq
+python api_repl.py \
+  -m openai/gpt-oss-120b \
+  -k GROQ_API_KEY \
+  -b https://api.groq.com/openai/v1
+```
 
-        ```sh
-        # OpenRouter
-        python api_repl.py \
-          -m openai/gpt-oss-120b \
-          -k OPENROUTER_API_KEY \
-          -b https://openrouter.ai/api/v1
-        ```
-
-
+```sh
+# OpenRouter
+python api_repl.py \
+  -m openai/gpt-oss-120b \
+  -k OPENROUTER_API_KEY \
+  -b https://openrouter.ai/api/v1
+```
 ---
 
 ### How to remove everything:
