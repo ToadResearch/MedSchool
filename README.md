@@ -50,7 +50,7 @@ Note: It might be better to migrate most work into a terminal environment becaus
 
 ### Basic tool-calling demo:
 
-Copy the example environment file to `.env`:
+Copy the example environment file to `.env` and update the api keys inside:
 
 ```bash
 cp .env.example .env
