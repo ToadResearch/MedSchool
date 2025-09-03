@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Use HAPI_PORT from environment/.env file, with a fallback to 8080
-HAPI_PORT="${HAPI_PORT:-8080}"
+# Use HAPI_PORT from environment/.env file, with a fallback to 8081
+HAPI_PORT="${HAPI_PORT:-8081}"
 
 BASE="${1:-http://localhost:${HAPI_PORT}/fhir}"
 

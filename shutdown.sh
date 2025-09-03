@@ -93,11 +93,11 @@ if [[ $PURGE -eq 1 ]]; then
 
   # Run compose down, including -v only when the volume actually exists
   if [[ "$USE_FLAG_V" -eq 1 ]]; then
-    echo "Purging stack (docker compose --profile sandbox down -v --rmi all)..."
-    docker compose -f "$COMPOSE_FILE" --env-file .env --profile sandbox down -v --rmi all
+    echo "Purging stack (docker compose down -v --rmi all)..."
+    docker compose -f "$COMPOSE_FILE" --env-file .env down -v --rmi all
   else
-    echo "Purging stack (docker compose --profile sandbox down --rmi all)..."
-    docker compose -f "$COMPOSE_FILE" --env-file .env --profile sandbox down --rmi all
+    echo "Purging stack (docker compose down --rmi all)..."
+    docker compose -f "$COMPOSE_FILE" --env-file .env down --rmi all
   fi
 
   # Fallback: explicitly remove the sandbox image if it exists and wasn't matched by compose
@@ -107,7 +107,7 @@ if [[ $PURGE -eq 1 ]]; then
 
 elif [[ $DOWN -eq 1 ]]; then
   echo " gracefully stopping and removing containers (including sandbox)..."
-  docker compose -f "$COMPOSE_FILE" --env-file .env --profile sandbox down
+  docker compose -f "$COMPOSE_FILE" --env-file .env down
   echo "Containers removed. Your data volume ('pgdata') is preserved."
   echo "   Run './startup.sh' to start again."
   echo "   To delete all data, run this script again with the '--purge' flag."

@@ -28,7 +28,7 @@ fi
 # Exit early if the token is not set, as all queries will fail.
 if [[ -z "${FHIR_BEARER_TOKEN:-}" ]]; then
   echo "Error: FHIR_BEARER_TOKEN is not set in the environment or .env file." >&2
-  echo "Please run './docker/nginx/scripts/generate_jwt.sh' and update your .env file." >&2
+  echo "Please run './scripts/generate_jwt.sh' and update your .env file." >&2
   exit 1
 fi
 
@@ -83,7 +83,7 @@ for t in $types; do
     echo "Error: Received HTTP 401 Unauthorized for resource type '$t'." >&2
     echo "Your FHIR_BEARER_TOKEN is likely invalid or has expired." >&2
     echo "" >&2
-    echo "SOLUTION: Run './docker/nginx/scripts/generate_jwt.sh' and" >&2
+    echo "SOLUTION: Run './scripts/generate_jwt.sh' and" >&2
     echo "          copy the new token into your .env file." >&2
     echo "------------------------------------------------------------------" >&2
     exit 1

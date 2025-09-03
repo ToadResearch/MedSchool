@@ -31,7 +31,7 @@ RESET=0
 
 # --- Services (edit here) ---
 # Base services that are always started with `up -d`.
-BASE_SERVICES=(gateway db hapi validator mcp sandbox)
+BASE_SERVICES=(db hapi middleman validator mcp sandbox)
 
 # All services to show in the service summary (can include one-shots like `uploader`).
 ALL_SERVICES=("${BASE_SERVICES[@]}" uploader)
@@ -110,7 +110,7 @@ echo "Kicking off validator pre-warm (runs once in background)..."
 docker compose -f "$COMPOSE_FILE" --env-file .env up -d validator-prewarm || true
 
 # Use HAPI_PORT from environment/.env file, with a fallback to 8080
-HAPI_PORT="${HAPI_PORT:-8080}"
+HAPI_PORT="${HAPI_PORT:-8081}"
 
 print_service_info() {
   echo ""

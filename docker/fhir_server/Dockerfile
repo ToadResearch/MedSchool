@@ -22,7 +22,7 @@ ARG FHIR_FLAVOUR=r4
 # ----------------------------------------------------------------------
 
 # ── Stage 0: helper shell for health-check ──────────────────────────────
-FROM busybox:1.36.1-musl AS bb
+FROM busybox:1.35 AS bb
 
 # ── Stage 1: download validator JARs (has curl) ─────────────────────────
 ARG HAPI_VERSION=8.2.0

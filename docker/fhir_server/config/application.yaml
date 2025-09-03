@@ -25,13 +25,13 @@ spring:
       hibernate.search.enabled: false
 
   # internal hapi auth not working now -- maybe revisit later 
-  # security:
-  #   oauth2:
-  #     resourceserver:
-  #       jwt:
-  #         # HAPI (via Spring Security) will verify HS256 signatures
-  #         # with this secret pulled from the container env.
-  #         secret: ${JWT_SHARED_SECRET}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # HAPI (via Spring Security) will verify HS256 signatures
+          # with this secret pulled from the container env.
+          secret: ${JWT_SHARED_SECRET}
 
 hapi:
   fhir:

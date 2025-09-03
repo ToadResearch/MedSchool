@@ -56,20 +56,20 @@ Note: It might be better to migrate most work into a terminal environment becaus
 2.  **Update `JWT_SHARED_SECRET` in `.env`**
     *   Open the `.env` file and change the value of `JWT_SHARED_SECRET` to a unique, random string.
 
-3.  **Run `./docker/nginx/scripts/generate_jwt.sh` to get a JWT**
+3.  **Run `./scripts/generate_jwt.sh` to get a JWT**
     *   This script creates the bearer token needed to authenticate with the FHIR server. You have a few options for how the token is generated:
         *   **Default (24-hour expiration):** Running the script with no flags creates a token that expires in 24 hours.
           ```sh
-          ./docker/nginx/scripts/generate_jwt.sh
+          ./scripts/generate_jwt.sh
           ```
         *   **Custom Expiration:** Use the `--expires-in <hours>` flag to specify a different lifespan.
           ```sh
           # Example: Create a token that lasts for one week (168 hours)
-          ./docker/nginx/scripts/generate_jwt.sh --expires-in 168
+          ./scripts/generate_jwt.sh --expires-in 168
           ```
         *   **No Expiration (For Demos):** For public demos with non-sensitive data, you can create a token that never expires using the `--no-expiry` flag.
           ```sh
-          ./docker/nginx/scripts/generate_jwt.sh --no-expiry
+          ./scripts/generate_jwt.sh --no-expiry
           ```
 
 4.  **Copy the generated token into `FHIR_BEARER_TOKEN`**

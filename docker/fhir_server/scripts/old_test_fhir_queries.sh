@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------------
 # test_fhir_queries.sh – Unified smoke + validation tests for the MedSchool
-# stack *through the NGINX gateway* (JWT-protected).
+# stack (JWT-protected via HAPI internal auth).
 #
 # It explicitly exercises ALL THREE validation levels with clear labels:
 #   [SERVER]   POST [base]/$validate
