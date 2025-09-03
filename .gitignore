@@ -13,3 +13,6 @@ chat_logs
 # other stuff
 .env
 __pycache__
+
+# middleman
+docker/middleman/target/*
