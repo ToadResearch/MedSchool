@@ -65,7 +65,7 @@ async fn forward_to_fhir(req: Request) -> Response {
 }
 
 async fn forward_to_terminology(req: Request) -> Response {
-    forward_request(req, "http://hapi:8080", "/terminology_server").await
+    forward_request(req, "http://tx.fhir.org/r4", "/terminology_server").await
 }
 
 #[tokio::main]
