@@ -12,6 +12,3 @@ dependencies = [
     "fastmcp",
     "pydantic"
 ]
-
-[project.optional-dependencies]
-train = []

@@ -1,5 +1,6 @@
 enabled:
   - fhir_query
+  - fhir_validate
   - python_exec
   - shell_exec
   - code_lookup
@@ -12,7 +13,6 @@ enabled:
 disabled_by_default:
   - snomed_to_icd10
   - icd10_to_snomed
-  - fhir_validate
   - fhir_doc
   - fhir_submit_bundle
   - notepad_write

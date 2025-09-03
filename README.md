@@ -53,32 +53,10 @@ Note: It might be better to migrate most work into a terminal environment becaus
 1.  **`cp .env.example .env`**
     *   This copies the example environment configuration file to a new `.env` file that you will use.
 
-2.  **Update `JWT_SHARED_SECRET` in `.env`**
-    *   Open the `.env` file and change the value of `JWT_SHARED_SECRET` to a unique, random string.
-
-3.  **Run `./scripts/generate_jwt.sh` to get a JWT**
-    *   This script creates the bearer token needed to authenticate with the FHIR server. You have a few options for how the token is generated:
-        *   **Default (24-hour expiration):** Running the script with no flags creates a token that expires in 24 hours.
-          ```sh
-          ./scripts/generate_jwt.sh
-          ```
-        *   **Custom Expiration:** Use the `--expires-in <hours>` flag to specify a different lifespan.
-          ```sh
-          # Example: Create a token that lasts for one week (168 hours)
-          ./scripts/generate_jwt.sh --expires-in 168
-          ```
-        *   **No Expiration (For Demos):** For public demos with non-sensitive data, you can create a token that never expires using the `--no-expiry` flag.
-          ```sh
-          ./scripts/generate_jwt.sh --no-expiry
-          ```
-
-4.  **Copy the generated token into `FHIR_BEARER_TOKEN`**
-    *   After running the script, paste the output token into the `FHIR_BEARER_TOKEN` variable in your `.env` file.
-
-5.  **Run `./startup.sh --synthea`**
+2.  **Run `./startup.sh --synthea`**
     *   This command starts all the Docker services and runs a job to download and load synthetic patient data into the server.
 
-6. **Use the MCP server (two options)**
+3. **Use the MCP server (two options)**
 
     **Option A:** Update the `mcp.json` used by your client and add:
 
