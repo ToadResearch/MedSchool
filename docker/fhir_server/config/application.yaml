@@ -49,8 +49,8 @@ hapi:
     # TODO: run local terminology server
     # installing codes would increase image size, so trade off size for latency -- for now!
     terminology:
-      remote_terminology_service_enabled: true
-      remote_terminology_server_base_url: "https://tx.fhir.org/r4"   # or HL7 test server
+      remote_terminology_service_enabled: ${REMOTE_TS_ENABLED:true}
+      remote_terminology_server_base_url: "${REMOTE_TS_BASE:https://tx.fhir.org/r4}"   # or HL7 test server
 
 
     # Make validation blocking: fail when severity >= error

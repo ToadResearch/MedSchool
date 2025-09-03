@@ -115,7 +115,7 @@ Note: It might be better to migrate most work into a terminal environment becaus
         ```sh
         # OpenRouter
         python api_repl.py \
-          -m google/gemini-2.5-pro \
+          -m openai/gpt-oss-120b \
           -k OPENROUTER_API_KEY \
           -b https://openrouter.ai/api/v1
         ```

@@ -90,6 +90,11 @@ services:
       # adds additional search locations for the application.yaml file -- works :)
       SPRING_CONFIG_ADDITIONAL_LOCATION: "file:/app/config/"  
       JWT_SHARED_SECRET: ${JWT_SHARED_SECRET}
+
+      # remote when TERMINOLOGY_MODE=remote, else false
+      REMOTE_TS_ENABLED: ${REMOTE_TS_ENABLED}
+      REMOTE_TS_BASE: ${REMOTE_TS_BASE}
+
     volumes:
       # inject local config file into container (local file path and container path), ro for read only
       - ./docker/fhir_server/config/application.yaml:/app/config/application.yaml:ro
@@ -189,6 +194,20 @@ services:
       SYNTHEA_ZIP_URL: ${SYNTHEA_ZIP_URL}
     networks:
       - medschool-net
+    restart: "no"
+
+  termloader:
+    build:
+      context: ./docker/term_loader
+      args:
+        HAPI_VERSION: ${HAPI_VERSION:-8.6.0}
+    environment:
+      TARGET_FHIR_BASE: http://hapi:8080/fhir   # inside the compose network, no auth needed
+      JAVA_TOOL_OPTIONS: "-Xms1g -Xmx6g"
+    depends_on:
+      - hapi
+    volumes:
+      - ./data/terminology:/data:ro
     restart: "no"
 
 
