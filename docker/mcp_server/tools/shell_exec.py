@@ -68,7 +68,16 @@ print(json.dumps({{"stdout": p.stdout, "stderr": p.stderr, "exit_code": p.return
             resp.raise_for_status()
             data = resp.json()
     except httpx.HTTPError as e:
-        raise ToolError(f"sandbox HTTP error: {e}. Check sandbox service ({EXEC_URL}).") from e
+        status = getattr(getattr(e, "response", None), "status_code", None)
+        reason = getattr(getattr(e, "response", None), "reason_phrase", "")
+        body_snip = ""
+        if getattr(e, "response", None) is not None:
+            try:
+                j = e.response.json()
+                body_snip = json.dumps(j)[:1000]
+            except Exception:
+                body_snip = (e.response.text or "")[:1000]
+        raise ToolError(f"sandbox HTTP error: {status} {reason}. Body: {body_snip}. Check sandbox service ({EXEC_URL}).") from e
     except Exception as e:
         raise ToolError(f"sandbox invocation error: {e}.") from e
 

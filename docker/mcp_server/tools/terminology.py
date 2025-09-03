@@ -24,7 +24,11 @@ if "code_lookup" in settings.enabled:
         ),
     )
     def code_lookup(code: str, system: str | None = None) -> Dict[str, Any]:
-        return tc.lookup(code, system)
+        result = tc.lookup(code, system)
+        # If the client surfaced an error body, pass through verbatim so chat sees the details.
+        if isinstance(result, dict) and result.get("error"):
+            return result
+        return result
 
 
 # ────────────────── Simple hard-wired cross-walks ───────────────

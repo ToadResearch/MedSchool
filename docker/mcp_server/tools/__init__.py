@@ -6,14 +6,22 @@ ALL = {
     "fhir_submit_bundle": "mcp_server.tools.fhir",
     "fhir_validate": "mcp_server.tools.fhir",
     "fhir_doc": "mcp_server.tools.fhir",
+    
     "code_lookup": "mcp_server.tools.terminology",
     "snomed_to_icd10": "mcp_server.tools.terminology",
+    
     "icd10_to_snomed": "mcp_server.tools.terminology",
     "notepad_write": "mcp_server.tools.notepad",
     "notepad_read": "mcp_server.tools.notepad",
     "notepad_clear": "mcp_server.tools.notepad",
+    
     "python_exec": "mcp_server.tools.python_exec",
     "shell_exec": "mcp_server.tools.shell_exec",
+    
+    "openfda_adverse_events": "mcp_server.tools.openfda",
+    "openfda_label": "mcp_server.tools.openfda",
+    "openfda_recalls": "mcp_server.tools.openfda",
+    "openfda_drug_shortages": "mcp_server.tools.openfda"
 }
 
 

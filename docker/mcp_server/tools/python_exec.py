@@ -51,7 +51,7 @@ def python_exec(code: str | None = None) -> PythonExecResult:
     # If no code is provided, report environment info (python + installed packages)
     if not code:
         code = (
-            "import json,importlib.metadata,platform\n"
+            "import json, importlib.metadata, platform\n"
             "pkgs=[{'name':d.metadata['Name'],'version':d.version}"
             "      for d in importlib.metadata.distributions()]\n"
             "print(json.dumps({'python':platform.python_version(),"
@@ -73,7 +73,17 @@ def python_exec(code: str | None = None) -> PythonExecResult:
             data = resp.json()
     except httpx.HTTPError as e:
         # Transport/HTTP problems reaching the sandbox → tool execution error
-        raise ToolError(f"sandbox HTTP error: {e}. Check sandbox service ({EXEC_URL}).") from e
+        status = getattr(getattr(e, "response", None), "status_code", None)
+        reason = getattr(getattr(e, "response", None), "reason_phrase", "")
+        body_snip = ""
+        if getattr(e, "response", None) is not None:
+            try:
+                j = e.response.json()
+                body_snip = json.dumps(j)[:1000]
+            except Exception:
+                body_snip = (e.response.text or "")[:1000]
+        msg = f"sandbox HTTP error: {status} {reason}. Body: {body_snip}. Check sandbox service ({EXEC_URL})."
+        raise ToolError(msg) from e
     except Exception as e:
         # Any unexpected client-side error
         raise ToolError(f"sandbox invocation error: {e}.") from e

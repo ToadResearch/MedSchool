@@ -3,6 +3,11 @@ enabled:
   - python_exec
   - shell_exec
   - code_lookup
+  - openfda_adverse_events
+  - openfda_label
+  - openfda_recalls
+  - openfda_drug_shortages
+
 
 disabled_by_default:
   - snomed_to_icd10
@@ -19,11 +24,19 @@ limits:
     max_results: 50
     timeout_s: 15
   code_lookup:
-    timeout_s: 10         # optional
+    timeout_s: 10
   python_exec:
     timeout_s: 10
   shell_exec:
     timeout_s: 10
+  openfda_adverse_events:
+    timeout_s: 12
+  openfda_label:
+    timeout_s: 12
+  openfda_recalls:
+    timeout_s: 12
+  openfda_drug_shortages:
+    timeout_s: 12
 
 auth:
   passthrough: bearer

@@ -28,9 +28,21 @@ if "fhir_query" in settings.enabled:
     )
     def fhir_query(path: str) -> str:
         data = http_get(path)
+
+        # If the client surfaced an error/OperationOutcome, pass it through verbatim.
+        if isinstance(data, dict) and data.get("error"):
+            return json.dumps(data, separators=(",", ":"))
+
         # Truncate search bundles if a limit is configured
         lim = _limit_for("fhir_query")
-        if lim and getattr(lim, "max_results", None) and isinstance(data, dict) and "entry" in data:
+        if (
+            lim
+            and getattr(lim, "max_results", None)
+            and isinstance(data, dict)
+            and data.get("resourceType") == "Bundle"
+            and "entry" in data
+            and isinstance(data["entry"], list)
+        ):
             data["entry"] = data["entry"][: lim.max_results]
         return json.dumps(data, separators=(",", ":"))
 
@@ -43,6 +55,9 @@ if "fhir_submit_bundle" in settings.enabled:
     def fhir_submit_bundle(bundle_json: str) -> str:
         bundle = json.loads(bundle_json)
         data = http_post("", bundle)
+        # Pass through error if present
+        if isinstance(data, dict) and data.get("error"):
+            return json.dumps(data, separators=(",", ":"))
         return json.dumps(data, separators=(",", ":"))
 
 # ───────────────────────────── fhir_validate ──────────────────────────
@@ -56,7 +71,11 @@ if "fhir_validate" in settings.enabled:
     )
     def fhir_validate(resource_json: str) -> dict[str, Any]:
         resource = json.loads(resource_json)
-        return http_post("$validate", resource)
+        data = http_post("$validate", resource)
+        # If the client detected an HTTP error, passthrough as-is (contains OperationOutcome if returned)
+        if isinstance(data, dict) and data.get("error"):
+            return data
+        return data  # usually an OperationOutcome; return as-is
 
 # ───────────────────────────────── fhir_doc ───────────────────────────
 if "fhir_doc" in settings.enabled:

@@ -27,10 +27,22 @@ If you're interested in clinical intelligence, developing realistic health/medic
 
 ### Current tools available:
 
-- **fhir_query**: read FHIR records
-- **python_exec**: execute a python 
-- **shell_exec**: execute shell command
-- **code_lookup**: get display name and synonyms for a given code (e.g., ICD-10, CPT/HCPCS, SNOMED, LOINC, RxNorm)
+- **FHIR:**
+  - **fhir_query**: read FHIR records
+
+- **Code Execution:**
+  - **python_exec**: execute python scripts in a sandbox
+  - **shell_exec**: execute shell scripts and commands in a sandbox
+
+- **Terminology:**
+  - **code_lookup**: get display name and synonyms for a given code (e.g., ICD-10, CPT/HCPCS, SNOMED, LOINC, RxNorm)
+
+- **OpenFDA:**
+  - **openfda_label**: fetch FDA drug label (SPL) sections like indications, warnings, contraindications, dosage
+  - **openfda_adverse_events**: query FAERS adverse event reports (serious %, top reactions, sample cases, outcome filters)
+  - **openfda_recalls**: search FDA drug enforcement reports (recalls) with classification, status, and reason
+  - **openfda_drug_shortages**: fetch FDA drug shortages (current/archived) with status, last-updated, and reason
+
 
 Note: It might be better to migrate most work into a terminal environment because FHIR records are very large json objects that quickly fill context windows. For example, if you're doing payment analysis over a patient record, it might be best to pipe FHIR query results directly into a python process, rather than wasting context to copy and paste it in. This is especially a problem when running models locally. Notepads (like in Claude plays Pokemon, [here](https://x.com/omarsar0/status/1961073840706203804), or even [here](https://x.com/EyubogluSabri/status/1932106746446905552)) to store additional context could help as long as no data is leaked between patients. Working inside a terminal would also let us use the [CLI FHIR validator](https://github.com/hapifhir/org.hl7.fhir.validator-wrapper), instead of pinging the server.
 
@@ -103,7 +115,7 @@ Note: It might be better to migrate most work into a terminal environment becaus
         ```sh
         # OpenRouter
         python api_repl.py \
-          -m openai/gpt-oss-120b \
+          -m google/gemini-2.5-pro \
           -k OPENROUTER_API_KEY \
           -b https://openrouter.ai/api/v1
         ```
