@@ -196,19 +196,19 @@ services:
       - medschool-net
     restart: "no"
 
-  termloader:
-    build:
-      context: ./docker/term_loader
-      args:
-        HAPI_VERSION: ${HAPI_VERSION:-8.6.0}
-    environment:
-      TARGET_FHIR_BASE: http://hapi:8080/fhir   # inside the compose network, no auth needed
-      JAVA_TOOL_OPTIONS: "-Xms1g -Xmx6g"
-    depends_on:
-      - hapi
-    volumes:
-      - ./data/terminology:/data:ro
-    restart: "no"
+  # termloader:
+  #   build:
+  #     context: ./docker/term_loader
+  #     args:
+  #       HAPI_VERSION: ${HAPI_VERSION:-8.6.0}
+  #   environment:
+  #     TARGET_FHIR_BASE: http://hapi:8080/fhir   # inside the compose network, no auth needed
+  #     JAVA_TOOL_OPTIONS: "-Xms1g -Xmx6g"
+  #   depends_on:
+  #     - hapi
+  #   volumes:
+  #     - ./data/terminology:/data:ro
+  #   restart: "no"
 
 
   mcp:
