@@ -64,6 +64,7 @@ services:
       # remote when TERMINOLOGY_MODE=remote, else false
       REMOTE_TS_ENABLED: ${REMOTE_TS_ENABLED}
       REMOTE_TS_BASE: ${REMOTE_TS_BASE}
+      LOCAL_ADDRESS: ${LOCAL_ADDRESS}
 
     volumes:
       # inject local config file into container (local file path and container path), ro for read only
@@ -73,7 +74,7 @@ services:
     healthcheck:
       # once the metadata is available, we know the server is running
       # busybox wget added to the hapi image in Dockerfile for healthcheck
-      test: ["CMD", "/busybox", "nc", "-z", "localhost", "8080"]
+      test: ["CMD", "/busybox", "nc", "-z", "${LOCAL_ADDRESS}", "8080"]
       interval: 5s
       timeout: 5s
       retries: 40
@@ -92,10 +93,11 @@ services:
       - VALIDATOR_PREWARM_SV=${VALIDATOR_PREWARM_SV:-4.0.1}
       - VALIDATOR_PREWARM_TIMEOUT=${VALIDATOR_PREWARM_TIMEOUT:-90}
       - VALIDATOR_STARTUP_WAIT=${VALIDATOR_STARTUP_WAIT:-30}
+      - LOCAL_ADDRESS=${LOCAL_ADDRESS}
     networks:
       - medschool-net
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://localhost:3500/versions >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O- http://${LOCAL_ADDRESS}:3500/versions >/dev/null 2>&1 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -134,6 +136,7 @@ services:
       SANDBOX_IMAGE: "medschool-sandbox"
       # Optional: enable gVisor if installed on the host: SANDBOX_RUNTIME=runsc
       # SANDBOX_RUNTIME: "runsc"
+      LOCAL_ADDRESS: ${LOCAL_ADDRESS}
     networks: [medschool-net]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -143,7 +146,7 @@ services:
       mcp:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8088/healthz >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://${LOCAL_ADDRESS}:8088/healthz >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -196,11 +199,12 @@ services:
       FHIR_BASE_URL: "http://middleman:${MIDDLEMAN_PORT:-3000}/${FHIR_SERVER_ROUTE}/fhir"
       FHIR_SERVER_ROUTE: ${FHIR_SERVER_ROUTE}
       PYEXEC_EXECUTOR_URL: "${MCP_PYEXEC_EXECUTOR_URL:-http://sandbox:8088}"
+      LOCAL_ADDRESS: ${LOCAL_ADDRESS}
     networks:
       - medschool-net
     healthcheck:
       # use python since the base image is python:3.11-slim
-      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://localhost:8000/health'); sys.exit(0)"]
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://${LOCAL_ADDRESS}:8000/health'); sys.exit(0)"]
       interval: 5s
       timeout: 5s
       retries: 40

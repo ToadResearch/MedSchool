@@ -26,7 +26,7 @@ class Settings(BaseModel):
 
     # ── FHIR data server (your HAPI instance) ───────────────────
     fhir_base_url: str = Field(
-        default_factory=lambda: os.getenv("FHIR_BASE_URL", "http://localhost:8080/fhir")
+        default_factory=lambda: os.getenv("FHIR_BASE_URL", "http://${LOCAL_ADDRESS}:${MIDDLEMAN_PORT}/${FHIR_SERVER_ROUTE}/fhir")
     )
     bearer_token: str | None = Field(default_factory=lambda: os.getenv("FHIR_BEARER_TOKEN"))
 

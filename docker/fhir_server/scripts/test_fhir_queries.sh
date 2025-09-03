@@ -69,7 +69,7 @@ fi
 # ─────────────────────────── Env sanity checks ─────────────────────────────
 [[ -z "${FHIR_BEARER_TOKEN:-}" ]] && { echo "${RED}FHIR_BEARER_TOKEN not set${RST}"; exit 1; }
 
-HOST="localhost"
+HOST="${LOCAL_ADDRESS}"
 PORT="${HAPI_PORT:-8080}"
 BASE_URL="http://$HOST:$PORT/fhir"
 

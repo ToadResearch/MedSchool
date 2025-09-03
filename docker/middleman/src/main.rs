@@ -73,10 +73,11 @@ async fn main() -> Result<(), std::io::Error> {
     tracing_subscriber::fmt::init();
 
     let port = env::var("MIDDLEMAN_PORT").unwrap_or_else(|_| "3000".to_string());
-    let bind_addr = format!("0.0.0.0:{}", port);
+    let local_address = env::var("LOCAL_ADDRESS").unwrap_or_else(|_| "0.0.0.0".to_string());
+    let bind_addr = format!("{}:{}", local_address, port);
 
     let api_service =
-        OpenApiService::new(Api, "Hello World", "1.0").server(&format!("http://localhost:{}/api", port));
+        OpenApiService::new(Api, "Hello World", "1.0").server(&format!("http://{}/api", bind_addr));
     let ui = api_service.swagger_ui();
 
     Server::new(TcpListener::bind(&bind_addr))
