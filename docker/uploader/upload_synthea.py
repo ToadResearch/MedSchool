@@ -11,6 +11,9 @@
 import os, re, time, argparse, sys, asyncio
 from typing import List, Tuple, Optional
 import aiohttp
+from dotenv import load_dotenv
+
+load_dotenv()
 
 HAPI_MATCH_ERR = "Invalid match URL"
 
@@ -100,7 +103,13 @@ async def main():
     # Use a slightly higher default for async, as it's more efficient
     default_workers = min(32, (os.cpu_count() or 1) * 5)
     ap = argparse.ArgumentParser(description="Upload Synthea FHIR bundles to HAPI in a safe order using asyncio.")
-    ap.add_argument("--base-url", default="http://${LOCAL_ADDRESS}:${MIDDLEMAN_PORT}/${FHIR_SERVER_ROUTE}/fhir")
+    default_base = (
+        f"http://{os.getenv('LOCAL_ADDRESS', '0.0.0.0')}:"
+        f"{os.getenv('MIDDLEMAN_PORT', '3000')}/"
+        f"{os.getenv('FHIR_SERVER_ROUTE', 'fhir_server')}/fhir"
+    )
+    ap.add_argument("--base-url", default=default_base)
+    # ap.add_argument("--base-url", default=os.path.expandvars("http://${LOCAL_ADDRESS}:${MIDDLEMAN_PORT}/${FHIR_SERVER_ROUTE}/fhir"))
     ap.add_argument("--dir", required=True)
     ap.add_argument("--token", default=None)
     ap.add_argument("--retry", type=int, default=1)
