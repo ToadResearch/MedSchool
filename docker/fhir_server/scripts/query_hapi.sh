@@ -33,7 +33,7 @@ if [[ -z "${FHIR_BEARER_TOKEN:-}" ]]; then
 fi
 
 # ─── Configuration & Dependencies ─────────────────────────────────────────
-BASE_URL="${1:-http://localhost:8080/fhir}"
+BASE_URL="${1:-http://localhost:3000/fhir}"
 ACCEPT="application/fhir+json"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing dependency: $1" >&2; exit 1; }; }

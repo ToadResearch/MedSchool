@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # MedSchool/startup.sh
 # ------------------------------------------------------------
-# Usage Modes:
+# Usa# Use MIDDLEMAN_PORT from environment/.env file, with a fallback to 3000
+MIDDLEMAN_PORT="${MIDDLEMAN_PORT:-3000}" Modes:
 #
 #   Default:
 #       ./startup.sh
@@ -140,7 +141,7 @@ fi
 
 echo "Counting resources (requires a valid token in .env)..."
 "$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" # TODO: the query_hapi.sh fails on --synthea flag if this isn't run first... figure out why
-"$REPO_ROOT/docker/fhir_server/scripts/query_hapi.sh" "http://localhost:${HAPI_PORT}/fhir" || true
+"$REPO_ROOT/docker/fhir_server/scripts/query_hapi.sh" "http://localhost:${MIDDLEMAN_PORT}/fhir" || true
 
 echo -e "\nDone."
 if [[ $WITH_SYNTHEA -eq 0 ]]; then
