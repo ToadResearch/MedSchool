@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------------
 # test_fhir_queries.sh – Unified smoke + validation tests for the MedSchool
-# stack *through the NGINX gateway* (JWT-protected).
+# stack (JWT-protected via HAPI internal auth).
 #
 # It explicitly exercises ALL THREE validation levels with clear labels:
 #   [SERVER]   POST [base]/$validate
@@ -63,7 +63,7 @@ fi
 # ─────────────────────────── Env sanity checks ─────────────────────────────
 [[ -z "${FHIR_BEARER_TOKEN:-}" ]] && { echo "${RED}FHIR_BEARER_TOKEN not set${RST}"; exit 1; }
 
-HOST="localhost"
+HOST="${LOCAL_ADDRESS}"
 PORT="${HAPI_PORT:-8080}"
 BASE_URL="http://$HOST:$PORT/fhir"
 

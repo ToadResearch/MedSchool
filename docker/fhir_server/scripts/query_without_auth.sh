@@ -21,7 +21,7 @@ fi
 if [[ -n "${FHIR_BASE_URL:-}" ]]; then
   BASE_URL="$FHIR_BASE_URL"
 else
-  HOST="localhost"
+  HOST="${LOCAL_ADDRESS}"
   PORT="${HAPI_PORT:-8080}"
   BASE_URL="http://$HOST:$PORT/fhir"
 fi

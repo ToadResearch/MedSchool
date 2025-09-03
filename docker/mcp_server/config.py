@@ -6,7 +6,9 @@ from pathlib import Path
 from functools import lru_cache
 import yaml
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class ToolLimit(BaseModel):
     max_results: int | None = None
@@ -26,14 +28,15 @@ class Settings(BaseModel):
 
     # ── FHIR data server (your HAPI instance) ───────────────────
     fhir_base_url: str = Field(
-        default_factory=lambda: os.getenv("FHIR_BASE_URL", "http://localhost:8080/fhir")
+        default_factory=lambda: os.path.expandvars(os.getenv("FHIR_BASE_URL", "i am dumb brok fhir"))
     )
     bearer_token: str | None = Field(default_factory=lambda: os.getenv("FHIR_BEARER_TOKEN"))
 
     # ── terminology server ─────────────────────────────
     terminology_base_url: str = Field(
-        default_factory=lambda: os.getenv("TERMINOLOGY_BASE_URL", "https://tx.fhir.org/r4")
+        default_factory=lambda: os.path.expandvars(os.getenv("TERMINOLOGY_BASE_URL", "i am dumb broke"))
     )
+
 
 
 @lru_cache(maxsize=1)

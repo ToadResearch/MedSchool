@@ -2,40 +2,12 @@
 #   db (Postgres) becomes healthy.
 #   hapi waits for db → becomes healthy.
 #   validator (HL7 validator-wrapper) waits for hapi → starts.
-#   gateway (NGINX) waits for both hapi and validator → starts.
 #   uploader waits for hapi → runs one-shot to load data (optional).
 #   mcp waits for hapi → becomes healthy.
 #   sandbox waits for mcp → becomes healthy.
 #   prewarm waits for validator → runs one-shot to prewarm the validator.
 
-version: "3.9"
-
 services:
-
-  gateway:
-    image: nginx:1.28.0
-    container_name: medschool-gateway
-    restart: unless-stopped
-    ports:
-      # This is now the single public entry point for the FHIR API
-      - "${HAPI_PORT}:80"
-    environment:
-      # This secret is passed to Nginx and then to the njs script for validation
-      JWT_SHARED_SECRET: ${JWT_SHARED_SECRET}
-    volumes:
-      # Mount the Nginx configs as read-only
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./docker/nginx/scripts/jwt.js:/etc/nginx/scripts/jwt.js:ro
-      # Template that bakes the JWT secret into a conf file via envsubst
-      - ./docker/nginx/templates/jwt_secret.conf.template:/etc/nginx/templates/jwt_secret.conf.template:ro
-    networks:
-      - medschool-net
-    depends_on:
-      hapi:
-        condition: service_healthy 
-      validator:
-        condition: service_healthy
 
   db:
     image: postgres:15
@@ -69,8 +41,6 @@ services:
         # hapi will wait until db is ready before starting
         condition: service_healthy 
     restart: unless-stopped
-    # ports:
-    #   - "8081:8080" #"${HAPI_PORT}:8080" # port closed now, use nginx gateway port instead
     environment:
       # initial heap of 2GiB and max of 4GiB, exits onOOM
       # JAVA_TOOL_OPTIONS: "-Xms2g -Xmx4g -XX:+ExitOnOutOfMemoryError"
@@ -94,6 +64,7 @@ services:
       # remote when TERMINOLOGY_MODE=remote, else false
       REMOTE_TS_ENABLED: ${REMOTE_TS_ENABLED}
       REMOTE_TS_BASE: ${REMOTE_TS_BASE}
+      LOCAL_ADDRESS: ${LOCAL_ADDRESS}
 
     volumes:
       # inject local config file into container (local file path and container path), ro for read only
@@ -103,8 +74,7 @@ services:
     healthcheck:
       # once the metadata is available, we know the server is running
       # busybox wget added to the hapi image in Dockerfile for healthcheck
-      test: ["CMD", "/busybox", "wget", "-q", "--spider", "http://localhost:8080/fhir/metadata"]
-    
+      test: ["CMD", "/busybox", "nc", "-z", "${LOCAL_ADDRESS}", "8080"]
       interval: 5s
       timeout: 5s
       retries: 40
@@ -123,10 +93,11 @@ services:
       - VALIDATOR_PREWARM_SV=${VALIDATOR_PREWARM_SV:-4.0.1}
       - VALIDATOR_PREWARM_TIMEOUT=${VALIDATOR_PREWARM_TIMEOUT:-90}
       - VALIDATOR_STARTUP_WAIT=${VALIDATOR_STARTUP_WAIT:-30}
+      - LOCAL_ADDRESS=${LOCAL_ADDRESS}
     networks:
       - medschool-net
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://localhost:3500/versions >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O- http://${LOCAL_ADDRESS}:3500/versions >/dev/null 2>&1 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -165,6 +136,7 @@ services:
       SANDBOX_IMAGE: "medschool-sandbox"
       # Optional: enable gVisor if installed on the host: SANDBOX_RUNTIME=runsc
       # SANDBOX_RUNTIME: "runsc"
+      LOCAL_ADDRESS: ${LOCAL_ADDRESS}
     networks: [medschool-net]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -174,7 +146,7 @@ services:
       mcp:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8088/healthz >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://${LOCAL_ADDRESS}:8088/healthz >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -224,13 +196,16 @@ services:
       MCP_HOST: ${MCP_HOST}
       MCP_HTTP_PATH: ${MCP_HTTP_PATH}
       FHIR_BEARER_TOKEN: ${FHIR_BEARER_TOKEN} # TODO: potentially remove this, have the client provide it, like in mcp.json
-      FHIR_BASE_URL: "http://gateway/fhir"
+      FHIR_BASE_URL: "http://middleman:3000/fhir_server/fhir" #${FHIR_BASE_URL}
+      TERMINOLOGY_BASE_URL: "http://middleman:3000/terminology_server" # ${TERMINOLOGY_BASE_URL}
+      FHIR_SERVER_ROUTE: ${FHIR_SERVER_ROUTE}
       PYEXEC_EXECUTOR_URL: "${MCP_PYEXEC_EXECUTOR_URL:-http://sandbox:8088}"
+      LOCAL_ADDRESS: ${LOCAL_ADDRESS}
     networks:
       - medschool-net
     healthcheck:
       # use python since the base image is python:3.11-slim
-      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://localhost:8000/health'); sys.exit(0)"]
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://${LOCAL_ADDRESS}:8000/health'); sys.exit(0)"]
       interval: 5s
       timeout: 5s
       retries: 40
@@ -239,6 +214,20 @@ services:
       # pin port to loopback to only allow access to host machine
       - "127.0.0.1:${MCP_PORT:-8000}:${MCP_PORT:-8000}"
 
+  middleman:
+    build:
+      context: ./docker/middleman
+    container_name: medschool-middleman
+    restart: unless-stopped
+    depends_on:
+      hapi:
+        condition: service_healthy
+    environment:
+      MIDDLEMAN_PORT: ${MIDDLEMAN_PORT:-3000}
+    ports:
+      - "${MIDDLEMAN_PORT:-3000}:${MIDDLEMAN_PORT:-3000}"
+    networks:
+      - medschool-net
 
 networks:
   medschool-net:
