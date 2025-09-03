@@ -141,7 +141,7 @@ fi
 
 echo "Counting resources (requires a valid token in .env)..."
 "$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" # TODO: the query_hapi.sh fails on --synthea flag if this isn't run first... figure out why
-"$REPO_ROOT/docker/fhir_server/scripts/query_hapi.sh" "http://localhost:${MIDDLEMAN_PORT}/fhir" || true
+"$REPO_ROOT/docker/fhir_server/scripts/query_hapi.sh" "http://localhost:${MIDDLEMAN_PORT}/${FHIR_SERVER_ROUTE}/fhir" || true
 
 echo -e "\nDone."
 if [[ $WITH_SYNTHEA -eq 0 ]]; then
