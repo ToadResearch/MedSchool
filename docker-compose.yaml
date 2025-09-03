@@ -193,7 +193,7 @@ services:
       MCP_HOST: ${MCP_HOST}
       MCP_HTTP_PATH: ${MCP_HTTP_PATH}
       FHIR_BEARER_TOKEN: ${FHIR_BEARER_TOKEN} # TODO: potentially remove this, have the client provide it, like in mcp.json
-      FHIR_BASE_URL: "http://middleman:3000/fhir"
+      FHIR_BASE_URL: "http://middleman:${MIDDLEMAN_PORT:-3000}/fhir"
       PYEXEC_EXECUTOR_URL: "${MCP_PYEXEC_EXECUTOR_URL:-http://sandbox:8088}"
     networks:
       - medschool-net
@@ -219,7 +219,7 @@ services:
     environment:
       MIDDLEMAN_PORT: ${MIDDLEMAN_PORT:-3000}
     ports:
-      - "${MIDDLEMAN_PORT:-3000}:3000"
+      - "${MIDDLEMAN_PORT:-3000}:${MIDDLEMAN_PORT:-3000}"
     networks:
       - medschool-net
 
