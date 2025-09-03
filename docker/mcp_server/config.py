@@ -37,8 +37,7 @@ class Settings(BaseModel):
         default_factory=lambda: os.path.expandvars(os.getenv("TERMINOLOGY_BASE_URL", "i am dumb broke"))
     )
 
-    print(f"\n\n\n\n\n{fhir_base_url=}\n\n\n")
-    print(f"\n\n\n\n\n{terminology_base_url=}\n\n\n")
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

@@ -105,6 +105,11 @@ def _infer_system(code: str) -> str:
 def lookup(code: str, system: str | None = None) -> Dict[str, Any]:
     system = system or _infer_system(code)
     url = f"{settings.terminology_base_url.rstrip('/')}/CodeSystem/$lookup"
+
+    print(f"\n\n\n\n\nurl: {url}")
+    print(f"base terminology url: {settings.terminology_base_url.rstrip('/')}")
+    
+    
     params = {"code": code, "system": system}
     timeout_s = getattr(settings.limits.get("code_lookup"), "timeout_s", 10) or 10
 
