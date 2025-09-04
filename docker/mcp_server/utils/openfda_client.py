@@ -2,10 +2,18 @@
 # https://open.fda.gov/about/status/
 # modified from https://github.com/snap-stanford/Biomni/blob/main/biomni/tool/pharmacology.py
 from __future__ import annotations
-import httpx
-from typing import Any, Dict, List, Optional, Tuple
 
-BASE_URL = "https://api.fda.gov"
+import os
+from typing import Any, Dict, List, Optional
+
+import httpx
+
+from ..config import get_settings
+
+settings = get_settings()
+
+BASE_URL = settings.openfda_base_url.rstrip("/")
+USER_AGENT = os.getenv("OPENFDA_USER_AGENT", "medschool-mcp/1.0")
 
 def _std_drug_name(name: str) -> str:
     """Light standardization for query consistency."""
@@ -21,16 +29,21 @@ def _std_drug_name(name: str) -> str:
 
 def _get(endpoint: str, params: Dict[str, Any], timeout_s: int = 15) -> Dict[str, Any]:
     """
-    Low-level GET wrapper for openFDA.
+    Low-level GET wrapper for openFDA (or its proxied base).
 
     • Never raises on HTTP status; instead returns a normalized dict that includes:
       - results/meta for success (and url), or
       - error/error_body/http_status/url for failures.
     • Always attempts to parse JSON, even for non-2xx responses, so upstream tools
       can surface the real error body into chat.
+
+    `endpoint` should be like "drug/event", "drug/label", "drug/enforcement", "drug/shortages".
     """
+    # Middleman-compatible and direct-compatible path:
+    #   BASE_URL + "/<endpoint>.json"
     url = f"{BASE_URL}/{endpoint}.json"
-    with httpx.Client(timeout=timeout_s, headers={"User-Agent": "medschool-mcp/1.0"}) as client:
+
+    with httpx.Client(timeout=timeout_s, headers={"User-Agent": USER_AGENT}) as client:
         r = client.get(url, params=params)
 
         raw_text = r.text
@@ -221,7 +234,6 @@ def filter_adverse_events(
         "meta": {"results": {"total": len(filtered)}},
         "disclaimer": payload.get("disclaimer"),
     }
-
 
 def summarize_shortages(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Small roll-up: counts by status, distinct manufacturers/forms, and example products."""

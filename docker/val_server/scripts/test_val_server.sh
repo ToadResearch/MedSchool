@@ -2,9 +2,9 @@
 # ------------------------------------------------------------------------------
 # test_val_server.sh
 #
-# Minimal smoke test for the Validator Wrapper (through the project gateway).
-#
-# Uniform gateway surface:
+# Minimal smoke test for the Validator Wrapper.
+# TODO: remove this and fix it to use generic endpoints with new middleman
+# Uniform gateway surface: 
 #   All validator endpoints are exposed as: http://<gateway>/validator/<endpoint>
 #
 # Defaults:
@@ -18,9 +18,7 @@
 #   - POST /validator/validate    → validate a bad  Patient (R4)
 #
 # Auth:
-#   If your gateway protects /validator/*, set FHIR_BEARER_TOKEN in your env
-#   or in a .env file. This script will send:
-#     Authorization: Bearer <token>
+#   No authentication required for validator endpoints.
 #
 # Requirements: bash, curl, jq (uuidgen optional; we fall back if missing)
 #
@@ -28,9 +26,6 @@
 #   ./docker/val_server/scripts/test_val_server.sh
 #   ./docker/val_server/scripts/test_val_server.sh http://localhost:8080/validator
 #
-# Direct container note:
-#   This script targets the gateway surface. To hit the container directly,
-#   use local_test_val_server.sh instead (which calls root endpoints).
 #
 # Robustness note:
 #   We *do not* use an AUTH_HEADER array under `set -u`. Instead, curl_auth()
@@ -47,10 +42,11 @@ fi
 # --- resolve script dir (for relative .env lookup) --------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# TODO: remove this and fix it to use generic endpoints with new middleman
 # --- base URL (default: gateway path) ---------------------------------------------
-BASE_URL_DEFAULT="http://localhost:8080/validator"
-BASE_URL="${1:-$BASE_URL_DEFAULT}"
-BASE_URL="${BASE_URL%/}"  # trim trailing slash if present
+# BASE_URL_DEFAULT="http://localhost:8080/validator"
+# BASE_URL="${1:-$BASE_URL_DEFAULT}"
+# BASE_URL="${BASE_URL%/}"  # trim trailing slash if present
 
 # --- load .env (current dir and repo root candidates) -----------------------------
 load_env_if_present() {
@@ -92,13 +88,9 @@ uuid() {
   fi
 }
 
-# curl wrapper that only adds Authorization header if FHIR_BEARER_TOKEN is non-empty
+# curl wrapper (no auth needed)
 curl_auth() {
-  if [[ -n "${FHIR_BEARER_TOKEN:-}" ]]; then
-    command curl -H "Authorization: Bearer ${FHIR_BEARER_TOKEN}" "$@"
-  else
-    command curl "$@"
-  fi
+  command curl "$@"
 }
 
 # Return HTTP code; never fail the script (avoids silent exits with `set -e`)
@@ -132,7 +124,7 @@ need jq
 
 echo "🏁 Using ${BASE_URL}"
 
-# Preflight: /validator/version (gateway preserves this exact path to upstream)
+# Preflight: /validator/version
 VERSION_URL="${BASE_URL}/version"
 CODE="$(http_code "$VERSION_URL")"
 
@@ -141,17 +133,11 @@ echo "Preflight: GET $VERSION_URL → HTTP $CODE"
 if [[ "$CODE" == "000" ]]; then
   cat >&2 <<EOF
 ❌ Could not reach $VERSION_URL (no response).
-   • Is the gateway running and exposing /validator/*?
 EOF
   exit 1
 elif [[ "$CODE" == "401" ]]; then
   cat >&2 <<EOF
-❌ 401 Unauthorized from gateway at: $VERSION_URL
-
-Fix one of:
-  • Provide an auth token:
-      export FHIR_BEARER_TOKEN="your.jwt.here"
-      (or put FHIR_BEARER_TOKEN in a .env file)
+❌ 401 Unauthorized at: $VERSION_URL
 EOF
   exit 1
 elif [[ "$CODE" == "404" ]]; then
@@ -160,7 +146,6 @@ elif [[ "$CODE" == "404" ]]; then
 
 Check:
   • Is the validator container healthy? (docker compose ps)
-  • Did the gateway config preserve /validator/version? (see nginx default.conf)
 EOF
   exit 1
 elif [[ "$CODE" != "200" ]]; then
@@ -173,7 +158,6 @@ fi
 section "GET /validator/version"
 json_get "${VERSION_URL}" | jq .
 
-# NOTE: gateway contract puts root endpoints under /validator/<endpoint>
 VERSIONS_URL="${BASE_URL}/versions"
 
 section "GET /validator/versions"

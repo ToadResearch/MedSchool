@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 # MedSchool/startup.sh
 # ------------------------------------------------------------
-# Usa# Use MIDDLEMAN_PORT from environment/.env file, with a fallback to 3000
-MIDDLEMAN_PORT="${MIDDLEMAN_PORT:-3000}" Modes:
 #
+# Modes:
 #   Default:
 #       ./startup.sh
 #       → Starts Postgres + HAPI FHIR server and waits for /fhir/metadata.
@@ -21,7 +20,7 @@ MIDDLEMAN_PORT="${MIDDLEMAN_PORT:-3000}" Modes:
 
 set -euo pipefail
 
-# --- Configuration ---
+
 # REPO_ROOT is now the current directory where startup.sh is executed.
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_FILE="$REPO_ROOT/docker-compose.yaml"
@@ -32,7 +31,14 @@ RESET=0
 
 # --- Services (edit here) ---
 # Base services that are always started with `up -d`.
-BASE_SERVICES=(db hapi middleman validator mcp sandbox)
+BASE_SERVICES=(
+  db 
+  hapi 
+  middleman 
+  validator 
+  mcp 
+  sandbox
+)
 
 # All services to show in the service summary (can include one-shots like `uploader`).
 ALL_SERVICES=("${BASE_SERVICES[@]}" uploader)
@@ -48,7 +54,7 @@ Options:
   -h, --help       Show this help.
 
 Examples:
-  $(basename "$0")                        # Start Postgres + HAPI + Gateway
+  $(basename "$0")                        # Start Postgres + HAPI + and other services
   $(basename "$0") --synthea         # Start services then load Synthea data
   $(basename "$0") --reset --synthea # Recommended for a clean start with data
 EOF
@@ -83,6 +89,10 @@ if [[ -f "$REPO_ROOT/.env" ]]; then
   set +a
 fi
 
+# --- Configuration ---
+# Fail fast if required vars are missing
+: "${FHIR_BASE_URL:?Set FHIR_BASE_URL in .env}"
+
 # Use the docker-compose.yaml directly from the root
 if [[ $RESET -eq 1 ]]; then
   echo "--reset flag detected. Tearing down the full stack first..."
@@ -90,20 +100,13 @@ if [[ $RESET -eq 1 ]]; then
   docker compose -f "$COMPOSE_FILE" --env-file .env down -v || true
 fi
 
-# echo "Pulling required Docker images..."
-# docker compose -f "$COMPOSE_FILE" --env-file .env pull
 
-# # Build sandbox so its image tag exists locally (avoids registry pull errors)
-# echo "Building local image (sandbox)..."
-# docker compose -f "$COMPOSE_FILE" --env-file .env build --pull sandbox
-
-
-echo "Building all local images (pulling base layers as needed)…"
+echo "Building images (pulling newer base layers if available)…"
 docker compose -f "$COMPOSE_FILE" --env-file .env build --pull
 
-# Start base services from the centralized list
-echo "Starting services (${BASE_SERVICES[*]})..."
-docker compose -f "$COMPOSE_FILE" --env-file .env up -d "${BASE_SERVICES[@]}"
+echo "Starting services (${BASE_SERVICES[*]}) and recreating containers…"
+docker compose -f "$COMPOSE_FILE" --env-file .env up -d --force-recreate "${BASE_SERVICES[@]}"
+
 
 
 echo "Kicking off validator pre-warm (runs once in background)..."
@@ -117,8 +120,9 @@ print_service_info() {
   echo ""
   echo "Service info summary:"
   for svc in "${ALL_SERVICES[@]}"; do
-    cid=$(docker compose -f "$COMPOSE_FILE" ps -q "$svc" 2>/dev/null || true)
-    if [[ -n "$cid" ]]; then
+    cid=""
+    cid=$(docker compose -f "$COMPOSE_FILE" ps -q "$svc" 2>/dev/null || true) || cid=""
+    if [[ -n "${cid:-}" ]]; then
       echo ""
       echo "Service: $svc"
       docker stats --no-stream --format '  Usage → Mem: {{.MemUsage}} | CPU: {{.CPUPerc}}' "$cid"
@@ -140,8 +144,8 @@ else
 fi
 
 echo "Counting resources (requires a valid token in .env)..."
-"$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" # TODO: the query_hapi.sh fails on --synthea flag if this isn't run first... figure out why
-"$REPO_ROOT/docker/fhir_server/scripts/query_hapi.sh" "http://${LOCAL_ADDRESS}:${MIDDLEMAN_PORT}/${FHIR_SERVER_ROUTE}/fhir" || true
+"$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" ${FHIR_BASE_URL} # TODO: the query_hapi.sh fails on --synthea flag if this isn't run first... figure out why
+"$REPO_ROOT/docker/fhir_server/scripts/query_hapi.sh" ${FHIR_BASE_URL} || true # TODO: figure out why this takes a long time when --synthea flag is used
 
 echo -e "\nDone."
 if [[ $WITH_SYNTHEA -eq 0 ]]; then

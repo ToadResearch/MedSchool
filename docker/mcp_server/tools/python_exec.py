@@ -11,11 +11,16 @@ from pydantic import BaseModel
 from fastmcp.exceptions import ToolError 
 from ..mcp_app import mcp  # shared FastMCP instance
 
+from ..config import get_settings
+
+settings = get_settings()
+
 # Runtime config (overridable via env)
-EXEC_URL = os.getenv("PYEXEC_EXECUTOR_URL", "http://sandbox:8088")
-CPU_SEC  = int(os.getenv("PYEXEC_TIMEOUT_S", "6"))
-MEM_MB   = int(os.getenv("PYEXEC_MEM_MB", "512"))
-CPUS     = float(os.getenv("PYEXEC_CPUS", "1.0"))
+# prefer canonical url → internal proxy
+EXEC_URL = settings.sandbox_base_url
+CPU_SEC  = int(os.getenv("SANDBOX_EXEC_TIMEOUT_S", "6"))
+MEM_MB   = int(os.getenv("SANDBOX_EXEC_MEM_MB", "512"))
+CPUS     = float(os.getenv("SANDBOX_EXEC_CPUS", "1.0"))
 
 
 class PythonExecResult(BaseModel):

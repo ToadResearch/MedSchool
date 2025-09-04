@@ -5,7 +5,7 @@
 #
 #   Default (Stop):
 #       ./shutdown.sh
-#       → Stops the Docker containers (gateway, db, hapi).
+#       → Stops the Docker containers.
 #       → Preserves container state and all data volumes.
 #
 #   Down (Stop and Remove Containers):
@@ -66,7 +66,7 @@ fi
 # --- Use the docker-compose.yaml directly from the root ---
 if [[ $PURGE -eq 1 ]]; then
   echo "--purge flag detected. This will stop the services and permanently delete:"
-  echo "    - All containers (gateway, hapi, postgres, uploader, mcp)"
+  echo "    - All containers (hapi, postgres, uploader, mcp, etc)"
   echo "    - The database volume 'pgdata' (ALL SYNTHETIC PATIENT DATA WILL BE LOST)"
   echo "    - Docker images used by the compose file"
   echo ""

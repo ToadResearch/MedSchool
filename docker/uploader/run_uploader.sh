@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-FHIR_BASE_URL="${FHIR_BASE_URL:-http://hapi:8080/fhir}"
+FHIR_BASE_URL="${FHIR_BASE_URL:?FHIR_BASE_URL not set}"
 ZIP_URL="${SYNTHEA_ZIP_URL:?SYNTHEA_ZIP_URL not set}"
 WORKDIR="/tmp/uploader"
 mkdir -p "$WORKDIR"
@@ -24,7 +24,7 @@ python /app/upload_synthea.py \
   --base-url "$FHIR_BASE_URL" \
   --dir "$WORKDIR/data" \
   --retry 1 \
-  # --workers 1 \
+  --workers 6 \
 
 
 echo "Upload complete."

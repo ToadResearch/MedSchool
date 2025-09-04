@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------------
 # test_fhir_queries.sh – Unified smoke + validation tests for the MedSchool
-# stack *through the NGINX gateway* (JWT-protected).
 #
 # It explicitly exercises ALL THREE validation levels with clear labels:
 #   [SERVER]   POST [base]/$validate
@@ -14,7 +13,7 @@
 #              • Service: HAPI JPA
 #              • Payload: none (validate stored copy) OR Parameters { mode=update, resource }
 #
-# PLUS a server-level validation via the **HL7 validator-wrapper** behind the gateway:
+# PLUS a server-level validation via the **HL7 validator-wrapper**:
 #   [WRAPPER]  POST /validator/validate  (sync)  → OperationOutcome    (expects RAW FHIR JSON)
 #              POST /validator/requests (async) → poll until OO       (expects JSON envelope)
 #
@@ -29,8 +28,6 @@
 #   • Many stock HAPI JPA deployments do NOT implement server-level $validate.
 #     We auto-detect via CapabilityStatement and [SKIP] those tests if absent.
 #   • NGINX 400 vs HAPI 4xx:
-#       - An HTML "nginx/1.28.0" page means the gateway rejected the request
-#         before HAPI saw it (not an auth failure; your gateway returns 401 JSON).
 #
 # Quality-of-life:
 #   • Only print the Location header when we *capture* it (avoid stray URLs).
@@ -47,16 +44,21 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# ───────────────────────── Repository root + .env ──────────────────────────
+# ───────────────────────── Repository root ──────────────────────────
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-ENV_FILE="$REPO_ROOT/.env"
-if [[ -z "${FHIR_BEARER_TOKEN:-}" && -f "$ENV_FILE" ]]; then
-  set -a; source "$ENV_FILE"; set +a
-fi
 
 # ─────────────────────────── Dependency checks ─────────────────────────────
 need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing dependency: $1" >&2; exit 1; }; }
 need curl; need jq; need tput || true; need sed
+
+# ───── Load environment ─────────────
+# Load .env if present; make variables exported while sourcing.
+if [[ -f "$REPO_ROOT/.env" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$REPO_ROOT/.env"
+  set +a
+fi
 
 # ─────────────────────────────── Colours ───────────────────────────────────
 if tput setaf 1 >/dev/null 2>&1; then
@@ -67,29 +69,29 @@ else
 fi
 
 # ─────────────────────────── Env sanity checks ─────────────────────────────
-[[ -z "${FHIR_BEARER_TOKEN:-}" ]] && { echo "${RED}FHIR_BEARER_TOKEN not set${RST}"; exit 1; }
+# No auth required
 
-HOST="${LOCAL_ADDRESS}"
-PORT="${HAPI_PORT:-8080}"
-BASE_URL="http://$HOST:$PORT/fhir"
+FHIR_BASE_URL="${FHIR_BASE_URL}"
+VALIDATION_BASE_URL="${VALIDATION_PROXY_PUBLIC_BASE}"
 
+# TODO: remove this and fix it to use generic endpoints with new middleman
 # Derive the gateway origin (strip trailing /fhir[/] if present) and validator base
-ORIGIN=$(printf '%s' "$BASE_URL" | sed -E 's#/fhir/?$##')
-VALIDATOR_BASE="${ORIGIN}/validator"
+# ORIGIN=$(printf '%s' "$FHIR_BASE_URL" | sed -E 's#/fhir/?$##')
+# VALIDATION_BASE_URL="${ORIGIN}/validator"
 
-# Optional: allow override of BASE_URL via --url
+# Optional: allow override of FHIR_BASE_URL via --url
 if [[ ${1:-} == "--url" && -n ${2:-} ]]; then
-  BASE_URL="$2"
-  ORIGIN=$(printf '%s' "$BASE_URL" | sed -E 's#/fhir/?$##')
-  VALIDATOR_BASE="${ORIGIN}/validator"
+  FHIR_BASE_URL="$2"
+  ORIGIN=$(printf '%s' "$FHIR_BASE_URL" | sed -E 's#/fhir/?$##')
+  VALIDATION_BASE_URL="${ORIGIN}/validator"
   shift 2
 fi
 
-echo -e "${BLU}🏥  HAPI FHIR at:  ${BASE_URL}${RST}"
-echo -e "${BLU}🧪  Validator at:  ${VALIDATOR_BASE}${RST}\n"
+echo -e "${BLU}🏥  HAPI FHIR at:  ${FHIR_BASE_URL}${RST}"
+echo -e "${BLU}🧪  Validator at:  ${VALIDATION_BASE_URL}${RST}\n"
 
 # ───────────────────── CapabilityStatement helpers ─────────────────────────
-CAPS_JSON="$(curl -sS -H 'Accept: application/fhir+json' "$BASE_URL/metadata")" || CAPS_JSON=""
+CAPS_JSON="$(curl -sS -H 'Accept: application/fhir+json' "$FHIR_BASE_URL/metadata")" || CAPS_JSON=""
 
 supports_system_validate() {
   [[ -z "$CAPS_JSON" ]] && return 1
@@ -109,7 +111,6 @@ request() {
 
   local body; body=$(mktemp); local hdrs; hdrs=$(mktemp)
   local curl_opts=( -sS -w "%{http_code}" -X "$method" "$url"
-                    -H "Authorization: Bearer $FHIR_BEARER_TOKEN"
                     -H "Accept: application/fhir+json"
                     -D "$hdrs" )
   [[ -n "$data" ]] && curl_opts+=( -H "Content-Type: application/fhir+json" --data-binary "$data" )
@@ -140,8 +141,7 @@ validate_type_expect_200() { # label jsonVar expectError(0|1)
   printf "%-80s" "$label" >&2
   local body; body=$(mktemp)
   local code; code=$(curl -sS -o "$body" -w "%{http_code}" \
-        -X POST "$BASE_URL/Patient/\$validate" \
-        -H "Authorization: Bearer $FHIR_BEARER_TOKEN" \
+        -X POST "$FHIR_BASE_URL/Patient/\$validate" \
         -H "Accept: application/fhir+json" \
         -H "Content-Type: application/fhir+json" \
         --data-binary "$data")
@@ -169,8 +169,7 @@ validate_type_expect_http() { # label jsonVar expectHttp
   local data="${!var}"
   printf "%-80s" "$label" >&2
   local code; code=$(curl -sS -o /dev/null -w "%{http_code}" \
-        -X POST "$BASE_URL/Patient/\$validate" \
-        -H "Authorization: Bearer $FHIR_BEARER_TOKEN" \
+        -X POST "$FHIR_BASE_URL/Patient/\$validate" \
         -H "Accept: application/fhir+json" \
         -H "Content-Type: application/fhir+json" \
         --data-binary "$data")
@@ -195,8 +194,7 @@ validate_server_if_supported() { # label jsonVar mode expectError(0|1)
   printf "%-80s" "$label" >&2
   local body; body=$(mktemp)
   local code; code=$(curl -sS -o "$body" -w "%{http_code}" \
-        -X POST "$BASE_URL/\$validate" \
-        -H "Authorization: Bearer $FHIR_BEARER_TOKEN" \
+        -X POST "$FHIR_BASE_URL/\$validate" \
         -H "Accept: application/fhir+json" \
         -H "Content-Type: application/fhir+json" \
         --data-binary "$params")
@@ -225,8 +223,7 @@ validate_instance_existing() { # label id expectError(0|1)
   printf "%-80s" "$label" >&2
   local body; body=$(mktemp)
   local code; code=$(curl -sS -o "$body" -w "%{http_code}" \
-        -X POST "$BASE_URL/Patient/${patient_id}/\$validate" \
-        -H "Authorization: Bearer $FHIR_BEARER_TOKEN" \
+        -X POST "$FHIR_BASE_URL/Patient/${patient_id}/\$validate" \
         -H "Accept: application/fhir+json")
   if [[ "$code" != "200" ]]; then
     echo -e " ${RED}✖${RST} (HTTP $code, wanted 200)" >&2
@@ -257,8 +254,7 @@ validate_instance_update() { # label id badJsonVar expectError(0|1)
   printf "%-80s" "$label" >&2
   local body; body=$(mktemp)
   local code; code=$(curl -sS -o "$body" -w "%{http_code}" \
-        -X POST "$BASE_URL/Patient/${patient_id}/\$validate" \
-        -H "Authorization: Bearer $FHIR_BEARER_TOKEN" \
+        -X POST "$FHIR_BASE_URL/Patient/${patient_id}/\$validate" \
         -H "Accept: application/fhir+json" \
         -H "Content-Type: application/fhir+json" \
         --data-binary "$params")
@@ -286,10 +282,9 @@ validate_instance_update() { # label id badJsonVar expectError(0|1)
 #       /validator/requests expects { "resource": <FHIR JSON> } and returns a job we poll.
 
 validator_available() {
-  # Expect 200/204 when authorized
+  # Expect 200/204
   curl -sS -o /dev/null -w "%{http_code}" \
-    -H "Authorization: Bearer $FHIR_BEARER_TOKEN" \
-    "${VALIDATOR_BASE}/" | grep -qE '^(200|204)$'
+    "${VALIDATION_BASE_URL}/" | grep -qE '^(200|204)$'
 }
 
 # Try sync: POST /validator/validate with raw resource → OperationOutcome
@@ -300,8 +295,7 @@ validator_validate_sync() { # label jsonVar expectError(0|1)
 
   local body; body=$(mktemp)
   local code; code=$(curl -sS -o "$body" -w "%{http_code}" \
-        -X POST "${VALIDATOR_BASE}/validate" \
-        -H "Authorization: Bearer $FHIR_BEARER_TOKEN" \
+        -X POST "${VALIDATION_BASE_URL}/validate" \
         -H "Accept: application/fhir+json, application/json, text/plain, */*" \
         -H "Content-Type: application/fhir+json" \
         --data-binary "$data")
@@ -352,8 +346,7 @@ validator_validate_async() { # label jsonVar expectError(0|1)
 
   local body; body=$(mktemp); local hdrs; hdrs=$(mktemp)
   local code; code=$(curl -sS -o "$body" -D "$hdrs" -w "%{http_code}" \
-        -X POST "${VALIDATOR_BASE}/requests" \
-        -H "Authorization: Bearer $FHIR_BEARER_TOKEN" \
+        -X POST "${VALIDATION_BASE_URL}/requests" \
         -H "Accept: application/json, application/fhir+json, text/plain, */*" \
         -H "Content-Type: application/json" \
         --data-binary "$payload")
@@ -377,12 +370,12 @@ validator_validate_async() { # label jsonVar expectError(0|1)
     if [[ "$loc" =~ ^https?:// ]]; then
       poll_url="$loc"
     else
-      poll_url="${VALIDATOR_BASE%/}/${loc#/}"
+      poll_url="${VALIDATION_BASE_URL%/}/${loc#/}"
     fi
   elif [[ -n "$id" ]]; then
-    poll_url="${VALIDATOR_BASE}/requests/${id}"
+    poll_url="${VALIDATION_BASE_URL}/requests/${id}"
   else
-    poll_url="${VALIDATOR_BASE}/requests"
+    poll_url="${VALIDATION_BASE_URL}/requests"
   fi
 
   local tries=0; local max_tries=10; local sleep_s=1
@@ -391,7 +384,6 @@ validator_validate_async() { # label jsonVar expectError(0|1)
   while (( tries < max_tries )); do
     local poll_body; poll_body=$(mktemp)
     local pcode; pcode=$(curl -sS -o "$poll_body" -w "%{http_code}" \
-                      -H "Authorization: Bearer $FHIR_BEARER_TOKEN" \
                       -H "Accept: application/json, application/fhir+json, text/plain, */*" \
                       "$poll_url")
 
@@ -487,8 +479,7 @@ create_patient_id() { # label jsonVar -> echoes id or empty
   local body hdrs code
   body=$(mktemp); hdrs=$(mktemp)
   code=$(curl -sS -o "$body" -w "%{http_code}" \
-        -X POST "$BASE_URL/Patient" \
-        -H "Authorization: Bearer $FHIR_BEARER_TOKEN" \
+        -X POST "$FHIR_BASE_URL/Patient" \
         -H "Accept: application/fhir+json" \
         -H "Content-Type: application/fhir+json" \
         -H "Expect:" \
@@ -519,7 +510,7 @@ create_patient_id() { # label jsonVar -> echoes id or empty
 # ===========================================================================#
 
 # 0) Info
-request "[INFO]    GET  /metadata (CapabilityStatement)" GET "$BASE_URL/metadata" - 200 >/dev/null
+request "[INFO]    GET  /metadata (CapabilityStatement)" GET "$FHIR_BASE_URL/metadata" - 200 >/dev/null
 
 # 1) [SERVER] HAPI $validate (Parameters) – only if advertised
 validate_server_if_supported "[SERVER] POST /\$validate (mode=create) — Good Patient (expect no errors)" PATIENT_GOOD create 0
@@ -539,11 +530,11 @@ if [[ -z "$PID" ]]; then
   printf "%-80s" "[CRUD]   DELETE /Patient/<id> — Delete Patient" >&2;                 echo " ${YLW}SKIP${RST} (create failed)" >&2
   printf "%-80s" "[CRUD]   GET  /Patient/<id> — Confirm deletion (expect 410 Gone)" >&2; echo " ${YLW}SKIP${RST} (create failed)" >&2
 else
-  request "[CRUD]   GET  /Patient/$PID — Read back created Patient" GET "$BASE_URL/Patient/$PID" - 200 >/dev/null
+  request "[CRUD]   GET  /Patient/$PID — Read back created Patient" GET "$FHIR_BASE_URL/Patient/$PID" - 200 >/dev/null
   validate_instance_existing "[INSTANCE] POST /Patient/$PID/\$validate — Validate stored Patient (expect no errors)" "$PID" 0
   validate_instance_update   "[INSTANCE] POST /Patient/$PID/\$validate (mode=update) — Bad update (expect errors)"   "$PID" PATIENT_BAD_VALIDATOR 1
-  request "[CRUD]   DELETE /Patient/$PID — Delete Patient" DELETE "$BASE_URL/Patient/$PID" - 200 >/dev/null
-  request "[CRUD]   GET  /Patient/$PID — Confirm deletion (expect 410 Gone)" GET "$BASE_URL/Patient/$PID" - 410 >/dev/null
+  request "[CRUD]   DELETE /Patient/$PID — Delete Patient" DELETE "$FHIR_BASE_URL/Patient/$PID" - 200 >/dev/null
+  request "[CRUD]   GET  /Patient/$PID — Confirm deletion (expect 410 Gone)" GET "$FHIR_BASE_URL/Patient/$PID" - 410 >/dev/null
 fi
 
 # 4) [WRAPPER] HL7 validator-wrapper (server-level)
@@ -551,7 +542,7 @@ printf "%-80s" "[WRAPPER] GET  /validator/ — UI/API root" >&2
 if validator_available; then
   echo -e " ${GRN}✔${RST}" >&2
 else
-  echo -e " ${RED}✖${RST} (validator unavailable; check gateway proxy and container health)" >&2
+  echo -e " ${RED}✖${RST} (validator unavailable; check container health)" >&2
 fi
 
 # Validate via wrapper:

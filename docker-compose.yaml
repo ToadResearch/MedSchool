@@ -29,7 +29,7 @@ services:
       - medschool-net
     # ports:
     #   # only open port during testing
-    #   - "${DB_PORT}:5432"
+    #   - "${DB_PORT}:${DB_CONTAINER_PORT}"
 
   hapi:
     mem_limit: 6g # compose (non-swarm) memory limit for this container
@@ -59,7 +59,6 @@ services:
       
       # adds additional search locations for the application.yaml file -- works :)
       SPRING_CONFIG_ADDITIONAL_LOCATION: "file:/app/config/"  
-      JWT_SHARED_SECRET: ${JWT_SHARED_SECRET}
 
       # remote when TERMINOLOGY_MODE=remote, else false
       REMOTE_TS_ENABLED: ${REMOTE_TS_ENABLED}
@@ -74,12 +73,14 @@ services:
     healthcheck:
       # once the metadata is available, we know the server is running
       # busybox wget added to the hapi image in Dockerfile for healthcheck
-      test: ["CMD", "/busybox", "nc", "-z", "${LOCAL_ADDRESS}", "8080"]
+      test: ["CMD", "/busybox", "nc", "-z", "127.0.0.1", "${HAPI_CONTAINER_PORT}"]
       interval: 5s
       timeout: 5s
       retries: 40
     networks:
       - medschool-net
+    # ports:
+    #   - "${HAPI_PORT}:${HAPI_CONTAINER_PORT}"
 
   validator:
     build:
@@ -97,7 +98,7 @@ services:
     networks:
       - medschool-net
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O- http://${LOCAL_ADDRESS}:3500/versions >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:${VALIDATOR_CONTAINER_PORT}/versions >/dev/null 2>&1 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -117,7 +118,7 @@ services:
     command: ["sh", "-eux", "/scripts/prewarm.sh"]
     environment:
       VALIDATOR_HOST: validator
-      VALIDATOR_PORT: "3500"
+      VALIDATOR_PORT: ${VALIDATOR_CONTAINER_PORT}
       VALIDATOR_SV: "4.0.1"
       PREWARM_TIMEOUT_SECS: "180"
     volumes:
@@ -137,16 +138,19 @@ services:
       # Optional: enable gVisor if installed on the host: SANDBOX_RUNTIME=runsc
       # SANDBOX_RUNTIME: "runsc"
       LOCAL_ADDRESS: ${LOCAL_ADDRESS}
+      SANDBOX_EXEC_TIMEOUT_S: ${SANDBOX_EXEC_TIMEOUT_S}
+      SANDBOX_EXEC_MEM_MB: ${SANDBOX_EXEC_MEM_MB}
+      SANDBOX_EXEC_CPUS: ${SANDBOX_EXEC_CPUS}
     networks: [medschool-net]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
-      - "${SANDBOX_PORT:-8088}:8088"
+      - "${SANDBOX_PORT}:${SANDBOX_CONTAINER_PORT}"
     depends_on:
       mcp:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://${LOCAL_ADDRESS}:8088/healthz >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${SANDBOX_CONTAINER_PORT}/healthz >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -161,8 +165,10 @@ services:
       # because the hapi server needs to be up before uploading anything!
       hapi:
         condition: service_healthy
-    environment:
-      FHIR_BASE_URL: "http://hapi:8080/fhir" # direct internal link to hapi server
+      middleman:
+        condition: service_healthy
+    environment:  # TODO: works fine with HAPI_INTERNAL_FHIR_BASE, but drops lots of synthea records with current setup. i think there are network traffic issues
+      FHIR_BASE_URL: ${FHIR_PROXY_INTERNAL_BASE}/fhir # never used by client machine, so just use internal url
       SYNTHEA_ZIP_URL: ${SYNTHEA_ZIP_URL}
     networks:
       - medschool-net
@@ -174,7 +180,7 @@ services:
   #     args:
   #       HAPI_VERSION: ${HAPI_VERSION:-8.6.0}
   #   environment:
-  #     TARGET_FHIR_BASE: http://hapi:8080/fhir   # inside the compose network, no auth needed
+  #     TARGET_FHIR_BASE: http://hapi:${HAPI_CONTAINER_PORT}/fhir   # inside the compose network, no auth needed
   #     JAVA_TOOL_OPTIONS: "-Xms1g -Xmx6g"
   #   depends_on:
   #     - hapi
@@ -191,28 +197,40 @@ services:
     depends_on:
       hapi:
         condition: service_healthy
+      middleman:
+        condition: service_healthy
     environment:
-      MCP_PORT: ${MCP_PORT}
       MCP_HOST: ${MCP_HOST}
+      MCP_CONTAINER_PORT: ${MCP_CONTAINER_PORT}
       MCP_HTTP_PATH: ${MCP_HTTP_PATH}
-      FHIR_BEARER_TOKEN: ${FHIR_BEARER_TOKEN} # TODO: potentially remove this, have the client provide it, like in mcp.json
-      FHIR_BASE_URL: "http://middleman:3000/fhir_server/fhir" #${FHIR_BASE_URL}
-      TERMINOLOGY_BASE_URL: "http://middleman:3000/terminology_server" # ${TERMINOLOGY_BASE_URL}
-      FHIR_SERVER_ROUTE: ${FHIR_SERVER_ROUTE}
-      PYEXEC_EXECUTOR_URL: "${MCP_PYEXEC_EXECUTOR_URL:-http://sandbox:8088}"
-      LOCAL_ADDRESS: ${LOCAL_ADDRESS}
+      
+      # the external port on the host machine or other to bind to 
+      LOOPBACK_HOST: ${LOOPBACK_HOST}
+
+      # not used: canonical client URLs from .env if calling from host machine external to docker
+      FHIR_BASE_URL: ${FHIR_BASE_URL}
+      TERMINOLOGY_BASE_URL: ${TERMINOLOGY_BASE_URL}
+      VALIDATION_BASE_URL: ${VALIDATION_BASE_URL}
+      OPENFDA_BASE_URL: ${OPENFDA_BASE_URL}
+      SANDBOX_BASE_URL: ${SANDBOX_BASE_URL}
+      
+      # used: internal proxy bases (service-name:container-port) so MCP talks within the Docker network:
+      FHIR_PROXY_INTERNAL_BASE: ${FHIR_PROXY_INTERNAL_BASE}/fhir
+      TERMINOLOGY_PROXY_INTERNAL_BASE: ${TERMINOLOGY_PROXY_INTERNAL_BASE}
+      VALIDATION_PROXY_INTERNAL_BASE: ${VALIDATION_PROXY_INTERNAL_BASE}
+      OPENFDA_PROXY_INTERNAL_BASE: ${OPENFDA_PROXY_INTERNAL_BASE}
+      SANDBOX_PROXY_INTERNAL_BASE: ${SANDBOX_PROXY_INTERNAL_BASE}
     networks:
       - medschool-net
     healthcheck:
       # use python since the base image is python:3.11-slim
-      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://${LOCAL_ADDRESS}:8000/health'); sys.exit(0)"]
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://127.0.0.1:${MCP_CONTAINER_PORT}/health'); sys.exit(0)"]
       interval: 5s
       timeout: 5s
       retries: 40
     ports:
-      # - "${MCP_PORT:-8000}:${MCP_PORT:-8000}"
       # pin port to loopback to only allow access to host machine
-      - "127.0.0.1:${MCP_PORT:-8000}:${MCP_PORT:-8000}"
+      - "${LOOPBACK_HOST}:${MCP_PORT:-8000}:${MCP_CONTAINER_PORT:-8000}"
 
   middleman:
     build:
@@ -221,13 +239,36 @@ services:
     restart: unless-stopped
     depends_on:
       hapi:
-        condition: service_healthy
+        condition: service_started
     environment:
-      MIDDLEMAN_PORT: ${MIDDLEMAN_PORT:-3000}
+      # bind & port
+      MIDDLEMAN_PORT: ${MIDDLEMAN_CONTAINER_PORT}
+      LOCAL_ADDRESS: ${LOCAL_ADDRESS}
+
+      # client-facing route slugs
+      FHIR_ROUTE: ${FHIR_ROUTE}
+      TERMINOLOGY_ROUTE: ${TERMINOLOGY_ROUTE}
+      VALIDATION_ROUTE: ${VALIDATION_ROUTE}
+      OPENFDA_ROUTE: ${OPENFDA_ROUTE}
+      MCP_ROUTE: ${MCP_ROUTE}
+      SANDBOX_ROUTE: ${SANDBOX_ROUTE}
+
+      # upstream targets (container-internal URLs)
+      FHIR_UPSTREAM_BASE: ${FHIR_UPSTREAM_BASE}
+      TERMINOLOGY_UPSTREAM_BASE: ${TERMINOLOGY_UPSTREAM_BASE}
+      VALIDATION_UPSTREAM_BASE: ${VALIDATION_UPSTREAM_BASE}
+      OPENFDA_UPSTREAM_BASE: ${OPENFDA_UPSTREAM_BASE}
+      MCP_UPSTREAM_BASE: ${MCP_UPSTREAM_BASE}
+      SANDBOX_UPSTREAM_BASE: ${SANDBOX_UPSTREAM_BASE}
     ports:
-      - "${MIDDLEMAN_PORT:-3000}:${MIDDLEMAN_PORT:-3000}"
+      - "${MIDDLEMAN_PORT:-3000}:${MIDDLEMAN_CONTAINER_PORT:-3000}"
     networks:
       - medschool-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${MIDDLEMAN_CONTAINER_PORT}/api/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
 networks:
   medschool-net:

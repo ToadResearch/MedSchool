@@ -7,8 +7,6 @@ from ..config import get_settings
 settings = get_settings()
 
 HEADERS = {"Accept": "application/fhir+json"}
-if settings.bearer_token:
-    HEADERS["Authorization"] = f"Bearer {settings.bearer_token}"
 
 
 def _timeout_s() -> int:
@@ -25,9 +23,6 @@ def http_get(path: str, params: dict | None = None) -> dict:
       • Error:   {"error": "<code reason>", "error_body": <parsed_json_or_raw>, "http_status": <int>, "url": <str>}
     """
     url = f"{settings.fhir_base_url.rstrip('/')}/{path.lstrip('/')}"
-
-    print(f"\n\n\n\n\nurl: {url}")
-    print(f"base fhir url: {settings.fhir_base_url.rstrip('/')}")
 
     t = _timeout_s()
     with httpx.Client(timeout=t) as client:

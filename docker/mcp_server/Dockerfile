@@ -19,7 +19,6 @@ EXPOSE 8000
 # Defaults
 ENV MCP_HOST=${MCP_HOST}
 ENV MCP_PORT=${MCP_PORT}
-ENV MCP_HTTP_PATH=${MCP_HTTP_PATH}
 
 # -m used to run the server.py as a module so that relative imports work
 CMD ["python", "-u", "-m", "mcp_server.server"]

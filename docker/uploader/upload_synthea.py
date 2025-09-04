@@ -8,6 +8,7 @@
 - Then uploads all remaining bundles using asyncio for high performance.
 - Retries files that failed with HAPI-1091 after seeding.
 """
+from fileinput import filename
 import os, re, time, argparse, sys, asyncio
 from typing import List, Tuple, Optional
 import aiohttp
@@ -44,9 +45,11 @@ async def upload_file_worker(session: aiohttp.ClientSession, sem: asyncio.Semaph
         try:
             body = read_bytes(path) # File I/O is still synchronous, but generally fast enough
             resp = await post_bundle(session, base_url, body, token=token)
+            text = await resp.text()
             if 200 <= resp.status < 300:
                 return filename, None
-            return filename, await resp.text()
+            body = text[:300].replace('\n',' ')
+            return filename, f"status={resp.status} body={body}"
         except aiohttp.ClientError as e:
             return filename, str(e)
         except Exception as e:
@@ -106,15 +109,18 @@ async def main():
     default_base = (
         f"http://{os.getenv('LOCAL_ADDRESS', '0.0.0.0')}:"
         f"{os.getenv('MIDDLEMAN_PORT', '3000')}/"
-        f"{os.getenv('FHIR_SERVER_ROUTE', 'fhir_server')}/fhir"
+        f"{os.getenv('FHIR_ROUTE', 'fhir_server')}/fhir"
     )
     ap.add_argument("--base-url", default=default_base)
-    # ap.add_argument("--base-url", default=os.path.expandvars("http://${LOCAL_ADDRESS}:${MIDDLEMAN_PORT}/${FHIR_SERVER_ROUTE}/fhir"))
     ap.add_argument("--dir", required=True)
     ap.add_argument("--token", default=None)
     ap.add_argument("--retry", type=int, default=1)
     ap.add_argument("--workers", type=int, default=default_workers)
     args = ap.parse_args()
+
+
+    print("\n\n\n" + "="*20 + f" base_url:{args.base_url} " + "="*20)
+
 
     if not os.path.isdir(args.dir): raise SystemExit(f"Directory not found: {args.dir}")
 

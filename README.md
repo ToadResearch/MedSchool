@@ -69,7 +69,7 @@ Connect the MCP server to the client of your choice:
 {
   "mcpServers": {
     "medschool-mcp": {
-      "url": "http://127.0.0.1:8000/mcp"
+      "url": "http://127.0.0.1:3000/mcp_server/mcp"
     }
   }
 }

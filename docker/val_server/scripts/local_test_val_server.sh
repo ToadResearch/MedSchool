@@ -19,7 +19,6 @@
 #   • The official wrapper API expects JSON at POST /validate with:
 #       { cliContext, filesToValidate[], sessionId }
 #   • We explicitly set cliContext.sv = "4.0.1" (FHIR R4) to match your project.
-#   • No multipart, no NGINX, no JWT — we hit the container directly on :3500.
 #   • Override the base URL or version if needed:
 #       BASE=http://127.0.0.1:3500 FHIR_VERSION=4.0.1 ./test_val_server.sh demo
 # ---------------------------------------------------------------------------
