@@ -101,11 +101,13 @@ if [[ $RESET -eq 1 ]]; then
 fi
 
 
-echo "Building images (pulling newer base layers if available)…"
-docker compose -f "$COMPOSE_FILE" --env-file .env build --pull
+echo "Stopping running base services (to avoid dangling <none> images)…"
+# If they’re not running, this is a no-op.
+docker compose -f "$COMPOSE_FILE" --env-file .env stop "${BASE_SERVICES[@]}" || true
 
-echo "Starting services (${BASE_SERVICES[*]}) and recreating containers…"
-docker compose -f "$COMPOSE_FILE" --env-file .env up -d --force-recreate "${BASE_SERVICES[@]}"
+echo "Rebuilding images and recreating containers in one step…"
+# --build ensures images are rebuilt; --pull can be added if you want to refresh bases
+docker compose -f "$COMPOSE_FILE" --env-file .env up -d --build --force-recreate "${BASE_SERVICES[@]}"
 
 
 
@@ -134,6 +136,14 @@ print_service_info() {
 }
 
 print_service_info
+
+# clean up dangling images produced by rebuilds
+if [[ "${NO_PRUNE:-0}" -ne 1 ]]; then
+  echo "Pruning dangling images created during rebuild…"
+  docker image prune -f >/dev/null || true
+  # If you also want to remove old build cache layers (bigger cleanup):
+  # docker builder prune -f >/dev/null || true
+fi
 
 if [[ $WITH_SYNTHEA -eq 1 ]]; then
   echo "Running uploader to load Synthea data..."
