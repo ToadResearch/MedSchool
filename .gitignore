@@ -16,3 +16,7 @@ __pycache__
 
 # middleman
 docker/middleman/target/*
+
+# vm_handler
+vm_handler/target/*
+vm_handler/.vm/*
