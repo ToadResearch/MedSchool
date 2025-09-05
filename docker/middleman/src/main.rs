@@ -1,12 +1,14 @@
+// use futures_util::{SinkExt, StreamExt};
 use poem::{
-    endpoint::make,
-    http::StatusCode,
-    listener::TcpListener,
-    Request, Response, Route, Server,
+    endpoint::make, get, http::StatusCode, listener::TcpListener, web::{
+        websocket::{Message as WsMsg, WebSocket}, Data, Path
+    }, EndpointExt, IntoResponse, Request, Response, Route, Server
 };
 use poem_openapi::{param::Query, payload::PlainText, OpenApi, OpenApiService};
 use reqwest::Client;
 use std::{env, sync::Arc, time::Duration};
+// use tokio_tungstenite::connect_async;
+// use tokio_tungstenite::tungstenite::Message as TMsg;
 
 struct Api;
 
@@ -98,6 +100,83 @@ async fn forward_request(
     }
 }
 
+fn http_base_to_ws(base: &str) -> String {
+    if let Some(rest) = base.strip_prefix("https://") {
+        format!("wss://{}", rest)
+    } else if let Some(rest) = base.strip_prefix("http://") {
+        format!("ws://{}", rest)
+    } else {
+        // Fallback: assume it's already a ws(s) URL
+        base.to_string()
+    }
+}
+
+fn bridge_ws(vm_ws_base: String, id: String, ws: WebSocket) -> impl IntoResponse {
+    use futures_util::{SinkExt, StreamExt};
+    use tokio_tungstenite::{connect_async, tungstenite::Message as TMsg};
+
+    let upstream_url = format!("{}/sessions/{}/tty", vm_ws_base, id);
+
+    ws.on_upgrade(move |client_ws| async move {
+        match connect_async(&upstream_url).await {
+            Ok((upstream_ws, _resp)) => {
+                let (mut upstream_write, mut upstream_read) = upstream_ws.split();
+                let (mut client_write, mut client_read) = client_ws.split();
+
+                // Client → upstream
+                let c2u = async {
+                    while let Some(Ok(msg)) = client_read.next().await {
+                        let out = match msg {
+                            WsMsg::Text(t)   => TMsg::Text(t.into()),
+                            WsMsg::Binary(b) => TMsg::Binary(b.into()),
+                            WsMsg::Ping(p)   => TMsg::Ping(p.into()),
+                            WsMsg::Pong(p)   => TMsg::Pong(p.into()),
+                            WsMsg::Close(_)  => TMsg::Close(None),
+                        };
+                        if upstream_write.send(out).await.is_err() {
+                            break;
+                        }
+                    }
+                    let _ = upstream_write.close().await;
+                };
+
+                // Upstream → client
+                let u2c = async {
+                    while let Some(Ok(msg)) = upstream_read.next().await {
+                        let out = match msg {
+                            TMsg::Text(t)   => WsMsg::Text(t.to_string()),
+                            TMsg::Binary(b) => WsMsg::Binary(b.to_vec()),
+                            TMsg::Ping(p)   => WsMsg::Ping(p.to_vec()),
+                            TMsg::Pong(p)   => WsMsg::Pong(p.to_vec()),
+                            TMsg::Close(_)  => WsMsg::Close(None),
+                            _ => continue,
+                        };
+                        if client_write.send(out).await.is_err() {
+                            break;
+                        }
+                    }
+                    let _ = client_write.close().await;
+                };
+
+                tokio::select! { _ = c2u => {}, _ = u2c => {} }
+            }
+            Err(e) => {
+                eprintln!("WS connect to vm_handler failed: {e}");
+            }
+        }
+    })
+}
+
+#[poem::handler]
+async fn vm_tty_ws(
+    Path(id): Path<String>,
+    ws: WebSocket,
+    Data(vm_ws_base): Data<&String>,
+) -> impl IntoResponse {
+    bridge_ws(vm_ws_base.clone(), id, ws)
+}
+
+
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
     tracing_subscriber::fmt::init();
@@ -106,6 +185,10 @@ async fn main() -> Result<(), std::io::Error> {
     let port = env_or("MIDDLEMAN_PORT", "3000");
     let local_address = env_or("LOCAL_ADDRESS", "0.0.0.0");
     let bind_addr = format!("{}:{}", local_address, port);
+    let vm_route = env_or("VM_ROUTE", "vm");
+    let vm_upstream = env_or("VM_UPSTREAM_BASE", "http://127.0.0.1:40051");
+    let vm_ws_base = http_base_to_ws(&vm_upstream);
+    let vm_prefix = format!("/{}", vm_route);
 
     // Route slugs
     let fhir_route = env_or("FHIR_ROUTE", "fhir_server");
@@ -126,8 +209,8 @@ async fn main() -> Result<(), std::io::Error> {
     let client = Arc::new(
         reqwest::ClientBuilder::new()
             .timeout(Duration::from_secs(300)) // TODO: super long timeout to support large synthea uploads, also reduced work
-            .connect_timeout(Duration::from_secs(5))      // fast fail on TCP connect
-            .pool_max_idle_per_host(64)                   // keep pooled conns
+            .connect_timeout(Duration::from_secs(5)) // fast fail on TCP connect
+            .pool_max_idle_per_host(64) // keep pooled conns
             .tcp_keepalive(Some(Duration::from_secs(30))) // avoid idle drops
             .build()
             .expect("failed building reqwest client"),
@@ -195,6 +278,14 @@ async fn main() -> Result<(), std::io::Error> {
         async move { forward_request(req, &c, &upstream, &prefix).await }
     });
 
+    let c7 = client.clone();
+    let vm_http_handler = make(move |req| {
+        let c = c7.clone();
+        let upstream = vm_upstream.clone();
+        let prefix = vm_prefix.clone();
+        async move { forward_request(req, &c, &upstream, &prefix).await }
+    });
+
     Server::new(TcpListener::bind(&bind_addr))
         .run(
             Route::new()
@@ -205,7 +296,10 @@ async fn main() -> Result<(), std::io::Error> {
                 .at(&format!("/{validation_route}/*"), validation_handler)
                 .at(&format!("/{openfda_route}/*"), openfda_handler)
                 .at(&format!("/{mcp_route}/*"), mcp_handler)
-                .at(&format!("/{sandbox_route}/*"), sandbox_handler),
+                .at(&format!("/{sandbox_route}/*"), sandbox_handler)
+                .at(&format!("/{vm_route}/*"), vm_http_handler)
+                .at(&format!("/{vm_route}/sessions/:id/tty"), get(vm_tty_ws))
+                .data(vm_ws_base.clone()),
         )
         .await
 }

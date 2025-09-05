@@ -1,11 +1,15 @@
 use anyhow::{Result, anyhow};
 use clap::Parser;
+use futures_util::{SinkExt, StreamExt};
 use poem::{
     EndpointExt, Route, Server, delete, get, handler,
     http::StatusCode,
     listener::TcpListener,
     post,
-    web::{Data, Json, Path as PoemPath},
+    web::{
+        Data, Json, Path as PoemPath,
+        websocket::{Message as WsMsg, WebSocket},
+    },
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -17,6 +21,8 @@ use std::{
     time::Duration,
 };
 use tokio::{
+    io::{AsyncReadExt, AsyncWriteExt},
+    net::TcpStream,
     process::{Child, Command},
     sync::Mutex,
     time::sleep,
@@ -69,6 +75,7 @@ struct ChildMeta {
     overlay_path: PathBuf,
     ttl_task: Option<tokio::task::JoinHandle<()>>,
     _log_path: PathBuf,
+    tty_port: u16,
 }
 
 #[derive(Deserialize)]
@@ -88,6 +95,7 @@ struct CreateReq {
 struct CreateResp {
     id: String,
     ssh_port: u16,
+    tty_port: u16,
     pid: Option<u32>,
 }
 
@@ -146,8 +154,9 @@ async fn create_vm(
     qemu_img_create_overlay(&base_img, &overlay)
         .map_err(|e| poem::Error::from_string(e.to_string(), StatusCode::INTERNAL_SERVER_ERROR))?;
 
-    // Allocate SSH port
+    // Allocate ports
     let ssh_port = portpicker::pick_unused_port().unwrap_or(10022);
+    let tty_port = portpicker::pick_unused_port().unwrap_or(10023);
 
     // Build QEMU command
     let mem_mb = req.mem_mb.unwrap_or(1024);
@@ -159,8 +168,6 @@ async fn create_vm(
         .arg(cpus.to_string())
         .arg("-m")
         .arg(mem_mb.to_string())
-        // .stdout(Stdio::null())
-        // .stderr(Stdio::null())
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .stdin(Stdio::null());
@@ -178,6 +185,14 @@ async fn create_vm(
     };
     cmd.arg("-device").arg(format!("{},netdev=n0", net_dev));
 
+    // === Serial over TCP socket ===
+    cmd.args([
+        "-chardev",
+        &format!("socket,id=ttysock,host=127.0.0.1,port={tty_port},server=on,wait=off"),
+        "-serial",
+        "chardev:ttysock",
+    ]);
+
     // Disk + seed
     if machine == "microvm" {
         // microvm: non-PCI devices
@@ -190,7 +205,16 @@ async fn create_vm(
         cmd.arg("-drive")
             .arg(format!("if=virtio,file={},format=qcow2", overlay.display()));
     }
-    cmd.arg("-cdrom").arg(seed_iso.as_os_str());
+    // Attach seed.iso as a virtio block device (read-only)
+    cmd.arg("-drive").arg(format!(
+        "if=none,id=seed,file={},format=raw,readonly=on,media=cdrom",
+        seed_iso.display()
+    ));
+    if machine == "microvm" {
+        cmd.arg("-device").arg("virtio-blk-device,drive=seed");
+    } else {
+        cmd.arg("-device").arg("virtio-blk-pci,drive=seed");
+    }
 
     // microvm + x86_64: direct kernel boot
     if machine == "microvm" && arch == "x86_64" {
@@ -205,16 +229,25 @@ async fn create_vm(
             cmd.arg("-initrd").arg(initrd);
         }
         cmd.arg("-append").arg("console=ttyS0 root=/dev/vda1");
-        cmd.arg("-nodefaults")
-            .arg("-no-user-config")
-            // .arg("-serial")
-            .arg("stdio");
+        cmd.arg("-nodefaults").arg("-no-user-config");
+        // .arg("-serial")
+        // .arg("stdio");
     }
+
+    if let Some(kernel) = state.args.kernel.as_ref() {
+        cmd.arg("-kernel").arg(kernel);
+        if let Some(initrd) = state.args.initrd.as_ref() {
+            cmd.arg("-initrd").arg(initrd);
+        }
+        // aarch64 virt uses PL011 → ttyAMA0
+        cmd.arg("-append").arg("console=ttyAMA0 root=/dev/vda1 rw");
+    }
+
     // } else {
     //     cmd.arg("-serial").arg("stdio");
     // }
 
-    cmd.arg("-serial").arg("stdio");
+    // cmd.arg("-serial").arg("stdio");
 
     // Spawn QEMU
     let mut child = cmd.spawn().map_err(|e| {
@@ -249,11 +282,17 @@ async fn create_vm(
                 overlay_path: overlay,
                 ttl_task,
                 _log_path: log_path,
+                tty_port,
             },
         );
     }
 
-    Ok(Json(CreateResp { id, ssh_port, pid }))
+    Ok(Json(CreateResp {
+        id,
+        ssh_port,
+        tty_port,
+        pid,
+    }))
 }
 
 #[handler]
@@ -265,6 +304,75 @@ async fn delete_vm(
         .await
         .map_err(|e| poem::Error::from_string(e.to_string(), StatusCode::INTERNAL_SERVER_ERROR))?;
     Ok(())
+}
+
+#[poem::handler]
+async fn ws_tty(
+    PoemPath(id): PoemPath<String>,
+    Data(state): Data<&AppState>,
+    ws: WebSocket,
+) -> impl poem::IntoResponse {
+    // ⬇️ Take ownership so the upgrade future can be 'static
+    let state = state.clone();
+
+    ws.on_upgrade(move |client_ws| async move {
+        // lookup tty port
+        let tty_port = {
+            let map = state.procs.lock().await;
+            match map.get(&id) {
+                Some(meta) => meta.tty_port,
+                None => return, // session not found
+            }
+        };
+
+        match TcpStream::connect(("127.0.0.1", tty_port)).await {
+            Ok(stream) => {
+                let (mut tcp_r, mut tcp_w) = stream.into_split();
+                let (mut ws_tx, mut ws_rx) = client_ws.split();
+
+                // TCP -> WS
+                let t2w = tokio::spawn(async move {
+                    let mut buf = [0u8; 4096];
+                    loop {
+                        match tcp_r.read(&mut buf).await {
+                            Ok(0) | Err(_) => break,
+                            Ok(n) => {
+                                if ws_tx.send(WsMsg::Binary(buf[..n].to_vec())).await.is_err() {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // WS -> TCP
+                let w2t = tokio::spawn(async move {
+                    while let Some(Ok(msg)) = ws_rx.next().await {
+                        match msg {
+                            WsMsg::Text(s) => {
+                                if tcp_w.write_all(s.as_bytes()).await.is_err() {
+                                    break;
+                                }
+                            }
+                            WsMsg::Binary(b) => {
+                                if tcp_w.write_all(&b).await.is_err() {
+                                    break;
+                                }
+                            }
+                            WsMsg::Close(_) => break,
+                            _ => {}
+                        }
+                    }
+                    let _ = tcp_w.shutdown().await;
+                });
+
+                let _ = tokio::join!(t2w, w2t);
+            }
+            Err(e) => {
+                eprintln!("Failed to connect to tty socket for {id}: {e}");
+            }
+        }
+    })
 }
 
 /// Kill and remove an entry; also deletes overlay.
@@ -418,6 +526,7 @@ async fn main() -> Result<()> {
         .at("/healthz", get(healthz))
         .at("/sessions", post(create_vm))
         .at("/sessions/:id", delete(delete_vm))
+        .at("/sessions/:id/tty", get(ws_tty))
         .at(
             "/",
             poem::endpoint::make_sync(|_| {
