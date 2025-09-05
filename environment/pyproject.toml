@@ -10,5 +10,20 @@ dependencies = [
     "mcp",
     "python-dotenv",
     "fastmcp",
-    "pydantic"
+    "pydantic",
+    "requests",
+    "httpx",
+    "anyio",
+
 ]
+
+[project.optional-dependencies]
+dev = ["ruff", "mypy", "pytest"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["environment"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
