@@ -1,6 +1,5 @@
 {
     "rust-analyzer.linkedProjects": [
         "docker/middleman/Cargo.toml",
-        "vm_handler/Cargo.toml"
     ]
 }

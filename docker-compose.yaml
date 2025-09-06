@@ -262,10 +262,21 @@ services:
       MCP_UPSTREAM_BASE: ${MCP_UPSTREAM_BASE}
       SANDBOX_UPSTREAM_BASE: ${SANDBOX_UPSTREAM_BASE}
       VM_UPSTREAM_BASE: ${VM_UPSTREAM_BASE}
+
+      # Alpine container defaults
+      ALPINE_IMAGE: ${ALPINE_IMAGE:-alpine:3.20}
+      DOCKER_NETWORK: ${DOCKER_NETWORK:-medschool-net}
+      # Optional soft resource caps for sessions
+      ALPINE_MEM_MB: ${ALPINE_MEM_MB:-256}
+      ALPINE_CPUS: ${ALPINE_CPUS:-0.5}
+
     ports:
       - "${MIDDLEMAN_PORT:-3000}:${MIDDLEMAN_CONTAINER_PORT:-3000}"
     networks:
       - medschool-net
+    volumes:
+      # let middleman control Docker
+      - /var/run/docker.sock:/var/run/docker.sock:rw
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${MIDDLEMAN_CONTAINER_PORT}/api/health >/dev/null || exit 1"]
       interval: 10s
