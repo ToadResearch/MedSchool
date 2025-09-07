@@ -9,8 +9,8 @@ use poem::{
     EndpointExt, Request, Response, Route, Server,
 };
 use poem_openapi::{
-    payload::{Json, PlainText},
-    ApiResponse, Object, OpenApi, OpenApiService,
+    payload::PlainText,
+    Object, OpenApi, OpenApiService,
 };
 use reqwest::Client;
 use serde::Serialize;
@@ -269,12 +269,6 @@ struct SessionInfo {
     image: String,
     created_at_ms: i64,
     running: bool,
-}
-
-#[derive(ApiResponse)]
-enum SessionCreated {
-    #[oai(status = 201)]
-    Ok(Json<SessionInfo>),
 }
 
 // ---------- OpenAPI: core (your existing) ----------

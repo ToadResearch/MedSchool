@@ -1,15 +1,10 @@
-use crate::vm::{create_session, VmSession};
+use crate::vm::create_session;
 
-use std::{collections::HashMap, time::Duration};
-
-use bollard::{exec::{CreateExecOptions, StartExecResults}, query_parameters::{CreateContainerOptions, InspectContainerOptions, InspectNetworkOptions, RemoveContainerOptions, StartContainerOptions, StopContainerOptions}, secret::{ContainerCreateBody, EndpointSettings, HostConfig}};
-use futures_util::TryStreamExt;
 use poem::{http::StatusCode, web::{Data, Path}};
-use poem_openapi::{payload::{Json, PlainText}, Object, OpenApi};
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use poem_openapi::{payload::Json, Object, OpenApi};
+use serde::Serialize;
 
-use crate::{AppState, CreateSessionRequest, SessionCreated, SessionInfo, vm::{ExecRequest, ExecResponse, ExecResult}};
+use crate::{AppState, CreateSessionRequest, SessionInfo};
 
 pub struct Session {
     pub session_id: String,
