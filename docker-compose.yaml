@@ -237,6 +237,17 @@ services:
       # pin port to loopback to only allow access to host machine
       - "${LOOPBACK_HOST}:${MCP_PORT:-8000}:${MCP_CONTAINER_PORT:-8000}"
 
+  # Custom Alpine image for sandbox sessions
+  alpine_sandbox:
+    build:
+      context: ./docker/alpine_sandbox
+    image: medschool-alpine-sandbox
+    container_name: medschool-alpine-builder
+    # This service is only for building the image; it doesn't need to run
+    # To build: docker-compose build alpine_sandbox
+    networks:
+      - medschool-net
+
   middleman:
     build:
       context: ./docker/middleman
@@ -245,6 +256,8 @@ services:
     depends_on:
       hapi:
         condition: service_started
+      alpine_sandbox:
+        condition: service_completed_successfully
     environment:
       # bind & port
       MIDDLEMAN_PORT: ${MIDDLEMAN_CONTAINER_PORT}
@@ -270,7 +283,7 @@ services:
 
       # TODO: add these to .env
       # Alpine container defaults
-      ALPINE_IMAGE: ${ALPINE_IMAGE:-alpine:3.20}
+      ALPINE_IMAGE: ${ALPINE_IMAGE:-medschool-alpine-sandbox}
       DOCKER_NETWORK: ${DOCKER_NETWORK:-medschool-net}
       # Optional soft resource caps for sessions
       ALPINE_MEM_MB: ${ALPINE_MEM_MB:-256}

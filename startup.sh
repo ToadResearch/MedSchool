@@ -89,6 +89,10 @@ if [[ -f "$REPO_ROOT/.env" ]]; then
   set +a
 fi
 
+# Build the custom Alpine image
+echo "Building custom Alpine sandbox image..."
+docker compose -f "$COMPOSE_FILE" --env-file .env build alpine_sandbox
+
 # --- Configuration ---
 # Fail fast if required vars are missing
 : "${FHIR_BASE_URL:?Set FHIR_BASE_URL in .env}"

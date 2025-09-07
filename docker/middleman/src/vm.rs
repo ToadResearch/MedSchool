@@ -213,16 +213,8 @@ pub async fn create_session(
         ..Default::default()
     };
 
-    let cmd_idle = if body.with_tools.unwrap_or(false) {
-        // We'll bootstrap tools on first start with a small sh -lc script
-        vec![
-            "sh",
-            "-lc",
-            "apk add --no-cache curl jq >/dev/null 2>&1; tail -f /dev/null",
-        ]
-    } else {
-        vec!["sh", "-lc", "tail -f /dev/null"]
-    };
+    // Since tools are pre-installed in the custom Alpine image, just run the idle command
+    let cmd_idle = vec!["sh", "-lc", "tail -f /dev/null"];
 
     let name = format!("mm-alpine-{}", session_id);
     let cfg = ContainerCreateBody {
@@ -334,8 +326,20 @@ pub async fn exec(
         return ExecResult::BadRequest(PlainText("cmd required".into()));
     }
 
+    // Automatically wrap commands in shell if they don't already use one
+    let cmd = if body.cmd.len() == 1 && !body.cmd[0].starts_with("sh") && !body.cmd[0].starts_with("bash") {
+        // Single command that doesn't use shell - wrap it
+        vec!["sh".to_string(), "-c".to_string(), body.cmd[0].clone()]
+    } else if body.cmd.len() > 1 && body.cmd[0] != "sh" && body.cmd[0] != "bash" {
+        // Multi-part command that doesn't start with shell - wrap it
+        vec!["sh".to_string(), "-c".to_string(), body.cmd.join(" ")]
+    } else {
+        // Already using shell or single shell command
+        body.cmd.clone()
+    };
+
     let create = CreateExecOptions {
-        cmd: Some(body.cmd.iter().map(|s| s.as_str()).collect()),
+        cmd: Some(cmd.iter().map(|s| s.as_str()).collect()),
         attach_stdout: Some(true),
         attach_stderr: Some(true),
         attach_stdin: Some(false),

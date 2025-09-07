@@ -21,7 +21,6 @@ pub struct Session {
     pub terminal_commands: Vec<String>,
     pub question: String,
     pub answer: String,
-    pub with_tools: bool,
     pub optimal_num_steps: Option<i32>,
 }
 
@@ -75,7 +74,6 @@ impl SessionApi {
                 terminal_commands: Vec::new(),
                 question: String::new(),
                 answer: String::new(),
-                with_tools: body.with_tools.unwrap_or(false),
                 optimal_num_steps: None, // TODO: fix this
             },
         );
@@ -105,7 +103,6 @@ impl SessionApi {
             "terminal_commands": session.terminal_commands.clone(),
             "question": session.question.clone(),
             "answer": session.answer.clone(),
-            "with_tools": session.with_tools,
             "optimal_num_steps": session.optimal_num_steps,
         })))
     }

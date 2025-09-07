@@ -74,6 +74,12 @@ pub struct AppState {
 
 impl AppState {
     pub async fn ensure_image(&self) -> Result<(), String> {
+        // For local images (no registry prefix), assume they exist if built by docker-compose
+        if !self.image.contains('/') {
+            return Ok(());
+        }
+
+        // For remote images, try to pull them
         let options = Some(CreateImageOptions {
             from_image: Some(self.image.clone()),
             ..Default::default()
@@ -143,7 +149,6 @@ struct CreateSessionRequest {
     mem_mb: Option<u64>,
     cpus: Option<f64>,
     image: Option<String>,
-    with_tools: Option<bool>,
 }
 
 #[derive(Object, Debug)]
@@ -243,11 +248,8 @@ impl VmApi {
             ..Default::default()
         };
 
-        let cmd_idle = if req.with_tools.unwrap_or(false) {
-            vec!["sh", "-lc", "apk add --no-cache curl jq >/dev/null 2>&1; tail -f /dev/null"]
-        } else {
-            vec!["sh", "-lc", "tail -f /dev/null"]
-        };
+        // Since tools are pre-installed in the custom Alpine image, just run the idle command
+        let cmd_idle = vec!["sh", "-lc", "tail -f /dev/null"];
 
         let name = format!("mm-alpine-{}", session_id);
         let cfg = ContainerCreateBody {
