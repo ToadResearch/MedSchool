@@ -35,9 +35,9 @@ BASE_SERVICES=(
   db 
   hapi 
   middleman 
-  # validator 
   mcp 
-  sandbox
+  # validator 
+  # sandbox
 )
 
 # All services to show in the service summary (can include one-shots like `uploader`).
