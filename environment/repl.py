@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 # --------- robust imports: works as "python -m environment.repl" or "python environment/repl.py"
 try:
     from .src.config import AppConfig
-    from .src.fhir_client import AsyncFHIRClient
+    from .src.clients.fhir_client import AsyncFHIRClient
 except Exception:
     import pathlib as _p
     _HERE = _p.Path(__file__).resolve()
@@ -21,7 +21,7 @@ except Exception:
     if str(_ROOT) not in sys.path:
         sys.path.insert(0, str(_ROOT))
     from environment.src.config import AppConfig
-    from environment.src.fhir_client import AsyncFHIRClient
+    from environment.src.clients.fhir_client import AsyncFHIRClient
 # -----------------------------------------------------------------------------------------------
 
 # ===================== TTY COLORS =====================

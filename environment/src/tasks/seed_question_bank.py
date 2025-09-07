@@ -24,7 +24,7 @@ import yaml
 # Robust imports
 try:
     from ..config import AppConfig
-    from ..fhir_client import AsyncFHIRClient
+    from ..clients.fhir_client import AsyncFHIRClient
 except Exception:
     # Fallback for direct execution
     import sys as _sys
@@ -32,7 +32,7 @@ except Exception:
     if str(_ROOT) not in _sys.path:
         _sys.path.insert(0, str(_ROOT))
     from environment.src.config import AppConfig
-    from environment.src.fhir_client import AsyncFHIRClient
+    from environment.src.clients.fhir_client import AsyncFHIRClient
 
 
 TEMPLATE_QS: List[Dict[str, Any]] = [

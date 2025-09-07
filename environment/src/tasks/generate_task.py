@@ -26,14 +26,14 @@ import yaml
 # Robust imports
 try:
     from ..config import AppConfig
-    from ..fhir_client import AsyncFHIRClient
+    from ..clients.fhir_client import AsyncFHIRClient
 except Exception:
     import sys as _sys
     _ROOT = Path(__file__).resolve().parents[3]
     if str(_ROOT) not in _sys.path:
         _sys.path.insert(0, str(_ROOT))
     from environment.src.config import AppConfig
-    from environment.src.fhir_client import AsyncFHIRClient
+    from environment.src.clients.fhir_client import AsyncFHIRClient
 
 
 async def _latest_observation_id_for_code(

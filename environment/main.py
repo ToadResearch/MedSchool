@@ -12,7 +12,7 @@ from typing import Any, Dict, Mapping, Optional
 import verifiers as vf
 
 from .src.config import AppConfig
-from .src.fhir_client import AsyncFHIRClient
+from .src.clients.fhir_client import AsyncFHIRClient
 
 
 def load_environment(**kwargs):
