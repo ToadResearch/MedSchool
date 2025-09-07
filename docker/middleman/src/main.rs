@@ -180,7 +180,12 @@ struct AppState {
 
 impl AppState {
     async fn ensure_image(&self) -> Result<(), String> {
-        // Try to pull the image; if already present, this is fast/no-op.
+        // For local images (no registry prefix), assume they exist if built by docker-compose
+        if !self.image.contains('/') {
+            return Ok(());
+        }
+
+        // For remote images, try to pull them
         let options = Some(CreateImageOptions {
             from_image: Some(self.image.clone()),
             ..Default::default()
@@ -255,8 +260,6 @@ struct CreateSessionRequest {
     cpus: Option<f64>,
     /// Optional image override (defaults to ALPINE_IMAGE)
     image: Option<String>,
-    /// If true, pre-install some helpful tools (curl, jq)
-    with_tools: Option<bool>,
 }
 
 #[derive(Object, Debug, Clone, Serialize)]
