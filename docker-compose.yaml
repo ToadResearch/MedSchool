@@ -268,6 +268,7 @@ services:
       SANDBOX_UPSTREAM_BASE: ${SANDBOX_UPSTREAM_BASE}
       VM_UPSTREAM_BASE: ${VM_UPSTREAM_BASE}
 
+      # TODO: add these to .env
       # Alpine container defaults
       ALPINE_IMAGE: ${ALPINE_IMAGE:-alpine:3.20}
       DOCKER_NETWORK: ${DOCKER_NETWORK:-medschool-net}
@@ -283,7 +284,7 @@ services:
       # let middleman control Docker
       - /var/run/docker.sock:/var/run/docker.sock:rw
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${MIDDLEMAN_CONTAINER_PORT}/api/health >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${MIDDLEMAN_CONTAINER_PORT}/sessions/health >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 30
