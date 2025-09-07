@@ -1,3 +1,8 @@
+# reference: https://github.com/hapifhir/hapi-fhir-jpaserver-starter/blob/master/src/main/resources/application.yaml
+logging:
+  level:
+    org.springframework.boot.context.config: DEBUG
+
 spring:
   datasource:
     url: "jdbc:postgresql://db:5432/hapi"
@@ -7,7 +12,7 @@ spring:
     
     # HikariCP settings for connection pool
     hikari:
-      maximum-pool-size: 20  # Increase to handle concurrency (default is 10)
+      maximum-pool-size: 50  # Increase to handle concurrency (default is 10)
       minimum-idle: 5        # Keep some idle connections
       idle-timeout: 30000    # 30s idle before close
       max-lifetime: 600000   # 10min max connection life
@@ -17,7 +22,9 @@ spring:
     open-in-view: false
     properties:
       # Required for Postgres with HAPI JPA
+      # hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
       hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
+      # hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
       # database-platform: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
       # properties:
       #   hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
@@ -31,9 +38,24 @@ spring:
   #       jwt:
 
 hapi:
+
   fhir:
     version: R4
+    
+    # bulk import 
+    bulk_import_enabled: true # server allow bulk import
+    bulk_import_batch_size: 500
+    bulk_import_thread_pool_size: 8
+    auto_create_placeholder_reference_targets: false # disable auto-creation of placeholder references to avoid duplicates or conflicts during parallel processing
+    allow_inline_match_url_references_enabled: true # allow conditional refs like Practitioner?identifier=...
 
+
+    
+    resource_id_strategy: UUID
+    # jpa:
+      # resource_server_id_strategy: UUID 
+      # server_id_strategy: UUID
+    
     validation:
       # Validate all write requests (POST/PUT/Bundle, etc.)
       # true causes jvm OOM error during data ingestion -- expensive to validate all synthea data
@@ -46,7 +68,7 @@ hapi:
     # TODO: run local terminology server
     # installing codes would increase image size, so trade off size for latency -- for now!
     terminology:
-      remote_terminology_service_enabled: ${REMOTE_TS_ENABLED:true}
+      remote_terminology_service_enabled: false # ${REMOTE_TS_ENABLED:true}
       remote_terminology_server_base_url: "${REMOTE_TS_BASE:https://tx.fhir.org/r4}"   # or HL7 test server
 
 
@@ -58,7 +80,7 @@ hapi:
           enforce_requirement: true
 
     # Validate again at repository/storage layer (catches non-HTTP writes too)
-    enable_repository_validating_interceptor: true
+    enable_repository_validating_interceptor: false    # was limiting upload speed... turned off
 
     # https://smilecdr.com/docs/fhir_repository/creating_data.html#auto-create-placeholder-reference-targets
     # https://smilecdr.com/docs/fhir_repository/creating_data.html#auto-create-placeholder-reference-targets-with-identifier

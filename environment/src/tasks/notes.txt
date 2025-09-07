@@ -1,0 +1,90 @@
+Inside the FHIR server: 
+    resources point to each other by the server’s logical id
+    (Patient/{id} like Patient/1206).
+
+At the enterprise level: 
+    humans are identified by business identifiers 
+    (MRN, enterprise ID from the MPI/EMPI, national IDs, etc.) 
+    that live in Patient.identifier.
+
+----------------------------------------------------------------------------
+
+when using server-assigned logical id: GET [base]/Patient/1206
+
+  {
+    "path": "Encounter?patient=Patient/1206&date=ge2024-09-05"
+  }
+
+always start with something like 
+
+    "get the logical id for patient with mrn/identifier 119e46a1-9323-916b-4152-e0daedb48f23"
+
+
+----------------------------------------------------------------------------
+to get info about a patient:
+
+    using server logical id returns the Patient resourceType with matching id:
+        "GET [base]/Patient/1206"
+
+                        {
+                        "resourceType": "Patient",
+                        "id": "1206",
+                        "meta": {
+                        "versionId": "1",
+                        "lastUpdated": "2025-09-04T22:37:14.520+00:00",
+                        "profile": [
+                            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+                        ]
+                        },
+
+    using MRN returns a searchset Bundle type with 0 or 1 items:
+        "GET [base]/Patient?identifier=119e46a1-9323-916b-4152-e0daedb48f23"
+    that will contain the 
+    to get the logical id from this you can do entry[0].resource.id to get 1206
+
+
+                    {
+                        "resourceType": "Bundle",
+                        "id": "b8f9161d-e998-491b-a2dd-f6796177c318",
+                        "meta": {
+                        "lastUpdated": "2025-09-05T18:02:18.077+00:00"
+                        },
+                        "type": "searchset",
+                        "total": 1,
+                        "link": [
+                        {
+                            "relation": "self",
+                            "url": "http://hapi:8080/fhir/Patient?identifier=119e46a1-9323-916b-4152-e0daedb48f23"
+                        }
+                        ],
+                        "entry": [
+                        {
+                            "fullUrl": "http://hapi:8080/fhir/Patient/1206",
+                            "resource": {
+                            "resourceType": "Patient",
+                            "id": "1206",
+                            "meta": {
+                                "versionId": "1",
+                                "lastUpdated": "2025-09-04T22:37:14.520+00:00",
+                                "profile": [
+                                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+                                ]
+
+# Find the Patient by its business identifier
+GET [base]/Patient?identifier=https://github.com/synthetichealth/synthea|119e46a1-9323-916b-4152-e0daedb48f23
+
+# Directly pull Encounters for that identifier (chaining)
+GET [base]/Encounter?patient.identifier=
+
+
+
+  {
+    "path": "Encounter?patient.identifier=119e46a1-9323-916b-4152-e0daedb48f23"
+  }
+
+
+
+
+
+
+GET [base]/Patient/1206/$everything

@@ -45,7 +45,9 @@ services:
       # initial heap of 2GiB and max of 4GiB, exits onOOM
       # JAVA_TOOL_OPTIONS: "-Xms2g -Xmx4g -XX:+ExitOnOutOfMemoryError"
       # initial heap of 50% and max of 70% of the container's memory, exits on OOM
-      JAVA_TOOL_OPTIONS: "-XX:InitialRAMPercentage=50 -XX:MaxRAMPercentage=70 -XX:+ExitOnOutOfMemoryError"
+      # JAVA_TOOL_OPTIONS: "-XX:InitialRAMPercentage=50 -XX:MaxRAMPercentage=70 -XX:+ExitOnOutOfMemoryError"
+      JAVA_TOOL_OPTIONS: "-XX:InitialRAMPercentage=40 -XX:MaxRAMPercentage=80 -XX:+ExitOnOutOfMemoryError -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+
       PGUSER: ${PGUSER}
       PGPASSWORD: ${PGPASSWORD}
       PGDATABASE: ${PGDATABASE}
@@ -167,9 +169,12 @@ services:
         condition: service_healthy
       middleman:
         condition: service_healthy
-    environment:  # TODO: works fine with HAPI_INTERNAL_FHIR_BASE, but drops lots of synthea records with current setup. i think there are network traffic issues
-      FHIR_BASE_URL: ${FHIR_PROXY_INTERNAL_BASE}/fhir # never used by client machine, so just use internal url
+    environment: 
+      # FHIR_BASE_URL: ${FHIR_PROXY_INTERNAL_BASE}/fhir # never used by client machine, so just use internal url
+      FHIR_BASE_URL: ${HAPI_INTERNAL_FHIR_BASE} # never used by client machine, so just use internal url. don't go through middleman for now to reduce passthroughs
       SYNTHEA_ZIP_URL: ${SYNTHEA_ZIP_URL}
+      UPLOADER_CONTAINER_PORT: ${UPLOADER_CONTAINER_PORT}
+      LOCAL_ADDRESS: ${LOCAL_ADDRESS}
     networks:
       - medschool-net
     restart: "no"

@@ -30,12 +30,12 @@ REBUILD=0
 RESET=0
 
 # --- Services (edit here) ---
-# Base services that are always started with `up -d`.
+# Base services that are always started witfh `up -d`.
 BASE_SERVICES=(
   db 
   hapi 
   middleman 
-  validator 
+  # validator 
   mcp 
   sandbox
 )
@@ -111,9 +111,9 @@ docker compose -f "$COMPOSE_FILE" --env-file .env up -d --build --force-recreate
 
 
 
-echo "Kicking off validator pre-warm (runs once in background)..."
+# echo "Kicking off validator pre-warm (runs once in background)..."
 # one-shot job; talks to the validator container directly on 3500 inside the compose network
-docker compose -f "$COMPOSE_FILE" --env-file .env up -d validator-prewarm || true
+# docker compose -f "$COMPOSE_FILE" --env-file .env up -d validator-prewarm || true
 
 # Use HAPI_PORT from environment/.env file, with a fallback to 8080
 HAPI_PORT="${HAPI_PORT:-8081}"
@@ -145,9 +145,16 @@ if [[ "${NO_PRUNE:-0}" -ne 1 ]]; then
   # docker builder prune -f >/dev/null || true
 fi
 
+# if [[ $WITH_SYNTHEA -eq 1 ]]; then
+#   echo "Running uploader to load Synthea data..."
+#   # The 'up' command will start the service if it's not running
+#   docker compose -f "$COMPOSE_FILE" --env-file .env up ${REBUILD:+--build} uploader
+# else
+#   echo "Skipping Synthea data load. Use the --synthea flag to load data."
+# fi
+
 if [[ $WITH_SYNTHEA -eq 1 ]]; then
-  echo "Running uploader to load Synthea data..."
-  # The 'up' command will start the service if it's not running
+  echo "Running bulk uploader to load Synthea data..."
   docker compose -f "$COMPOSE_FILE" --env-file .env up ${REBUILD:+--build} uploader
 else
   echo "Skipping Synthea data load. Use the --synthea flag to load data."

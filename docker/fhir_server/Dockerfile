@@ -14,9 +14,9 @@
 # MedSchool/docker/fhir_server/Dockerfile
 # ----------------------------------------------------------------------
 # jars on Maven Central
-ARG HAPI_VERSION=8.2.0          
+ARG HAPI_VERSION=8.4.0          
 # tag that exists on Docker Hub
-ARG HAPI_IMAGE_TAG=v8.2.0-2     
+ARG HAPI_IMAGE_TAG=v8.4.0-2     
 # r4 | r4b | r5 | dstu3 | dstu2 | dstu2.1
 ARG FHIR_FLAVOUR=r4             
 # ----------------------------------------------------------------------
@@ -25,7 +25,7 @@ ARG FHIR_FLAVOUR=r4
 FROM busybox:1.35 AS bb
 
 # ── Stage 1: download validator JARs (has curl) ─────────────────────────
-ARG HAPI_VERSION=8.2.0
+ARG HAPI_VERSION=8.4.0
 ARG FHIR_FLAVOUR=r4
 # tiny (≈8 MB) image
 FROM curlimages/curl:8.8.0 AS downloader
@@ -41,9 +41,11 @@ RUN curl -fSL \
       "https://repo1.maven.org/maven2/ca/uhn/hapi/fhir/hapi-fhir-validation-resources-${FHIR_FLAVOUR}/${HAPI_VERSION}/hapi-fhir-validation-resources-${FHIR_FLAVOUR}-${HAPI_VERSION}.jar" \
       -o "/tmp/hapi-fhir-validation-resources.jar"
 
+# https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-validation-resources-r4
+
 # ── Stage 2: final distroless HAPI image ────────────────────────────────
 # tag that exists on Docker Hub
-ARG HAPI_IMAGE_TAG=v8.2.0-2
+ARG HAPI_IMAGE_TAG=v8.4.0-2
 FROM hapiproject/hapi:${HAPI_IMAGE_TAG}
 COPY --from=bb /bin/busybox /busybox   
 COPY --from=downloader /tmp/hapi-fhir-validation.jar /app/libs/

@@ -1,0 +1,172 @@
+https://imagic.nlm.nih.gov/imagic/code/map
+
+task: 
+    get a valid icd-10 code for this Condition id
+required:
+    - look up Condition resource from id 
+        - get snomed code 
+        - get reference patient id 
+    - look up Patient resource from id  
+        - get patient sex and DOB 
+    - use snomed-to-icd10 tool 
+        - pass in snomed code, sex, DOB 
+
+
+https://www.linkedin.com/pulse/creating-living-manual-ehi-export-josh-mandel-md-8bzrc
+https://joshuamandel.com/ehi-living-manual/playground/
+
+
+Getting Started / Metadata Explorer – basic schema & navigation queries
+00 – View the scope of EHI data available in our export
+00 – Your first EHI query – see real patient encounters
+00 – Understanding Epic’s date formats
+00 – Pattern 1: Join patient data with encounters
+00 – Pattern 2: Find tables by keyword using metadata
+00 – Your first look at the _metadata table structure
+00 – Understanding the _metadata structure
+00 – Discover what key tables do
+00 – Get full documentation for any table
+00 – Find all tables related to diagnoses
+00 – Find all date/time columns related to admission
+00 – Find foreign key relationships for patients
+00 – Analyze metadata completeness
+00 – First, get the documentation
+00 – Then see actual data patterns
+00 – See evidence of hierarchical data in relational form
+00 – Observe hierarchical patterns in account contacts
+00 – See the scale that demands this architecture
+00 – Discover Epic’s internal date system
+00 – Trace hierarchical relationships through shared IDs
+00 – Common Epic master file prefixes
+
+Foundations – recurring data-model patterns (ID + LINE, history, _REAL dates, etc.)
+01 – Discover the prevalence of the LINE pattern
+01 – Examine the (ID, LINE) pattern in encounter diagnoses
+01 – Proof that LINE does not indicate priority
+01 – Verify LINE numbering always starts at 1
+01 – See the variety of data using the (ID, LINE) pattern
+01 – Count items per parent correctly
+01 – Discover tables using the grouped list pattern
+01 – See the grouped list pattern in action
+01 – Examine the structure of a grouped list table
+01 – Understand the variety of grouped list applications
+01 – Aggregate values within groups
+01 – Verify the numbering rules for grouped lists
+01 – Discover the scope of history tracking
+01 – Compare a regular table to its history counterpart
+01 – See the address change history
+01 – Understand the active record pattern
+01 – Find a patient’s address on a specific date
+01 – Examine different types of historical data
+01 – Identify audit tracking columns
+01 – Analyze history table structures
+01 – Compare tables with and without history tracking
+01 – Prove that ZC_ lookup tables don’t exist
+01 – Discover the prevalence of the _C_NAME pattern
+01 – Find columns where documentation reveals numeric codes
+01 – Check for case variations in category values
+01 – Demonstrate lack of referential constraints
+01 – Analyze category naming patterns
+01 – Investigate _C columns without _NAME
+01 – Create a reference list of valid values
+01 – See why standard dates aren’t enough
+01 – Verify the Epic epoch date
+01 – Analyze decimal sequencing patterns
+01 – Discover all _REAL date columns
+01 – Demonstrate why _REAL sorting is essential
+01 – Verify _REAL values are unique per patient
+01 – Prove decimals aren’t timestamps
+01 – Discover the most common column patterns
+01 – Understand the _YN boolean pattern
+01 – Explore ID/NAME pairs
+01 – See ID/NAME pairs in action
+01 – Discover continuation tables
+01 – Analyze temporal column patterns
+01 – Explore financial amount columns
+01 – Understand CSN usage
+01 – See all patterns working together
+
+Clinical – core patient, diagnoses, encounters, orders, meds, preventive care
+02 – Explore the core patient record
+02 – View the comprehensive patient master documentation
+02 – Explore granular language preferences
+02 – Explore the continuation table pattern
+02 – See specialized data in overflow tables
+02 – Examine PCP assignment and preferences
+02 – Confirm absence of gender identity fields
+02 – Search for merge tracking tables
+02 – Check for test patient identification
+02 – Compare internal and external patient identifiers
+02 – Prove PAT_ID is the universal foreign key
+02 – Examine the multiple name storage formats
+02 – Explore patient aliases and alternative names
+02 – Compare race and ethnicity storage patterns
+02 – Understand the three-tier address system
+02 – Get complete address with street lines
+02 – View emergency contacts
+02 – Compare the record counts of the two diagnosis storage models
+02 – Examine the diagnosis structure for a single encounter
+02 – Prove that LINE number does not indicate priority
+02 – View a patient’s active problem list
+02 – Find when ongoing problems were addressed in specific encounters
+02 – Look up common diagnoses in the master table
+02 – Create a timeline of all diagnoses for a patient
+02 – View recent patient encounters
+02 – Verify CSN uniqueness and its role as a primary key
+02 – Demonstrate the decimal date pattern for chronological sorting
+02 – Analyze encounter types across different departments
+02 – View hospital admissions and length of stay
+02 – Show the complete patient journey for an encounter
+02 – Analyze appointment status distribution
+02 – Understand the different provider roles
+02 – Create a patient’s encounter timeline
+02 – View the different types of non-medication orders
+02 – Examine a lab order and its status
+02 – Examine a complete metabolic panel with all its result components
+02 – View imaging orders and their status
+02 – Track referrals to specialists
+02 – Analyze order status distribution
+02 – Overview of safety-critical data volumes
+02 – View current medication orders with status
+02 – Get patient sig instructions for a medication
+02 – View a patient’s active allergies and their severity
+02 – See detailed reactions for a specific allergy
+02 – View a patient’s immunization history
+02 – View complete vaccine administration details including lot number
+02 – Explore all available health maintenance topics and categorize them
+02 – View current health maintenance status for a specific patient
+02 – Analyze how health maintenance items get completed across the system
+02 – Identify the most common overdue preventive care items
+
+Communication – notes, flowsheets, portal messages
+03 – View the different types of clinical notes available
+03 – Read the content of a recent clinical note
+03 – Find external (scanned) documents
+03 – View a patient’s recent vital signs from flowsheets
+03 – List all flowsheet measurements recorded for a patient
+03 – View measurement context, including who recorded it and where
+03 – Check a patient’s portal account status and activation details
+03 – View recent messages for a patient showing direction and threading
+03 – Read the complete text of a patient’s message about wrist pain
+03 – Analyze the types of conversations a patient has initiated
+03 – Analyze bidirectional message flow for a patient
+03 – Explore available communication preference types
+03 – Create a complete patient portal engagement summary
+
+Financial – insurance, coverage, benefits & deductibles
+04 – Show how patients link to insurance coverage through accounts
+04 – Examine comprehensive coverage information including member details
+04 – View the multi-tier benefit structure with deductibles and coinsurance
+04 – Analyze deductible accumulation across multiple benefit records
+04 – Display comprehensive service benefits showing network variations
+04 – Check coverage verification and eligibility status
+
+Advanced – specialty deep-dives (currently only INPATIENT_DATA_ID)
+05 – Check what fraction of encounters have INPATIENT_DATA_ID
+05 – Compare INPATIENT_DATA_ID presence with actual hospital records
+05 – List departments using INPATIENT_DATA_ID
+05 – Show ED workflow tracking in non-ED departments
+05 – Show which tables use INPATIENT_DATA_ID for tracking
+05 – Examine IP_DATA_STORE connections
+05 – Correctly identify true hospital admissions
+05 – Analyze what features INPATIENT_DATA_ID enables

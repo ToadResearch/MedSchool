@@ -40,6 +40,7 @@ class PythonExecResult(BaseModel):
     name="python_exec",
     description=(
         "Run short Python 3.11 code inside a locked-down sandbox.\n\n"
+        "You should use this tool when doing math or data processing."
         "Preinstalled libs: numpy, pandas, matplotlib (Agg), scipy, scikit-learn, "
         "rapidfuzz, python-dateutil. You may not use any other packages.\n\n"
         "Args:\n"
