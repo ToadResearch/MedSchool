@@ -30,7 +30,8 @@ If you're interested in clinical intelligence, developing realistic health/medic
 - **FHIR:**
   - **fhir_query**: read FHIR records
 
-- **Code Execution:**
+
+- **Code Execution -- temporarily unavailable as we move to full terminal sandbox :(**
   - **python_exec**: execute python scripts in a sandbox
   - **shell_exec**: execute shell scripts and commands in a sandbox
 
