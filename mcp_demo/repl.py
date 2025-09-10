@@ -12,7 +12,6 @@ from fastmcp import Client as MCPClient
 from fastmcp.client.transports import infer_transport
 
 import os
-import sys
 import json
 import argparse
 import asyncio

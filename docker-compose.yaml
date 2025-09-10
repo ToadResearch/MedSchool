@@ -4,7 +4,6 @@
 #   validator (HL7 validator-wrapper) waits for hapi → starts.
 #   uploader waits for hapi → runs one-shot to load data (optional).
 #   mcp waits for hapi → becomes healthy.
-#   sandbox waits for mcp → becomes healthy.
 #   prewarm waits for validator → runs one-shot to prewarm the validator.
 
 services:
@@ -129,35 +128,6 @@ services:
     restart: "no"
 
 
-  # sandbox:
-  #   build:
-  #     context: ./docker/sandbox
-  #   image: medschool-sandbox
-  #   container_name: medschool-sandbox
-  #   restart: unless-stopped
-  #   environment:
-  #     SANDBOX_IMAGE: "medschool-sandbox"
-  #     # Optional: enable gVisor if installed on the host: SANDBOX_RUNTIME=runsc
-  #     # SANDBOX_RUNTIME: "runsc"
-  #     LOCAL_ADDRESS: ${LOCAL_ADDRESS}
-  #     SANDBOX_EXEC_TIMEOUT_S: ${SANDBOX_EXEC_TIMEOUT_S}
-  #     SANDBOX_EXEC_MEM_MB: ${SANDBOX_EXEC_MEM_MB}
-  #     SANDBOX_EXEC_CPUS: ${SANDBOX_EXEC_CPUS}
-  #   networks: [medschool-net]
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #   ports:
-  #     - "${SANDBOX_PORT}:${SANDBOX_CONTAINER_PORT}"
-  #   depends_on:
-  #     mcp:
-  #       condition: service_healthy
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${SANDBOX_CONTAINER_PORT}/healthz >/dev/null || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 30
-
-
   uploader:
     build:
       context: ./docker/uploader
@@ -217,14 +187,12 @@ services:
       TERMINOLOGY_BASE_URL: ${TERMINOLOGY_BASE_URL}
       VALIDATION_BASE_URL: ${VALIDATION_BASE_URL}
       OPENFDA_BASE_URL: ${OPENFDA_BASE_URL}
-      SANDBOX_BASE_URL: ${SANDBOX_BASE_URL}
       
       # used: internal proxy bases (service-name:container-port) so MCP talks within the Docker network:
       FHIR_PROXY_INTERNAL_BASE: ${FHIR_PROXY_INTERNAL_BASE}/fhir
       TERMINOLOGY_PROXY_INTERNAL_BASE: ${TERMINOLOGY_PROXY_INTERNAL_BASE}
       VALIDATION_PROXY_INTERNAL_BASE: ${VALIDATION_PROXY_INTERNAL_BASE}
       OPENFDA_PROXY_INTERNAL_BASE: ${OPENFDA_PROXY_INTERNAL_BASE}
-      SANDBOX_PROXY_INTERNAL_BASE: ${SANDBOX_PROXY_INTERNAL_BASE}
     networks:
       - medschool-net
     healthcheck:
@@ -269,7 +237,6 @@ services:
       VALIDATION_ROUTE: ${VALIDATION_ROUTE}
       OPENFDA_ROUTE: ${OPENFDA_ROUTE}
       MCP_ROUTE: ${MCP_ROUTE}
-      SANDBOX_ROUTE: ${SANDBOX_ROUTE}
       VM_ROUTE: ${VM_ROUTE}
 
       # upstream targets (container-internal URLs)
@@ -278,7 +245,6 @@ services:
       VALIDATION_UPSTREAM_BASE: ${VALIDATION_UPSTREAM_BASE}
       OPENFDA_UPSTREAM_BASE: ${OPENFDA_UPSTREAM_BASE}
       MCP_UPSTREAM_BASE: ${MCP_UPSTREAM_BASE}
-      SANDBOX_UPSTREAM_BASE: ${SANDBOX_UPSTREAM_BASE}
 
       # TODO: add these to .env
       # Alpine container defaults

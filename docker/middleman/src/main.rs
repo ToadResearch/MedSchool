@@ -333,7 +333,7 @@ async fn main() -> Result<(), std::io::Error> {
             .expect("failed building reqwest client"),
     );
 
-    // NEW: Docker client + app state
+    // TODO: make sure these align with compose / env vars
     let docker =
         Docker::connect_with_unix_defaults().expect("failed to connect to /var/run/docker.sock");
     let network = env_or("DOCKER_NETWORK", "medschool-net");

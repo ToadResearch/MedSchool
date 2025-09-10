@@ -2,7 +2,7 @@ FROM alpine:3.20
 
 # ---- base OS deps ----
 RUN set -eux; \
-    apk add --no-cache python3 bash curl ca-certificates; \
+    apk add --no-cache python3 bash curl ca-certificates jq; \
     # Build deps only if wheels aren’t available; safe to keep for numpy/pandas/scipy but removed later
     apk add --no-cache --virtual .build-deps build-base python3-dev; \
     ln -sf python3 /usr/bin/python

@@ -16,10 +16,13 @@
 #       ./startup.sh --reset
 #       → Tears down all containers and removes volumes before starting.
 #         Recommended if you encounter errors like 'port is already allocated'.
+#
+#   Enable MCP:
+#       ./startup.sh --mcp
+#       → Includes the mcp service in the base services started with `up -d`.
 # ------------------------------------------------------------
 
 set -euo pipefail
-
 
 # REPO_ROOT is now the current directory where startup.sh is executed.
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -28,35 +31,33 @@ COMPOSE_FILE="$REPO_ROOT/docker-compose.yaml"
 WITH_SYNTHEA=0
 REBUILD=0
 RESET=0
+MCP=0
 
 # --- Services (edit here) ---
-# Base services that are always started witfh `up -d`.
+# Base services that are always started with `up -d` (unless optional flags add more).
 BASE_SERVICES=(
-  db 
-  hapi 
-  middleman 
-  mcp 
-  # validator 
-  # sandbox
+  db
+  hapi
+  middleman
+  # validator
 )
-
-# All services to show in the service summary (can include one-shots like `uploader`).
-ALL_SERVICES=("${BASE_SERVICES[@]}" uploader)
 
 usage() {
   cat <<EOF
 Usage: $(basename "$0") [options]
 
 Options:
-  --synthea   Also run the one-shot uploader to download and load Synthea data.
+  --synthea        Also run the one-shot uploader to download and load Synthea data.
   --rebuild        Rebuild the uploader image before running it (implies --synthea).
   --reset          Tear down the stack completely (removes DB data) before starting.
+  --mcp            Include the 'mcp' service in the base services.
   -h, --help       Show this help.
 
 Examples:
-  $(basename "$0")                        # Start Postgres + HAPI + and other services
-  $(basename "$0") --synthea         # Start services then load Synthea data
-  $(basename "$0") --reset --synthea # Recommended for a clean start with data
+  $(basename "$0")                        # Start Postgres + HAPI + other base services
+  $(basename "$0") --mcp                 # Start base services + mcp
+  $(basename "$0") --synthea             # Start services then load Synthea data
+  $(basename "$0") --reset --synthea     # Recommended for a clean start with data
 EOF
 }
 
@@ -66,6 +67,7 @@ while [[ $# -gt 0 ]]; do
     --synthea) WITH_SYNTHEA=1 ;;
     --rebuild) REBUILD=1 ;;
     --reset) RESET=1 ;;
+    --mcp) MCP=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
   esac
@@ -75,6 +77,14 @@ done
 if [[ $REBUILD -eq 1 ]]; then
   WITH_SYNTHEA=1
 fi
+
+# Optionally include mcp in the base services
+if [[ $MCP -eq 1 ]]; then
+  BASE_SERVICES+=(mcp)
+fi
+
+# All services to show in the service summary (can include one-shots like `uploader`).
+ALL_SERVICES=("${BASE_SERVICES[@]}" uploader)
 
 # Ensure .env is present in the root directory
 if [[ ! -f "$REPO_ROOT/.env" ]]; then
@@ -104,7 +114,6 @@ if [[ $RESET -eq 1 ]]; then
   docker compose -f "$COMPOSE_FILE" --env-file .env down -v || true
 fi
 
-
 echo "Stopping running base services (to avoid dangling <none> images)…"
 # If they’re not running, this is a no-op.
 docker compose -f "$COMPOSE_FILE" --env-file .env stop "${BASE_SERVICES[@]}" || true
@@ -112,8 +121,6 @@ docker compose -f "$COMPOSE_FILE" --env-file .env stop "${BASE_SERVICES[@]}" || 
 echo "Rebuilding images and recreating containers in one step…"
 # --build ensures images are rebuilt; --pull can be added if you want to refresh bases
 docker compose -f "$COMPOSE_FILE" --env-file .env up -d --build --force-recreate "${BASE_SERVICES[@]}"
-
-
 
 # echo "Kicking off validator pre-warm (runs once in background)..."
 # one-shot job; talks to the validator container directly on 3500 inside the compose network
@@ -148,14 +155,6 @@ if [[ "${NO_PRUNE:-0}" -ne 1 ]]; then
   # If you also want to remove old build cache layers (bigger cleanup):
   # docker builder prune -f >/dev/null || true
 fi
-
-# if [[ $WITH_SYNTHEA -eq 1 ]]; then
-#   echo "Running uploader to load Synthea data..."
-#   # The 'up' command will start the service if it's not running
-#   docker compose -f "$COMPOSE_FILE" --env-file .env up ${REBUILD:+--build} uploader
-# else
-#   echo "Skipping Synthea data load. Use the --synthea flag to load data."
-# fi
 
 if [[ $WITH_SYNTHEA -eq 1 ]]; then
   echo "Running bulk uploader to load Synthea data..."

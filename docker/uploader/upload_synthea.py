@@ -160,7 +160,7 @@ async def main():
         print("✅ All seed files uploaded successfully.")
     if final_failure_files:
         print(f"Remaining failures after retries ({len(final_failure_files)}): {final_failure_files}")
-        # TODO: figure out why about 6 of the synthea files fail to upload. formatting?
+        # TODO: figure out why about 3-6 of the synthea files fail to upload. formatting?
         print("Common cause: Unresolved inline match URLs.")
     else:
         print("✅ All non-seed files uploaded successfully.")

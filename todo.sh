@@ -22,7 +22,7 @@ process_file() {
 process_directory() {
     local dir="$1"
     for entry in "$dir"/*; do
-        if [[ -d "$entry" ]]; then
+        if [[ -d "$entry" && "$(basename "$entry")" != "target" ]]; then
             process_directory "$entry"
         elif [[ -f "$entry" && "$(basename "$entry")" != "$script_name" ]]; then
             if grep -q "TODO: " "$entry"; then
