@@ -1,4 +1,7 @@
-### Basic demo for now
+The env is almost there!
+
+
+### Basic repl demo for now
 
 Setup with 
 
@@ -8,7 +11,14 @@ source .venv/bin/activate
 uv sync
 ```
 
-and make sure the HAPI server is running. Then you can run the repl files inside `repls/` repo.
+and make sure the HAPI server is running. Then you can run the repl files inside `repls/` repo:
 
-The env is almost there!
+To test a few FHIR retrieval queries:
+```bash
+python repls/fhir_repl.py
+```
 
+To test function calls:
+```bash
+python repls/test_repl.py
+```
