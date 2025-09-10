@@ -1,4 +1,4 @@
-# environment/repl.py
+# environment/repls/fhir_repl.py
 from __future__ import annotations
 
 import asyncio
@@ -9,10 +9,9 @@ import random
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
-# --------- robust imports: works as "python -m environment.repl" or "python environment/repl.py"
 try:
-    from .src.config import AppConfig
-    from .src.clients.fhir_client import AsyncFHIRClient
+    from ..src import get_settings
+    from ..src.clients import FHIRClient
 except Exception:
     import pathlib as _p
     _HERE = _p.Path(__file__).resolve()
@@ -20,8 +19,8 @@ except Exception:
     _ROOT = _PKG.parent
     if str(_ROOT) not in sys.path:
         sys.path.insert(0, str(_ROOT))
-    from environment.src.config import AppConfig
-    from environment.src.clients.fhir_client import AsyncFHIRClient
+    from src import get_settings
+    from src.clients import FHIRClient
 # -----------------------------------------------------------------------------------------------
 
 # ===================== TTY COLORS =====================
@@ -87,7 +86,7 @@ def _banner(base_url: str):
 
 
 # ===================== FHIR HELPERS =====================
-async def _resource_types(client: AsyncFHIRClient) -> List[str]:
+async def _resource_types(client: FHIRClient) -> List[str]:
     caps = await client.get_capability()
     types: List[str] = []
     for rest in caps.get("rest", []) or []:
@@ -97,7 +96,7 @@ async def _resource_types(client: AsyncFHIRClient) -> List[str]:
                 types.append(t)
     return sorted(set(types))
 
-async def _counts_by_type(client: AsyncFHIRClient, types: List[str]) -> List[Tuple[str, int]]:
+async def _counts_by_type(client: FHIRClient, types: List[str]) -> List[Tuple[str, int]]:
     sem = asyncio.Semaphore(12)
     async def _count_one(t: str) -> Tuple[str, int]:
         async with sem:
@@ -107,7 +106,7 @@ async def _counts_by_type(client: AsyncFHIRClient, types: List[str]) -> List[Tup
                 return t, -1
     return await asyncio.gather(*(_count_one(t) for t in types))
 
-async def _random_across_types(client: AsyncFHIRClient, types: List[str]) -> Optional[Dict[str, Any]]:
+async def _random_across_types(client: FHIRClient, types: List[str]) -> Optional[Dict[str, Any]]:
     counts = await _counts_by_type(client, types)
     nonzero = [(t, c) for t, c in counts if c and c > 0]
     if not nonzero: return None
@@ -157,7 +156,7 @@ def _summarize(res: Dict[str, Any]) -> str:
 
 
 # -------- identifier-aware read helper --------
-async def _read_by_id_or_identifier(client: AsyncFHIRClient, rtype: str, token: str) -> tuple[dict | None, str]:
+async def _read_by_id_or_identifier(client: FHIRClient, rtype: str, token: str) -> tuple[dict | None, str]:
     """
     Token may be:
       • server id (e.g., 1189)
@@ -220,12 +219,12 @@ def _ask_valid_type(types: List[str], *, prompt_label: str = "type") -> Optional
 
 # ===================== MAIN REPL =====================
 async def repl() -> None:
-    cfg = AppConfig.load(timeout_s=30.0)  # loads FHIR_BASE_URL from .env via python-dotenv
+    cfg = get_settings()
     base = cfg.fhir_base_url
     _clear()
     _banner(base)
 
-    async with AsyncFHIRClient(base_url=base, timeout_s=cfg.timeout_s) as client:
+    async with FHIRClient(base_url=base, timeout_s=cfg.timeout_s) as client:
         try:
             types = await _resource_types(client)
         except Exception as e:

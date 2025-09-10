@@ -1,92 +1,105 @@
-"""
-we want a way to load random records by resource type 
-    - also a way to filter or blacklist certain fields / resources within it
-
-or to load a specific resource by it's id. like a specific patient or encounter
-
-"""
+# environment/main.py
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Optional
-
 import verifiers as vf
+from datasets import Dataset
 
-from .src.config import AppConfig
-from .src.clients.fhir_client import AsyncFHIRClient
-
+from medschoolenv import MedSchoolEnv
+from src.rubrics import ...
 
 def load_environment(**kwargs):
     """
-    Verifiers entrypoint. Returns a ToolEnv exposing **async** read-only FHIR tools.
+    Verifiers entrypoint. Returns a configured MedSchoolEnv.
 
-    Optional kwargs:
-      - timeout_s: float (HTTP timeout seconds, default 30)
-      - system_prompt: override default
+    Optional kwargs (forwarded / handled here):
+      - system_prompt: str
+      - system_prompt_path: str (default './configs/system_prompt.txt')
+      - dataset_path: str (default './example/data.json')
+      - max_turns: int (default 10)
+      - container_limit: int (default comes from configs/sandbox.yaml)
+      - task_filepath: str (path to a JSON list of tasks; e.g., 'environment/tasks/toy_tasks.json')
+
+    Any extra kwargs are passed through to MultiTurnEnv (verifiers).
     """
-    timeout_s = float(kwargs.get("timeout_s", 30.0))
-    cfg = AppConfig.load(timeout_s=timeout_s)
-    client = AsyncFHIRClient(cfg.fhir_base_url, timeout_s=cfg.timeout_s)
 
-    # ---- Async tool functions ------------------------------------------
 
-    async def get_capability() -> Dict[str, Any]:
-        """Return the server CapabilityStatement (read-only)."""
-        return await client.get_capability()
-
-    async def read_resource(resource_type: str, resource_id: str) -> Dict[str, Any]:
-        """
-        Read a single resource by type and id.
-        Example: read_resource("Patient", "123")
-        """
-        return await client.read(resource_type, resource_id)
-
-    async def search_resources(
-        resource_type: str, params: Optional[Mapping[str, Any]] = None
-    ) -> Dict[str, Any]:
-        """
-        Search by type with arbitrary FHIR search params (e.g., {"name":"Smith","_count":20}).
-        Returns a Bundle.
-        """
-        return await client.search(resource_type, params)
-
-    async def count_resources(resource_type: str, params: Optional[Mapping[str, Any]] = None) -> int:
-        """Return total matching resources (uses _summary=count)."""
-        return await client.count(resource_type, params)
-
-    async def sample_resource(
-        resource_type: str, params: Optional[Mapping[str, Any]] = None
-    ) -> Optional[Dict[str, Any]]:
-        """
-        Return one random resource matching the (optional) params.
-        Example: sample_resource("Observation", {"code": "http://loinc.org|718-7"})
-        """
-        return await client.sample(resource_type, params)
-
-    tools = [get_capability, read_resource, search_resources, count_resources, sample_resource]
-
-    # Parser & rubric (lightweight; tools do the heavy lifting)
     parser = vf.PlainParser()
     rubric = vf.Rubric(funcs=[parser.get_format_reward_func()], weights=[0.1])
 
-    system_prompt = kwargs.get(
-        "system_prompt",
-        (
-            "You can query a FHIR R4 server using async, read-only tools. "
-            "Use the tools to fetch, search, count, and sample resources. "
-            "Summarize key clinical fields succinctly."
-        ),
-    )
 
-    # Minimal seed dataset; you can ignore and just call tools programmatically.
-    dataset = vf.Dataset.from_list(
-        [{"prompt": "Fetch a random Patient and list their id, name(s), birthDate, and gender."}]
-    )
+    prompt_template = """{input}\n{context}"""
 
-    return vf.ToolEnv(
+    # ---- system prompt ----
+
+    system_prompt_path = kwargs.get("system_prompt_path", "./configs/system_prompt.txt")
+
+    try:
+
+        with open(system_prompt_path, 'r') as f:
+
+            default_system_prompt = f.read().strip()
+
+    except FileNotFoundError:
+
+        default_system_prompt = (
+
+            "You can use available tools (FHIR, OpenFDA, Terminal) to fetch and summarize clinical data. "
+
+            "Prefer tool calls over guesses. Be concise and surface key fields (ids, names, dates, codes, values)."
+
+        )
+
+    system_prompt = kwargs.get("system_prompt", default_system_prompt)
+
+    # ---- dataset ----
+
+    dataset_path = kwargs.get("dataset_path", "./example/data.json")
+
+    try:
+
+        dataset = Dataset.from_json(dataset_path)
+
+    except Exception as e:
+
+        # fallback to default
+
+        dataset = vf.Dataset.from_list(
+
+            [
+
+                {
+
+                    "prompt": [
+
+                        {"role": "user", "content": "Hi! Insert task here for all tasks."}
+
+                    ]
+
+                }
+
+            ]
+
+        )
+
+    # ---- construct environment ----
+    env = MedSchoolEnv(
         dataset=dataset,
-        tools=tools,      # async callables are supported
         parser=parser,
         rubric=rubric,
         system_prompt=system_prompt,
-        **{k: v for k, v in kwargs.items() if k not in {"timeout_s", "system_prompt"}}
+        max_turns=int(kwargs.get("max_turns", 10)),
+        container_limit=kwargs.get("container_limit"),  # falls back to configs/sandbox.yaml if None
+        # Any other unknown kwargs go to MultiTurnEnv (safe to ignore or extend later)
+        **{k: v for k, v in kwargs.items() if k not in {"system_prompt", "system_prompt_path", "dataset_path", "max_turns", "container_limit", "task_filepath"}}
     )
+
+    # ---- optional: load a task file into the env’s TaskManager ----
+    task_filepath = kwargs.get("task_filepath")
+    if task_filepath:
+        try:
+            env.session_manager.task_manager.load_tasks(task_filepath)
+        except Exception as e:
+            # Keep env usable even if tasks fail to load; caller can decide what to do.
+            env.logger.warning(f"Failed to load tasks from {task_filepath}: {e}")
+
+    return env

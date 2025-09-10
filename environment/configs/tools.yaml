@@ -1,0 +1,59 @@
+# Optional global default timeout knob (used if callers ask for "a default")
+timeout_s: 30
+
+classes:
+  FHIR:
+    defaults:
+      enabled: true
+      limits:
+        timeout_s: 15
+    tools:
+      - name: fhir_get
+        limits:
+          max_results: 100
+      - name: fhir_post
+      - name: fhir_update
+      - name: fhir_delete
+      - name: fhir_doc
+        enabled: false
+      - name: fhir_submit_bundle
+        enabled: false
+
+  TERMINAL:
+    defaults:
+      enabled: true
+      limits:
+        timeout_s: 30
+    tools:
+      - name: terminal_command
+        enabled: true
+
+  OPENFDA:
+    defaults:
+      enabled: true
+      limits:
+        timeout_s: 12
+    tools:
+      - name: openfda_adverse_events
+      - name: openfda_label
+      - name: openfda_recalls
+      - name: openfda_drug_shortages
+
+  TERMINOLOGY:
+    defaults:
+      enabled: false
+      limits:
+        timeout_s: 10
+    tools:
+      - name: code_lookup
+        enabled: true
+      - name: snomed_to_icd10
+      - name: icd10_to_snomed
+
+  VALIDATION:
+    defaults:
+      enabled: false
+      limits:
+        timeout_s: 20
+    tools:
+      - name: fhir_validate

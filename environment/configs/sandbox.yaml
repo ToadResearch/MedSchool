@@ -1,0 +1,12 @@
+# environments/configs/sandbox.yaml
+# TODO: these will currently override env vars used in the docker-compose, so consider removing them
+sandbox:
+  # Cap on number of concurrent sandbox sessions allowed
+  max_concurrent_sessions: 3 
+
+  # Default server-side exec timeout (seconds) for terminal commands inside a session
+  exec_timeout_s: 120
+
+  # Default resource limits applied when creating a session (can be overridden per-call)
+  default_mem_mb: 256     # e.g., 256, 512, 1024
+  default_cpus: 0.5       # e.g., 0.5, 1.0, 2.0

@@ -66,12 +66,12 @@ Controls
 
 ```python
 import asyncio
-from environment.src.config import AppConfig
-from environment.src.fhir_client import AsyncFHIRClient
+from environment.src.config import Settings
+from environment.src.fhir_client import FHIRClient
 
 async def main():
-    cfg = AppConfig.load(timeout_s=30)
-    async with AsyncFHIRClient(base_url=cfg.fhir_base_url, timeout_s=cfg.timeout_s) as client:
+    cfg = Settings.load(timeout_s=30)
+    async with FHIRClient(base_url=cfg.fhir_base_url, timeout_s=cfg.timeout_s) as client:
         caps = await client.get_capability()
         print("FHIR version:", caps.get("fhirVersion"))
 
