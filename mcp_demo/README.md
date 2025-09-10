@@ -1,6 +1,6 @@
 ### MCP tool-calling demo:
 
-This is a demo of the previous system we used. We no longer use an MCP server, but wanted to keep this here for a while since it's nice to play with. 
+This is a demo of the previous system we used. We no longer use an MCP server, but wanted to keep this here for a while since it's nice to play with. It no longer has access to code execution, as we've removed the relevant Docker service in order to move to using a full terminal. We might use this to restore code execution functionality with the MCP server... but no promises :)
 
 #### Current tools available:
 
