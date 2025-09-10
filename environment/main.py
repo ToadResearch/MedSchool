@@ -13,7 +13,7 @@ def load_environment(**kwargs):
 
     Optional kwargs (forwarded / handled here):
       - system_prompt: str
-      - system_prompt_path: str (default './configs/system_prompt.txt')
+      - system_prompt_path: str (default './configs/system-prompt.txt')
       - dataset_path: str (default './example/data.json')
       - max_turns: int (default 10)
       - container_limit: int (default comes from configs/sandbox.yaml)
@@ -31,7 +31,7 @@ def load_environment(**kwargs):
 
     # ---- system prompt ----
 
-    system_prompt_path = kwargs.get("system_prompt_path", "./configs/system_prompt.txt")
+    system_prompt_path = kwargs.get("system_prompt_path", "./configs/system-prompt.txt")
 
     try:
 
