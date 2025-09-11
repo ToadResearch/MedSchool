@@ -31,9 +31,8 @@ If you're interested in clinical intelligence, developing realistic health/medic
   - **fhir_query**: read FHIR records
 
 
-- **Code Execution -- temporarily unavailable as we move to full terminal sandbox :(**
-  - **python_exec**: execute python scripts in a sandbox
-  - **shell_exec**: execute shell scripts and commands in a sandbox
+- **Code Sandbox**
+  - **terminal_command**: execute a terminal command in a persistent sandbox
 
 - **Terminology:**
   - **code_lookup**: get display name and synonyms for a given code (e.g., ICD-10, CPT/HCPCS, SNOMED, LOINC, RxNorm)
@@ -64,3 +63,10 @@ To stop all services and completely delete all containers, data volumes, and ass
 ./shutdown.sh --purge
 ```
 
+---
+
+### Roadmap
+
+Some milestones we want to hit:
+
+1) Create our own Synthea dataset to use. Right now we're just pulling the latest Synthea release, which is strangely biased towards dental procedures (see [dataset_info.json](dataset_info.json))
