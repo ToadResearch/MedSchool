@@ -19,7 +19,6 @@ def make_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         description="Run evals against an OpenAI-compatible endpoint."
     )
-    # Core flags requested
     p.add_argument(
         "-m",
         "--model",
@@ -38,12 +37,15 @@ def make_parser() -> argparse.ArgumentParser:
         default="https://api.cerebras.ai/v1",
         help="Base URL for the OpenAI-compatible API host.",
     )
-
-    # Small quality-of-life flag (optional)
     p.add_argument(
-        "--task-file",
-        default="./tasks/terminology.json",
+        "--task-filepath",
         help="Path to the task JSON to evaluate.",
+    )
+    # overrides task_filepath if set
+    p.add_argument(
+        "-t",
+        "--task-filename",
+        help="Task name to load from ./tasks/ directory (will append .json).",
     )
     p.add_argument(
         "--requested",
@@ -56,6 +58,10 @@ def make_parser() -> argparse.ArgumentParser:
 
 def main():
     args = make_parser().parse_args()
+
+    # Check that either task_filepath or task_filename is provided
+    if not args.task_filepath and not args.task_filename:
+        raise RuntimeError("Either --task-filepath or --task-filename must be provided.")
 
     # ---------- model client ----------
     load_dotenv()
@@ -72,7 +78,12 @@ def main():
     )
 
     # ---------- env (make sure main.py sets tools = [] in load_environment) ----------
-    task_filepath = args.task_file
+    if args.task_filename:
+        task_filepath = f"./tasks/{args.task_filename}.json"
+    else:
+        task_filepath = args.task_filepath
+    
+
     env = load_environment(task_filepath=task_filepath)
 
     # ---------- choose num_examples safely ----------
@@ -81,10 +92,18 @@ def main():
         raise RuntimeError("Your dataset is empty. Check the task file path and contents.")
     requested = args.requested
     num_examples = min(requested, dataset_len)
-
+    
     # Decide concurrency: up to sandbox cap, but never exceed num_examples
     sandbox_cap = get_settings().sandbox.max_concurrent_sessions or 1
     max_concurrent = max(1, min(sandbox_cap, num_examples))
+
+    print("\n----- Evaluation Configuration -----")
+    print(f"Running task: {task_filepath}")
+    print(f"Using model: {args.model}")
+    print(f"API endpoint: {args.base_url}")
+    print(f"Dataset size: {dataset_len}")
+    print(f"Evaluating {num_examples} examples (requested: {requested})")
+    print(f"Max concurrent sessions: {max_concurrent}\n")
 
     # ---------- run eval ----------
     model = args.model
