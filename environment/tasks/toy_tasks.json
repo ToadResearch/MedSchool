@@ -3,70 +3,73 @@
     "id": "1",
     "type": ["read"],
     "input": {
-      "task": "what is the mean of this list",
-      "context": [1, 2, 3, 4, 5]
+      "task": "what is the mean of this list. round to the nearest integer",
+      "context": "[1, 2, 3, 4, 5]"
     },
     "output": {
-      "answer": 3.0
+      "answer": "3"
     }
   },
   {
     "id": "2",
     "type": ["read"],
     "input": {
-      "task": "what is the fibonacci sequence number for n=21"
+      "task": "what is the fibonacci sequence number for n=21. round to the nearest integer",
+      "context": ""
     },
     "output": {
-      "answer": 10946
+      "answer": "10946"
     }
   },
   {
     "id": "3",
     "type": ["read"],
     "input": {
-      "task": "what is 34!"
+      "task": "what is 10!. round to the nearest integer",
+      "context": ""
     },
     "output": {
-      "answer": 295232799039604140847618609643520000000
+      "answer": "3628800"
     }
   },
   {
     "id": "4",
     "type": ["read"],
     "input": {
-      "task": "what is the sum of this list",
-      "context": [10, 20, 30]
+      "task": "what is the sum of this list. round to the nearest integer",
+      "context": "[10, 20, 30]"
     },
     "output": {
-      "answer": 60
+      "answer": "60"
     }
   },
   {
     "id": "5",
     "type": ["read"],
     "input": {
-      "task": "what is the maximum of this list",
-      "context": [5, 3, 9, 1]
+      "task": "what is the maximum of this list. round to the nearest integer",
+      "context": "[5, 3, 9, 1]"
     },
     "output": {
-      "answer": 9
+      "answer": "9"
     }
   },
   {
     "id": "6",
     "type": ["read"],
     "input": {
-      "task": "is 17 a prime number"
+      "task": "is 17 a prime number. answer 'true' or 'false'",
+      "context": ""
     },
     "output": {
-      "answer": true
+      "answer": "true"
     }
   },
   {
     "id": "7",
     "type": ["read"],
     "input": {
-      "task": "reverse this string",
+      "task": "reverse this string. put your answer in single quotes",
       "context": "hello"
     },
     "output": {
@@ -77,31 +80,33 @@
     "id": "8",
     "type": ["read"],
     "input": {
-      "task": "count the vowels in this string",
+      "task": "count the vowels in this string. round to the nearest integer",
       "context": "hello world"
     },
     "output": {
-      "answer": 3
+      "answer": "3"
     }
   },
   {
     "id": "9",
     "type": ["read"],
     "input": {
-      "task": "what is the square root of 16"
+      "task": "what is the square root of 16. round to the nearest integer",
+      "context": ""
     },
     "output": {
-      "answer": 4.0
+      "answer": "4"
     }
   },
   {
     "id": "10",
     "type": ["read"],
     "input": {
-      "task": "what is the greatest common divisor of 48 and 18"
+      "task": "what is the greatest common divisor of 48 and 18. round to the nearest integer",
+      "context": ""
     },
     "output": {
-      "answer": 6
+      "answer": "6"
     }
   }
 ]

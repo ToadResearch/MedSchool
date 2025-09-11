@@ -2,7 +2,7 @@
 # TODO: these will currently override env vars used in the docker-compose, so consider removing them
 sandbox:
   # Cap on number of concurrent sandbox sessions allowed
-  max_concurrent_sessions: 3 
+  max_concurrent_sessions: 5 
 
   # Default server-side exec timeout (seconds) for terminal commands inside a session
   exec_timeout_s: 120

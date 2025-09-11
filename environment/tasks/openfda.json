@@ -1,0 +1,13 @@
+[
+  {
+    "id": "1",
+    "type": ["read"],
+    "input": {
+      "task": "tell me about recalls of ozempic",
+      "context": ""
+    },
+    "output": {
+      "answer": "111"
+    }
+  }
+]

@@ -113,13 +113,17 @@ def _infer_system(code: str) -> str:
     return "http://snomed.info/sct"
 
 
-async def _lookup_request(code: str, system: Optional[str], timeout: float) -> Dict[str, Any]:
+async def _lookup_request(code: str, system: Optional[str], timeout: float, session_id: Optional[str] = None) -> Dict[str, Any]:
     base = _terminology_base_url()
     url = f"{base}/CodeSystem/$lookup"
     params = {"code": code, "system": system or _infer_system(code)}
 
+    headers = dict(_HEADERS)
+    if session_id:
+        headers["x-session-id"] = session_id
+
     async with httpx.AsyncClient(timeout=timeout) as client:
-        r = await client.get(url, params=params, headers=_HEADERS)
+        r = await client.get(url, params=params, headers=headers)
         raw_text = r.text
         try:
             data = r.json()
@@ -190,7 +194,7 @@ def register_tools(session_manager):
         """
         _ = session_id  # unused
         timeout = _timeout_s("code_lookup", default=10.0)
-        return await _lookup_request(code, system, timeout)
+        return await _lookup_request(code, system, timeout, session_id=session_id)
 
     async def snomed_to_icd10(*, session_id: str, sct_code: str) -> List[str]:
         """

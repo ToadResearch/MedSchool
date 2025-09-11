@@ -3,103 +3,86 @@ from __future__ import annotations
 
 import verifiers as vf
 from datasets import Dataset
-
 from medschoolenv import MedSchoolEnv
-from src.rubrics import ...
-
-def load_environment(**kwargs):
-    """
-    Verifiers entrypoint. Returns a configured MedSchoolEnv.
-
-    Optional kwargs (forwarded / handled here):
-      - system_prompt: str
-      - system_prompt_path: str (default './configs/system-prompt.txt')
-      - dataset_path: str (default './example/data.json')
-      - max_turns: int (default 10)
-      - container_limit: int (default comes from configs/sandbox.yaml)
-      - task_filepath: str (path to a JSON list of tasks; e.g., 'environment/tasks/toy_tasks.json')
-
-    Any extra kwargs are passed through to MultiTurnEnv (verifiers).
-    """
+from datasets.utils.logging import disable_progress_bar
+disable_progress_bar() # so map doesn't print progress bars
 
 
-    parser = vf.PlainParser()
-    rubric = vf.Rubric(funcs=[parser.get_format_reward_func()], weights=[0.1])
+def to_vf_format(example: dict, system_prompt: str) -> dict:
+    # create a prompt column with system prompt and initial task questions
+    # build `prompt` (chat messages) and `answer` columns so verifiers doesn't look for "question"
+    task = example.get("input", {}).get("task", "")
+    ctx  = example.get("input", {}).get("context", "")
+    if ctx:
+        user_text = f"{task}\nContext: {ctx}"
+    else:
+        user_text = task
+
+    # Chat-style prompt the library expects if "prompt" already present
+    prompt = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_text},
+    ]
+
+    # Ensure answer is a string for comparison
+    ans = example.get("output", {}).get("answer", "")
+    ans = str(ans)
+
+    return {
+        "id": example.get("id", ""),
+        "prompt": prompt,
+        "answer": ans,
+    }
 
 
-    prompt_template = """{input}\n{context}"""
-
+def load_environment(
+        system_prompt_path: str = "./configs/system-prompt.txt",
+        task_filepath: str = "./tasks/toy_tasks.json",
+        max_turns: int = 10,
+        container_limit: int | None = None,
+        **kwargs
+        ):
+    
     # ---- system prompt ----
-
-    system_prompt_path = kwargs.get("system_prompt_path", "./configs/system-prompt.txt")
-
     try:
-
         with open(system_prompt_path, 'r') as f:
-
-            default_system_prompt = f.read().strip()
-
+            system_prompt = f.read().strip()
     except FileNotFoundError:
-
-        default_system_prompt = (
-
-            "You can use available tools (FHIR, OpenFDA, Terminal) to fetch and summarize clinical data. "
-
-            "Prefer tool calls over guesses. Be concise and surface key fields (ids, names, dates, codes, values)."
-
-        )
-
-    system_prompt = kwargs.get("system_prompt", default_system_prompt)
+        raise FileNotFoundError(f"System prompt file not found at {system_prompt_path}. Please provide a valid path.")
 
     # ---- dataset ----
-
-    dataset_path = kwargs.get("dataset_path", "./example/data.json")
-
     try:
+        tasks = Dataset.from_json(task_filepath)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Task file not found at {task_filepath}. Please provide a valid path.")
+    
+    # create a prompt column with system prompt and initial task questions
+    dataset = tasks.map(to_vf_format, fn_kwargs={"system_prompt": system_prompt})
 
-        dataset = Dataset.from_json(dataset_path)
+    # ---- tools ----
+    tools=[] # extra tools to add to the internal tool registry
 
-    except Exception as e:
+    # ---- parser ----
+    parser = vf.Parser() # just basic parser for now
 
-        # fallback to default
+    # ---- rubric ----
+    def correctness(parser, completion, answer):
+        # reward if final response contains the answer
+        response = parser.parse_answer(completion) or ''
+        return 1.0 if answer.lower().strip() in response.lower().strip() else 0.0
 
-        dataset = vf.Dataset.from_list(
-
-            [
-
-                {
-
-                    "prompt": [
-
-                        {"role": "user", "content": "Hi! Insert task here for all tasks."}
-
-                    ]
-
-                }
-
-            ]
-
-        )
-
-    # ---- construct environment ----
-    env = MedSchoolEnv(
+    rubric = vf.Rubric(funcs=[correctness], weights=[1.0])
+    
+    return MedSchoolEnv(
         dataset=dataset,
+        tools=tools,
         parser=parser,
         rubric=rubric,
         system_prompt=system_prompt,
-        max_turns=int(kwargs.get("max_turns", 10)),
-        container_limit=kwargs.get("container_limit"),  # falls back to configs/sandbox.yaml if None
-        # Any other unknown kwargs go to MultiTurnEnv (safe to ignore or extend later)
-        **{k: v for k, v in kwargs.items() if k not in {"system_prompt", "system_prompt_path", "dataset_path", "max_turns", "container_limit", "task_filepath"}}
+        max_turns=max_turns,
+        container_limit=container_limit,  # falls back to configs/sandbox.yaml if None
+        **kwargs
     )
 
-    # ---- optional: load a task file into the env’s TaskManager ----
-    task_filepath = kwargs.get("task_filepath")
-    if task_filepath:
-        try:
-            env.session_manager.task_manager.load_tasks(task_filepath)
-        except Exception as e:
-            # Keep env usable even if tasks fail to load; caller can decide what to do.
-            env.logger.warning(f"Failed to load tasks from {task_filepath}: {e}")
-
-    return env
+if __name__ == "__main__":
+    env = load_environment()

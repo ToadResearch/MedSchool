@@ -1,0 +1,24 @@
+[
+  {
+    "id": "1",
+    "type": ["read"],
+    "input": {
+      "task": "how many patients are in the FHIR database?",
+      "context": ""
+    },
+    "output": {
+      "answer": "111"
+    }
+  },
+  {
+    "id": "2",
+    "type": ["read"],
+    "input": {
+      "task": "do not make a tool call. first tell me a story about a doctor. after you have written the story find the mean of [1, 2, 3] using python code execution in terminal. then only aftyer making the tool call to find the mean of the list, write another story using this result",
+      "context": ""
+    },
+    "output": {
+      "answer": "2"
+    }
+  }
+]

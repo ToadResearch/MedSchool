@@ -49,14 +49,13 @@ enum RequestType {
     Tool,
     Terminal
 }
-
 async fn forward_request(
     req: Request,
     client: &Client,
     target_base: &str,
     strip_prefix: &str,
     request_type: RequestType,
-    state: &AppState
+    state: &AppState,
 ) -> Response {
     let full_path = req
         .uri()
@@ -70,13 +69,14 @@ async fn forward_request(
         full_path.as_str()
     };
 
-    // extract the session ID from the header
+    // Extract the session ID from the header (kept for logging + session metrics)
     let session_id = req.headers().get("x-session-id").cloned();
 
     let url = format!("{target_base}{path_after_prefix}");
     let method = req.method().clone();
     let mut request_builder = client.request(method.clone(), &url);
 
+    // Forward headers, except hop-by-hop and our x-session-id for non-terminal proxied routes
     for (key, value) in req.headers() {
         let k = key.as_str();
         if k.eq_ignore_ascii_case("host") || k.eq_ignore_ascii_case("connection") {
@@ -97,7 +97,30 @@ async fn forward_request(
         request_builder = request_builder.body(body_bytes);
     }
 
-    println!("Forwarding {} {} -> {}", method, path_after_prefix, url);
+    // ---------- Improved logging with optional session_id ----------
+    let sid_opt = session_id
+        .as_ref()
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.to_string());
+
+    let rt_str = match request_type {
+        RequestType::Fhir => "FHIR",
+        RequestType::Tool => "TOOL",
+        RequestType::Terminal => "TERMINAL",
+    };
+
+    if let Some(sid) = sid_opt.as_deref() {
+        println!(
+            "[{}] Forwarding {} {} -> {} (session_id={})",
+            rt_str, method, path_after_prefix, url, sid
+        );
+    } else {
+        println!(
+            "[{}] Forwarding {} {} -> {}",
+            rt_str, method, path_after_prefix, url
+        );
+    }
+    // --------------------------------------------------------------
 
     let request_result = match request_builder.send().await {
         Ok(resp) => {
@@ -117,8 +140,13 @@ async fn forward_request(
         }
     };
 
-    let error = if request_result.status().is_success() { None } else { Some("Request failed".to_string()) };
+    let error = if request_result.status().is_success() {
+        None
+    } else {
+        Some("Request failed".to_string())
+    };
 
+    // Record basic analytics into the in-memory session (if present)
     if let Some(session_id) = session_id {
         if let Ok(sid) = session_id.to_str() {
             let mut sessions = state.sessions.write().await;
@@ -150,8 +178,6 @@ async fn forward_request(
     match request_type {
         RequestType::Fhir => {
             println!("FHIR Request: {} {}", method, path_after_prefix);
-            // Log the FHIR request in the session
-            
         }
         RequestType::Tool => {
             println!("Tool Request: {} {}", method, path_after_prefix);
@@ -163,6 +189,7 @@ async fn forward_request(
 
     request_result
 }
+
 
 // ------------------------ VM / Alpine management ------------------------
 

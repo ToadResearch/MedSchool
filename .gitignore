@@ -9,6 +9,7 @@ ehr_env
 synthea_data
 chat_logs
 *_prompt.txt
+outputs/ 
 
 # other stuff
 .env

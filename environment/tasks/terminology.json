@@ -1,0 +1,13 @@
+[
+  {
+    "id": "1",
+    "type": ["read"],
+    "input": {
+      "task": "lookup icd10 code e78.5",
+      "context": ""
+    },
+    "output": {
+      "answer": "111"
+    }
+  }
+]

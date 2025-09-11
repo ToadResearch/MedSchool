@@ -27,7 +27,13 @@ def _is_bundle(obj: Any) -> bool:
 class FHIRClient:
     """Client for interacting with a FHIR server"""
 
-    def __init__(self, base_url: Optional[str] = None, timeout_s: float = 30.0, client: Optional[httpx.AsyncClient] = None):
+    def __init__(
+        self,
+        base_url: Optional[str] = None,
+        timeout_s: float = 30.0,
+        client: Optional[httpx.AsyncClient] = None,
+        session_id: Optional[str] = None,  # NEW: carry-through for middleman logging
+    ):
         if base_url is None:
             config = get_settings()
             base_url = config.fhir_base_url
@@ -41,6 +47,14 @@ class FHIRClient:
         # explicit headers
         self._accept = {"Accept": "application/fhir+json"}
         self._json_ct = {"Content-Type": "application/fhir+json", **self._accept}
+
+        # remember session id so every request includes x-session-id
+        self._session_id: Optional[str] = session_id
+
+    def with_session(self, session_id: str) -> "FHIRClient":
+        """Optionally set/override the session id after construction."""
+        self._session_id = session_id
+        return self
 
     async def __aenter__(self) -> "FHIRClient":
         if self._external_client is None and self._client is None:
@@ -79,6 +93,9 @@ class FHIRClient:
             h = self._accept if json is None else self._json_ct
             if headers:
                 h = {**h, **headers}
+            # Always include session header for observability in middleman
+            if self._session_id:
+                h = {**h, "x-session-id": self._session_id}
 
             resp = await client.request(method, url, headers=h, params=params, json=json)
 

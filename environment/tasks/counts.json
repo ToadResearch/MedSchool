@@ -1,0 +1,112 @@
+[
+  {
+    "id": "1",
+    "type": ["read"],
+    "input": {
+      "task": "how many patients are in the FHIR database? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 111
+    }
+  },
+  {
+    "id": "2",
+    "type": ["read"],
+    "input": {
+      "task": "how many Observation resources exist in the FHIR database? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 60597
+    }
+  },
+  {
+    "id": "3",
+    "type": ["read"],
+    "input": {
+      "task": "count the number of Encounter records. Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 5924
+    }
+  },
+  {
+    "id": "4",
+    "type": ["read"],
+    "input": {
+      "task": "how many Condition resources are stored? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 4140
+    }
+  },
+  {
+    "id": "5",
+    "type": ["read"],
+    "input": {
+      "task": "how many MedicationRequest resources are present? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 4926
+    }
+  },
+  {
+    "id": "6",
+    "type": ["read"],
+    "input": {
+      "task": "how many Immunization records are in the system? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 1549
+    }
+  },
+  {
+    "id": "7",
+    "type": ["read"],
+    "input": {
+      "task": "what is the total number of Practitioner resources? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 281
+    }
+  },
+  {
+    "id": "8",
+    "type": ["read"],
+    "input": {
+      "task": "how many AllergyIntolerance entries exist? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 111
+    }
+  },
+  {
+    "id": "9",
+    "type": ["read"],
+    "input": {
+      "task": "how many DiagnosticReport resources are available? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 13030
+    }
+  },
+  {
+    "id": "10",
+    "type": ["read"],
+    "input": {
+      "task": "count the number of Procedure resources. Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 17993
+    }
+  }
+]

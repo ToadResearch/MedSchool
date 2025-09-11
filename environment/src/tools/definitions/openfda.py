@@ -46,7 +46,7 @@ def _std_drug_name(name: str) -> str:
     return s
 
 
-async def _get(endpoint: str, params: Dict[str, Any], timeout_s: float) -> Dict[str, Any]:
+async def _get(endpoint: str, params: Dict[str, Any], timeout_s: float, session_id: Optional[str] = None) -> Dict[str, Any]:
     """
     Low-level GET wrapper for openFDA (or its proxied base).
 
@@ -59,6 +59,8 @@ async def _get(endpoint: str, params: Dict[str, Any], timeout_s: float) -> Dict[
     """
     url = f"{_openfda_base_url()}/{endpoint}.json"
     headers = {"User-Agent": _USER_AGENT}
+    if session_id:
+        headers["x-session-id"] = session_id
 
     async with httpx.AsyncClient(timeout=timeout_s, headers=headers) as client:
         r = await client.get(url, params=params)
@@ -103,27 +105,27 @@ async def _get(endpoint: str, params: Dict[str, Any], timeout_s: float) -> Dict[
 
 # ---------- Endpoint-level query helpers ----------
 
-async def _query_adverse_events(drug_name: str, limit: int, timeout_s: float) -> Dict[str, Any]:
+async def _query_adverse_events(drug_name: str, limit: int, timeout_s: float, session_id: str) -> Dict[str, Any]:
     q_name = _std_drug_name(drug_name)
     params = {"search": f"patient.drug.medicinalproduct:{q_name}", "limit": max(1, min(int(limit), 1000))}
-    data = await _get("drug/event", params, timeout_s=timeout_s)
+    data = await _get("drug/event", params, timeout_s=timeout_s, session_id=session_id)
     data["disclaimer"] = "FDA Disclaimer: FAERS reports are voluntary; counts do not imply causation or rates."
     return data
 
 
-async def _query_drug_labels(drug_name: str, limit: int, timeout_s: float) -> Dict[str, Any]:
+async def _query_drug_labels(drug_name: str, limit: int, timeout_s: float, session_id: str) -> Dict[str, Any]:
     q_name = _std_drug_name(drug_name)
     params = {"search": f"openfda.brand_name:{q_name}", "limit": max(1, min(int(limit), 100))}
-    return await _get("drug/label", params, timeout_s=timeout_s)
+    return await _get("drug/label", params, timeout_s=timeout_s, session_id=session_id)
 
 
-async def _query_recalls(drug_name: str, limit: int, timeout_s: float) -> Dict[str, Any]:
+async def _query_recalls(drug_name: str, limit: int, timeout_s: float, session_id: str) -> Dict[str, Any]:
     q_name = _std_drug_name(drug_name)
     params = {"search": f"openfda.brand_name:{q_name}", "limit": max(1, min(int(limit), 1000))}
-    return await _get("drug/enforcement", params, timeout_s=timeout_s)
+    return await _get("drug/enforcement", params, timeout_s=timeout_s, session_id=session_id)
 
 
-async def _query_drug_shortages(drug_name: str, limit: int, timeout_s: float) -> Dict[str, Any]:
+async def _query_drug_shortages(drug_name: str, limit: int, timeout_s: float, session_id: str) -> Dict[str, Any]:
     q_name = _std_drug_name(drug_name)
 
     def _q(v: str) -> str:
@@ -134,7 +136,7 @@ async def _query_drug_shortages(drug_name: str, limit: int, timeout_s: float) ->
     search = "(" + "+OR+".join(or_terms) + ")"
     params = {"search": search, "limit": max(1, min(int(limit), 100))}  # dataset caps ~100
     # Note: Older docs used "drug/drugshortages"; the provided legacy used "drug/shortages".
-    return await _get("drug/shortages", params, timeout_s=timeout_s)
+    return await _get("drug/shortages", params, timeout_s=timeout_s, session_id=session_id)
 
 
 # ---------- Convenience summarizers / filters ----------
@@ -262,7 +264,7 @@ def register_tools(session_manager):
             JSON object with {summary, sample, meta, disclaimer} or error object.
         """
         _ = session_id
-        raw = await _query_adverse_events(drug_name, limit=limit, timeout_s=_timeout("openfda_adverse_events", 15))
+        raw = await _query_adverse_events(drug_name, limit=limit, timeout_s=_timeout("openfda_adverse_events", 15), session_id=session_id)
         if raw.get("error"):
             return {"error": raw.get("error"), "error_body": raw.get("error_body"), "http_status": raw.get("http_status"), "url": raw.get("url")}
 
@@ -292,7 +294,7 @@ def register_tools(session_manager):
             JSON with {count, docs[]} or error object.
         """
         _ = session_id
-        data = await _query_drug_labels(drug_name, limit=limit, timeout_s=_timeout("openfda_label", 15))
+        data = await _query_drug_labels(drug_name, limit=limit, timeout_s=_timeout("openfda_label", 15), session_id=session_id)
         if data.get("error"):
             return {"error": data.get("error"), "error_body": data.get("error_body"), "http_status": data.get("http_status"), "url": data.get("url")}
 
@@ -344,7 +346,7 @@ def register_tools(session_manager):
             JSON list with key fields or error object.
         """
         _ = session_id
-        data = await _query_recalls(drug_name, limit=limit, timeout_s=_timeout("openfda_recalls", 15))
+        data = await _query_recalls(drug_name, limit=limit, timeout_s=_timeout("openfda_recalls", 15), session_id=session_id)
         if data.get("error"):
             return {"error": data.get("error"), "error_body": data.get("error_body"), "http_status": data.get("http_status"), "url": data.get("url")}
 
@@ -383,7 +385,7 @@ def register_tools(session_manager):
             JSON with {summary, rows, meta} or error object.
         """
         _ = session_id
-        data = await _query_drug_shortages(drug_name, limit=limit, timeout_s=_timeout("openfda_drug_shortages", 15))
+        data = await _query_drug_shortages(drug_name, limit=limit, timeout_s=_timeout("openfda_drug_shortages", 15), session_id=session_id)
         if data.get("error"):
             return {"error": data.get("error"), "error_body": data.get("error_body"), "http_status": data.get("http_status"), "url": data.get("url")}
 

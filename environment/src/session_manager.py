@@ -159,6 +159,7 @@ class SessionManager:
                 base_url=self._fhir_base_url,
                 timeout_s=self._timeout_s,
                 client=self._http,
+                session_id=session_id,
             )
 
             # Per-session Terminal client (shares manager's httpx client)
