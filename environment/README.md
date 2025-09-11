@@ -52,4 +52,4 @@ The `eval.py` script supports various options:
 
 **Note**: Either `--task-filepath` or `--task-filename` must be provided.
 
-New tasks can be added as `<task_name>.json` to the [tasks directory](tasks), and my be called using the flag `-t <task_name>`.
+New tasks can be added as `<task_name>.json` to the [tasks directory](tasks), and may be called using the flag `-t <task_name>`.
