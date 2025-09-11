@@ -50,7 +50,7 @@ Note: It might be better to migrate most work into a terminal environment becaus
 
 ### How to run:
 
-A basic MCP server demo is available inside [mcp_demo/](https://github.com/ToadResearch/MedSchool/tree/main/mcp_demo) with instructions. 
+A basic MCP server demo is available inside [mcp_demo/](mcp_demo) with instructions. 
 
 We're currently working on the environment!
 
