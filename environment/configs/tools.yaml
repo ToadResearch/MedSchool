@@ -12,8 +12,12 @@ classes:
         limits:
           max_results: 100
       - name: fhir_post
+        enabled: false
       - name: fhir_update
+        enabled: false
       - name: fhir_delete
+        -enabled: false
+      - name: fhir_validate
       - name: fhir_doc
         enabled: false
       - name: fhir_submit_bundle
@@ -49,11 +53,3 @@ classes:
         enabled: true
       - name: snomed_to_icd10
       - name: icd10_to_snomed
-
-  VALIDATION:
-    defaults:
-      enabled: false
-      limits:
-        timeout_s: 20
-    tools:
-      - name: fhir_validate

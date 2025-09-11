@@ -101,7 +101,6 @@ def register_tools(session_manager):
         ctx = session_manager.require_session(session_id)
         return await ctx.fhir_client.post_path("", bundle)
 
-    # TODO: move to validate.py
     async def fhir_validate(*, session_id: str, resource: Dict[str, Any]) -> Dict[str, Any]:
         """
         Validate a resource against base profiles via $validate.

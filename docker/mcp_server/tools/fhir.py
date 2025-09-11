@@ -61,23 +61,6 @@ if "fhir_submit_bundle" in settings.enabled:
         return json.dumps(data, separators=(",", ":"))
 
 # ───────────────────────────── fhir_validate ──────────────────────────
-# if "fhir_validate" in settings.enabled:
-#     @mcp.tool(
-#         name="fhir_validate",
-#         description=(
-#             "Validate a resource against base profiles via $validate. "
-#             "Input is raw resource JSON string; returns OperationOutcome as dict."
-#         ),
-#     )
-#     def fhir_validate(resource_json: str) -> dict[str, Any]:
-#         resource = json.loads(resource_json)
-#         data = http_post("$validate", resource)
-#         # If the client detected an HTTP error, passthrough as-is (contains OperationOutcome if returned)
-#         if isinstance(data, dict) and data.get("error"):
-#             return data
-#         return data  # usually an OperationOutcome; return as-is
-
-
 if "fhir_validate" in settings.enabled:
     @mcp.tool(
         name="fhir_validate",

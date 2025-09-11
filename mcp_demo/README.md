@@ -5,6 +5,7 @@ This is a demo of the previous system we used. We no longer use an MCP server, b
 
 - **FHIR:**
   - **fhir_query**: read FHIR records
+  - **fhir_validate**: validate a FHIR resource
 
 - **Code execution:**
   - **shell_exec**: ephemeral sandbox with access to python and shell commands. the full environment has a sandbox that persists throughout the duration of a task

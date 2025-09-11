@@ -1,5 +1,6 @@
 enabled:
   - fhir_query
+  - fhir_validate
   - shell_exec
   - code_lookup
   - openfda_adverse_events
@@ -9,7 +10,6 @@ enabled:
 
 
 disabled_by_default:
-  - fhir_validate
   - snomed_to_icd10
   - icd10_to_snomed
   - fhir_doc

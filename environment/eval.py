@@ -1,6 +1,5 @@
 # eval.py
 import argparse
-from pathlib import Path
 
 from main import load_environment
 from openai import OpenAI
@@ -10,8 +9,6 @@ from datasets import Dataset
 from src.config import get_settings
 
 import os
-import json
-import pickle
 import datetime
 
 
@@ -79,7 +76,7 @@ def main():
 
     # ---------- env (make sure main.py sets tools = [] in load_environment) ----------
     if args.task_filename:
-        task_filepath = f"./tasks/{args.task_filename}.json"
+        task_filepath = os.path.join("tasks", f"{args.task_filename}.json")
     else:
         task_filepath = args.task_filepath
     
@@ -130,13 +127,14 @@ def main():
     safe_model_dir = (
         model.replace("/", "_").replace(":", "_").replace(" ", "_")
     )  # keep filesystem happy
-    output_dir = f"outputs/{safe_model_dir}/{timestamp}"
+    output_dir = os.path.join("outputs", safe_model_dir, timestamp)
     os.makedirs(output_dir, exist_ok=True)
 
     # lines=False ensures a single list [ {...}, {...}, ... ]
     # force_ascii=False preserves unicode characters
-    results.to_json(f"{output_dir}/results.json", lines=False, force_ascii=False)
-    print(f"Results saved to {output_dir}/results.json")
+    results_file = os.path.join(output_dir, "results.json")
+    results.to_json(results_file, lines=False, force_ascii=False)
+    print(f"Results saved to {results_file}")
 
 
 if __name__ == "__main__":
