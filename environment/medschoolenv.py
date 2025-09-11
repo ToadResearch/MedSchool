@@ -215,6 +215,7 @@ class MedSchoolEnv(MultiTurnEnv):
         assert messages and messages[-1].get("tool_calls"), "env_response called without tool calls"
 
         info = state.get("info") if isinstance(state, dict) else {}
+
         session_id = (info or {}).get("session_id")
         if not session_id:
             # Graceful error response for missing session_id

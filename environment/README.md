@@ -1,7 +1,5 @@
-The env is almost there!
 
-
-### Basic repl demo for now
+### How to run:
 
 Setup with 
 
@@ -11,14 +9,30 @@ source .venv/bin/activate
 uv sync
 ```
 
-and make sure the HAPI server is running. Then you can run the repl files inside `repls/` repo:
+and make sure the HAPI server is running.
 
-To test a few FHIR retrieval queries:
-```bash
-python repls/fhir_repl.py
+```sh
+# Cerebras
+python eval.py \
+  -m gpt-oss-120b \
+  -k CEREBRAS_API_KEY \
+  -b https://api.cerebras.ai/v1
 ```
 
-To test function calls:
-```bash
-python repls/test_repl.py
+```sh
+# Groq
+python eval.py \
+  -m openai/gpt-oss-120b \
+  -k GROQ_API_KEY \
+  -b https://api.groq.com/openai/v1
 ```
+
+```sh
+# OpenRouter
+python eval.py \
+  -m openai/gpt-oss-120b \
+  -k OPENROUTER_API_KEY \
+  -b https://openrouter.ai/api/v1
+```
+
+

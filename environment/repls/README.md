@@ -1,4 +1,4 @@
-Please run these from inside the `environment/` folder.
+Make sure the server is running, and run these from inside the `environment/` folder.
 
 To test a few FHIR retrieval queries:
 ```bash
