@@ -7,7 +7,7 @@ notes
 logs
 ehr_env
 synthea_data
-chat_logs
+**/chat_logs/**
 *_prompt.txt
 outputs/ 
 

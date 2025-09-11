@@ -1,11 +1,13 @@
 ### MCP tool-calling demo:
 
-This is a demo of the previous system we used. We no longer use an MCP server, but wanted to keep this here for a while since it's nice to play with. It no longer has access to code execution, as we've removed the relevant Docker service in order to move to using a full terminal. We might restore code execution functionality for MCP server in the future... but no promises :)
-
+This is a demo of the previous system we used. We no longer use an MCP server, but wanted to keep this here for a while since it's nice to play with. 
 #### Current tools available:
 
 - **FHIR:**
   - **fhir_query**: read FHIR records
+
+- **Code execution:**
+  - **shell_exec**: ephemeral sandbox with access to python and shell commands. the full environment has a sandbox that persists throughout the duration of a task
 
 - **Terminology:**
   - **code_lookup**: get display name and synonyms for a given code (e.g., ICD-10, CPT/HCPCS, SNOMED, LOINC, RxNorm)

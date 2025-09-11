@@ -15,7 +15,6 @@ ALL = {
     "notepad_read": "mcp_server.tools.notepad",
     "notepad_clear": "mcp_server.tools.notepad",
     
-    "python_exec": "mcp_server.tools.python_exec",
     "shell_exec": "mcp_server.tools.shell_exec",
     
     "openfda_adverse_events": "mcp_server.tools.openfda",

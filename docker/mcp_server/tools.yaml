@@ -1,7 +1,5 @@
 enabled:
   - fhir_query
-  - fhir_validate
-  - python_exec
   - shell_exec
   - code_lookup
   - openfda_adverse_events
@@ -11,13 +9,11 @@ enabled:
 
 
 disabled_by_default:
+  - fhir_validate
   - snomed_to_icd10
   - icd10_to_snomed
   - fhir_doc
   - fhir_submit_bundle
-  - notepad_write
-  - notepad_read
-  - notepad_clear
 
 limits:
   fhir_query:
@@ -25,10 +21,8 @@ limits:
     timeout_s: 15
   code_lookup:
     timeout_s: 10
-  python_exec:
-    timeout_s: 10
   shell_exec:
-    timeout_s: 10
+    timeout_s: 30
   openfda_adverse_events:
     timeout_s: 12
   openfda_label:

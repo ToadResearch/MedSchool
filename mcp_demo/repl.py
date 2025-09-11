@@ -11,6 +11,7 @@ from fastmcp import Client as MCPClient
 # (Streamable HTTP at /mcp, SSE at /sse, headers from config, etc.)
 from fastmcp.client.transports import infer_transport
 
+
 import os
 import json
 import argparse
@@ -1140,6 +1141,7 @@ if __name__ == "__main__":
         api_base_url=args.base_url,
         endpoints_path=args.endpoints_path,
     )
+
 
     # Always construct an MCPManager (defaults to ./mcp.json next to client.py)
     mcp_path = parse_mcp_path(args.mcp_config)
