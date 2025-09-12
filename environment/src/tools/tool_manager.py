@@ -52,6 +52,7 @@ class ToolManager:
         self._tools: Dict[str, ToolSpec] = {}
 
         self._discover_and_register()
+        
 
     # -------- Public API --------
 
@@ -81,8 +82,8 @@ class ToolManager:
         for spec in self.list().values():
             try:
                 out.append(convert_func_to_oai_tool(spec.callable))
-            except Exception:
-                continue
+            except Exception as e:
+                print(f"[tool schema error] {spec.name}: {e!r}")
         return out
 
     # -------- Internals --------

@@ -16,8 +16,9 @@ classes:
       - name: fhir_update
         enabled: false
       - name: fhir_delete
-        -enabled: false
+        enabled: false
       - name: fhir_validate
+        enabled: true
       - name: fhir_doc
         enabled: false
       - name: fhir_submit_bundle

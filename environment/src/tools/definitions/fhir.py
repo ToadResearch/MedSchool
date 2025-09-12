@@ -1,6 +1,7 @@
 # environment/src/tools/definitions/fhir.py
 from __future__ import annotations
 
+import json
 from typing import Any, Dict, Optional
 
 from ...config import get_settings
@@ -15,6 +16,18 @@ def _limit_max_results(tool_name: str) -> Optional[int]:
     except Exception:
         return None
 
+# TODO: treating payloads as str in fhir_validate, fhir_post, fhir_update for now to avoid Pydantic validation issues. Used to use Dict[str, Any] but wouldn't work. figure this out later
+def _parse_json_object(s: str, field_name: str) -> Dict[str, Any] | Dict[str, str]:
+    """
+    Parse a JSON string into a dict. Return an error object if invalid or not an object.
+    """
+    try:
+        data = json.loads(s)
+    except json.JSONDecodeError as e:
+        return {"error": f"Invalid JSON in '{field_name}': {e.msg} at pos {e.pos}"}
+    if not isinstance(data, dict):
+        return {"error": f"'{field_name}' must be a JSON object"}
+    return data
 
 def register_tools(session_manager):
     """
@@ -46,33 +59,39 @@ def register_tools(session_manager):
             data = {**data, "entry": data["entry"][:max_results]}
         return data
 
-    async def fhir_post(*, session_id: str, path: str, body: Dict[str, Any]) -> Dict[str, Any]:
+    async def fhir_post(*, session_id: str, path: str, body_json: Dict[str, Any]) -> Dict[str, Any]:
         """
         HTTP POST to the FHIR server.
         
         Args:
             path (str): Relative path after the base URL, e.g. 'Patient' for create,
                         'Observation/$validate', or '' to post a transaction bundle to the base.
-            body (dict): JSON payload to send in the POST request.
+            body_json (str): JSON string for the request body to send in the POST request (must be an object).
         
         Returns:
             JSON response from the FHIR server.
         """
         ctx = session_manager.require_session(session_id)
+        body = _parse_json_object(body_json, "body_json")
+        if "error" in body:
+            return body
         return await ctx.fhir_client.post_path(path, body)
 
-    async def fhir_update(*, session_id: str, path: str, body: Dict[str, Any]) -> Dict[str, Any]:
+    async def fhir_update(*, session_id: str, path: str, body_json: str) -> Dict[str, Any]:
         """
         HTTP PUT to the FHIR server (update).
         
         Args:
             path (str): Relative path after the base URL, typically 'ResourceType/{id}', e.g. 'Patient/123'.
-            body (dict): JSON payload containing the full updated resource.
+            body (str): JSON string payload containing the full updated resource.
         
         Returns:
             JSON response from the FHIR server.
         """
         ctx = session_manager.require_session(session_id)
+        body = _parse_json_object(body_json, "body_json")
+        if "error" in body:
+            return body
         return await ctx.fhir_client.put_path(path, body)
 
     async def fhir_delete(*, session_id: str, path: str) -> Dict[str, Any]:
@@ -88,12 +107,12 @@ def register_tools(session_manager):
         ctx = session_manager.require_session(session_id)
         return await ctx.fhir_client.delete_path(path)
 
-    async def fhir_submit_bundle(*, session_id: str, bundle: Dict[str, Any]) -> Dict[str, Any]:
+    async def fhir_submit_bundle(*, session_id: str, bundle: str) -> Dict[str, Any]:
         """
         POST a FHIR Bundle to the server (transaction).
         
         Args:
-            bundle (dict): JSON representation of the FHIR Bundle to submit.
+            bundle (str): JSON representation of the FHIR Bundle to submit.
         
         Returns:
             Operation result from the server as a JSON object.
@@ -101,20 +120,23 @@ def register_tools(session_manager):
         ctx = session_manager.require_session(session_id)
         return await ctx.fhir_client.post_path("", bundle)
 
-    async def fhir_validate(*, session_id: str, resource: Dict[str, Any]) -> Dict[str, Any]:
+    async def fhir_validate(*, session_id: str, resource_json: str) -> Dict[str, Any]:
         """
         Validate a resource against base profiles via $validate.
         
         Args:
-            resource (dict): Raw resource JSON to validate.
+            resource (str): Raw resource JSON to validate.
         
         Returns:
             OperationOutcome as a JSON object containing validation results.
         """
-        rtype = resource.get("resourceType")
-        if not rtype:
-            return {"error": "Missing 'resourceType' in input JSON"}
         ctx = session_manager.require_session(session_id)
+        resource = _parse_json_object(resource_json, "resource_json")
+        if "error" in resource:
+            return resource
+        rtype = resource.get("resourceType")
+        if not isinstance(rtype, str) or not rtype:
+            return {"error": "Missing 'resourceType' in resource_json"}
         return await ctx.fhir_client.post_path(f"{rtype}/$validate", resource)
 
     async def fhir_doc(*, session_id: str, resource_type: str) -> Dict[str, Any]:
