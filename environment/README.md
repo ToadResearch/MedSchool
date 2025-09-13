@@ -30,7 +30,7 @@ Note: We've migrated from ephemeral code-execution sandboxes to a full terminal 
 First, set up the environment:
 
 ```bash
-uv venv --python 3.10 --seed
+uv venv --python 3.12 --seed
 source .venv/bin/activate
 uv sync
 ```

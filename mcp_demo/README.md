@@ -43,7 +43,7 @@ Now it's safe to come back to this directory.
 While you wait for everything to start, setup the venv and install packages
 
 ```bash
-uv venv --python 3.10 --seed
+uv venv --python 3.12 --seed
 source .venv/bin/activate
 uv sync
 ```
