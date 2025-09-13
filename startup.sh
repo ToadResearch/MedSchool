@@ -83,8 +83,12 @@ if [[ $MCP -eq 1 ]]; then
   BASE_SERVICES+=(mcp)
 fi
 
-# All services to show in the service summary (can include one-shots like `uploader`).
-ALL_SERVICES=("${BASE_SERVICES[@]}" uploader)
+# All services to show in the service summary (conditionally include one-shots like `synthea` + `uploader`).
+if [[ $WITH_SYNTHEA -eq 1 ]]; then
+  ALL_SERVICES=("${BASE_SERVICES[@]}" synthea uploader)
+else
+  ALL_SERVICES=("${BASE_SERVICES[@]}" uploader)
+fi
 
 # Ensure .env is present in the root directory
 if [[ ! -f "$REPO_ROOT/.env" ]]; then
@@ -122,6 +126,13 @@ echo "Rebuilding images and recreating containers in one step…"
 # --build ensures images are rebuilt; --pull can be added if you want to refresh bases
 docker compose -f "$COMPOSE_FILE" --env-file .env up -d --build --force-recreate "${BASE_SERVICES[@]}"
 
+# If Synthea data generation requested, start (or rebuild) the one-shot synthea job now.
+if [[ $WITH_SYNTHEA -eq 1 ]]; then
+  echo "Starting Synthea data generation (one-shot container)..."
+  # Detached so the script can proceed; uploader has depends_on with condition service_completed_successfully.
+  docker compose -f "$COMPOSE_FILE" --env-file .env up -d ${REBUILD:+--build} synthea
+fi
+
 # echo "Kicking off validator pre-warm (runs once in background)..."
 # one-shot job; talks to the validator container directly on 3500 inside the compose network
 # docker compose -f "$COMPOSE_FILE" --env-file .env up -d validator-prewarm || true
@@ -156,12 +167,12 @@ if [[ "${NO_PRUNE:-0}" -ne 1 ]]; then
   # docker builder prune -f >/dev/null || true
 fi
 
-if [[ $WITH_SYNTHEA -eq 1 ]]; then
-  echo "Running bulk uploader to load Synthea data..."
-  docker compose -f "$COMPOSE_FILE" --env-file .env up ${REBUILD:+--build} uploader
-else
-  echo "Skipping Synthea data load. Use the --synthea flag to load data."
-fi
+# if [[ $WITH_SYNTHEA -eq 1 ]]; then
+#   echo "Running bulk uploader to load Synthea data..."
+#   docker compose -f "$COMPOSE_FILE" --env-file .env up ${REBUILD:+--build} uploader
+# else
+#   echo "Skipping Synthea data load. Use the --synthea flag to load data."
+# fi
 
 echo "Counting resources (requires a valid token in .env)..."
 "$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" ${FHIR_BASE_URL} # TODO: the query_hapi.sh fails on --synthea flag if this isn't run first... figure out why

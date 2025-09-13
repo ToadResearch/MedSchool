@@ -127,18 +127,27 @@ services:
     networks: [medschool-net]
     restart: "no"
 
-
+  synthea:
+    build:
+      context: ./docker/synthea
+    container_name: medschool-synthea
+    volumes:
+      - synthea_out:/out
+    restart: "no"
+    networks:
+      - medschool-net
+        
   uploader:
     build:
       context: ./docker/uploader
     container_name: medschool-uploader
     depends_on:
-      # uploader will wait until hapi is ready before starting
-      # because the hapi server needs to be up before uploading anything!
       hapi:
         condition: service_healthy
       middleman:
         condition: service_healthy
+      synthea:
+        condition: service_completed_successfully # wait for synthea data generation to finish
     environment: 
       # FHIR_BASE_URL: ${FHIR_PROXY_INTERNAL_BASE}/fhir # never used by client machine, so just use internal url
       FHIR_BASE_URL: ${HAPI_INTERNAL_FHIR_BASE} # never used by client machine, so just use internal url. don't go through middleman for now to reduce passthroughs
@@ -273,3 +282,5 @@ networks:
 volumes:
   pgdata:
   # hapi_appdata:
+  # Holds generated Synthea export bundles from the one-shot synthea container
+  synthea_out:
