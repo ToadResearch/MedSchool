@@ -86,7 +86,7 @@ If you're interested in clinical intelligence, developing realistic health/medic
 
     - **Naive approach 🤓:**
       - What if you just prompt an LLM to generate synthetic EHR data? LLMs hold some clinical knowledge, and this might result in a dataset that is more realistic than the base Synthea data. It might be relatively cheap to do with open models and could be openly released, but you're not guaranteed clinically accurate data, especially for long-tail data.
-      - So, what if you just rephrased an existing EHR dataset like MIMIC? While synthetic data generation [recipes have improved](https://arxiv.org/pdf/2508.10975), too much identifiable patient data would live within.
+      - So, what if you just rephrased an existing EHR dataset like MIMIC? While synthetic data generation [recipes have improved](https://arxiv.org/pdf/2508.10975), too much identifiable patient data would still be present within the synthetic dataset.
     
     - **Cool approach 🤑:**
       - What if you trained a clinical event model, while taking user-level differential privacy measures? Instead of training on raw EHR data, you could lay out a timeline of curated patient data and assign each clinical event a token. Then, train a model to predict the next clinical event token with differential privacy (DP could also be used when curating the initial dataset). And finally, sample 100 or so patients from this, expand each event token trajectory back into FHIR resources, verify that it doesn't contain any PHI, and (hopefully) release it. The act of compressing and decompressing data into clinical events, given enough patient data with DP provisions, might be enough to anonymize it.
