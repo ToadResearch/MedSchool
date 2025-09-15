@@ -93,4 +93,4 @@ The full environment is available inside [environment/](environment). It's a wor
 
       - But is this even possible? Well, Epic recently released a [paper](https://arxiv.org/pdf/2508.12104) finding scaling laws in clinical event models, and Google just trained a [model](https://research.google/blog/vaultgemma-the-worlds-most-capable-differentially-private-llm/) with differential privacy that shows no memorization, given admittedly short 50-token seed sequences. You do the math... 
       
-      - We don't think this has been tried before, and is at least worth studying. We don't have the means to do this by ourselves, much less the capacity to test or release the data with any high-level of confidence, but if anybody's interested 😅
+      - We don't think this has been tried before, and is at least worth studying. We don't have the means to do this by ourselves -- much less the capacity to test or release the data with any high-level of confidence! But if anybody's interested 😅
