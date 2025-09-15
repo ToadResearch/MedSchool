@@ -31,7 +31,7 @@ Go back to the root directory and make sure everything is running first, if you 
    cp .env.example .env
    ```
 
-2. Start all Docker services and generate/load synthetic patient data into the server. Make sure to use the `--mcp` flag to start the MCP server. Only use the `--synthea` flag the first time the server is started to generate data.
+2. Start all Docker services and generate/load synthetic patient data into the server (make sure Docker Desktop is running). Make sure to use the `--mcp` flag to start the MCP server. Only use the `--synthea` flag the first time the server is started to generate data.
 
    ```bash
    ./startup.sh --mcp [--synthea]

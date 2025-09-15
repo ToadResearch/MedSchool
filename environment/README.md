@@ -10,7 +10,7 @@ source .venv/bin/activate
 uv sync
 ```
 
-Make sure the HAPI server is running by executing the following command inside the base project directory. If this is your first time running it, please be sure to add the `--synthea` flag to generate data. Omit this flag on subsequent runs, as the current setup will regenerate the data.
+Make sure the HAPI server is running by executing the following command inside the base project directory (make sure Docker Desktop is running). If this is your first time running it, please be sure to add the `--synthea` flag to generate data. Omit this flag on subsequent runs, as the current setup will regenerate the data.
 
    ```bash
    ./startup.sh [--synthea]
