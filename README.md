@@ -81,7 +81,7 @@ The full environment is available inside [environment/](environment). It's a wor
     In general, it would be nice to figure out a framework for curriculum learning inside an EHR. The simplest way we've thought of, so far, is by calculating the minimum path length between FHIR resources required to solve a problem. For example, given the task "convert the SNOMED code found inside <resourceType_id> to ICD-10", the agent would need to at least query the resource, and then follow the reference inside of it to query the patient resource to get the necessary information. This is a relatively simple task. It would be nice to figure out a way to automatically determine the path length of any task. Then when training, you could start with simpler tasks and move to harder, more complex ones.
  
 
-5) **Develop a synthetic EHR dataset**: 🦛
+5) **Develop a synthetic EHR dataset: 🦛**
   This one's a longshot... but, the main problem with Synthea dataset that we use is that it's too synthetic for real, longitudinal clinical tasks. And using any real EHR data requires restrictive licenses that prevent disseminating generative models trained on them, to protect patient confidentiality. But we think it might be possible to get around this now!
 
     - **Naive approach 🤓:**
