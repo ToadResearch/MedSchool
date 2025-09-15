@@ -47,8 +47,7 @@ python eval.py \
 
 Details about the CLI args are available below. In general, any OpenAI-compatible API endpoint should work.
 
-To shutdown the server run the following command in the base project directory. The `--purge` flag will delete all containers and volumes.
-
+To shutdown the server and stop all services run the following command in the base project directory. The `--purge` flag will stop all services and completely delete all containers, data volumes, and associated images.
 
    ```bash
    ./shutdown.sh [--purge]
