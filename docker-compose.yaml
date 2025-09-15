@@ -151,11 +151,13 @@ services:
     environment: 
       # FHIR_BASE_URL: ${FHIR_PROXY_INTERNAL_BASE}/fhir # never used by client machine, so just use internal url
       FHIR_BASE_URL: ${HAPI_INTERNAL_FHIR_BASE} # never used by client machine, so just use internal url. don't go through middleman for now to reduce passthroughs
-      SYNTHEA_ZIP_URL: ${SYNTHEA_ZIP_URL}
       UPLOADER_CONTAINER_PORT: ${UPLOADER_CONTAINER_PORT}
       LOCAL_ADDRESS: ${LOCAL_ADDRESS}
     networks:
       - medschool-net
+    volumes:
+      # Read-only access to generated Synthea output, to upload to the HAPI server
+      - synthea_out:/synthea:ro
     restart: "no"
 
   # termloader:
