@@ -1,0 +1,562 @@
+{
+  "AllergyIntolerance": [
+    {
+      "label": "Allergy to substance (finding)",
+      "count": 28
+    },
+    {
+      "label": "Animal dander (substance)",
+      "count": 16
+    },
+    {
+      "label": "Mold (organism)",
+      "count": 14
+    },
+    {
+      "label": "Tree pollen (substance)",
+      "count": 12
+    },
+    {
+      "label": "House dust mite (organism)",
+      "count": 10
+    },
+    {
+      "label": "Aspirin",
+      "count": 10
+    },
+    {
+      "label": "Grass pollen (substance)",
+      "count": 9
+    },
+    {
+      "label": "Wheat (substance)",
+      "count": 6
+    },
+    {
+      "label": "Shellfish (substance)",
+      "count": 6
+    },
+    {
+      "label": "Lisinopril",
+      "count": 5
+    }
+  ],
+  "CarePlan": [
+    {
+      "label": "assess-plan",
+      "count": 516
+    }
+  ],
+  "CareTeam": [
+    {
+      "label": "active",
+      "count": 277
+    },
+    {
+      "label": "inactive",
+      "count": 239
+    }
+  ],
+  "Claim": [
+    {
+      "label": "pharmacy",
+      "count": 12059
+    },
+    {
+      "label": "professional",
+      "count": 11913
+    },
+    {
+      "label": "institutional",
+      "count": 651
+    }
+  ],
+  "Condition": [
+    {
+      "label": "Medication review due (situation)",
+      "count": 1368
+    },
+    {
+      "label": "Stress (finding)",
+      "count": 510
+    },
+    {
+      "label": "Full-time employment (finding)",
+      "count": 499
+    },
+    {
+      "label": "Gingivitis (disorder)",
+      "count": 469
+    },
+    {
+      "label": "Part-time employment (finding)",
+      "count": 309
+    },
+    {
+      "label": "Not in labor force (finding)",
+      "count": 193
+    },
+    {
+      "label": "Social isolation (finding)",
+      "count": 189
+    },
+    {
+      "label": "Limited social contact (finding)",
+      "count": 187
+    },
+    {
+      "label": "Viral sinusitis (disorder)",
+      "count": 161
+    },
+    {
+      "label": "Victim of intimate partner abuse (finding)",
+      "count": 136
+    }
+  ],
+  "Device": [
+    {
+      "label": "Dental x-ray system (physical object)",
+      "count": 483
+    },
+    {
+      "label": "Operating room (environment)",
+      "count": 155
+    },
+    {
+      "label": "Blood glucose meter (physical object)",
+      "count": 66
+    },
+    {
+      "label": "Manual wheelchair (physical object)",
+      "count": 31
+    },
+    {
+      "label": "Home nebulizer (physical object)",
+      "count": 27
+    },
+    {
+      "label": "Denture, device (physical object)",
+      "count": 19
+    },
+    {
+      "label": "Home continuous positive airway pressure unit (physical object)",
+      "count": 19
+    },
+    {
+      "label": "Respiratory humidifier (physical object)",
+      "count": 19
+    },
+    {
+      "label": "Hospital bed, device (physical object)",
+      "count": 16
+    },
+    {
+      "label": "Wheelchair accessory (physical object)",
+      "count": 12
+    }
+  ],
+  "DiagnosticReport": [
+    {
+      "label": "History and physical note",
+      "count": 12564
+    },
+    {
+      "label": "Urinalysis macro (dipstick) panel - Urine",
+      "count": 1973
+    },
+    {
+      "label": "Basic metabolic panel - Blood",
+      "count": 1607
+    },
+    {
+      "label": "Patient Health Questionnaire 2 item (PHQ-2) [Reported]",
+      "count": 1506
+    },
+    {
+      "label": "Basic metabolic 2000 panel - Serum or Plasma",
+      "count": 1438
+    },
+    {
+      "label": "Lipid panel with direct LDL - Serum or Plasma",
+      "count": 1216
+    },
+    {
+      "label": "Generalized anxiety disorder 7 item (GAD-7)",
+      "count": 1051
+    },
+    {
+      "label": "Comprehensive metabolic 2000 panel - Serum or Plasma",
+      "count": 802
+    },
+    {
+      "label": "Humiliation, Afraid, Rape, and Kick questionnaire [HARK]",
+      "count": 569
+    },
+    {
+      "label": "Drug Abuse Screening Test-10 [DAST-10]",
+      "count": 562
+    }
+  ],
+  "DocumentReference": [
+    {
+      "label": "History and physical note",
+      "count": 12564
+    }
+  ],
+  "Encounter": [
+    {
+      "label": "Encounter for problem (procedure)",
+      "count": 4725
+    },
+    {
+      "label": "Encounter for check up (procedure)",
+      "count": 1756
+    },
+    {
+      "label": "General examination of patient (procedure)",
+      "count": 1337
+    },
+    {
+      "label": "Urgent care clinic (environment)",
+      "count": 725
+    },
+    {
+      "label": "Encounter for symptom",
+      "count": 476
+    },
+    {
+      "label": "Well child visit (procedure)",
+      "count": 437
+    },
+    {
+      "label": "Telemedicine consultation with patient",
+      "count": 418
+    },
+    {
+      "label": "Outpatient procedure",
+      "count": 333
+    },
+    {
+      "label": "Emergency room admission (procedure)",
+      "count": 330
+    },
+    {
+      "label": "Prenatal visit",
+      "count": 291
+    }
+  ],
+  "ExplanationOfBenefit": [
+    {
+      "label": "pharmacy",
+      "count": 12059
+    },
+    {
+      "label": "professional",
+      "count": 11913
+    },
+    {
+      "label": "institutional",
+      "count": 651
+    }
+  ],
+  "ImagingStudy": [
+    {
+      "label": "available",
+      "count": 588
+    }
+  ],
+  "Immunization": [
+    {
+      "label": "Influenza, seasonal, injectable, preservative free",
+      "count": 1168
+    },
+    {
+      "label": "COVID-19, mRNA, LNP-S, PF, 30 mcg/0.3 mL dose",
+      "count": 98
+    },
+    {
+      "label": "Td (adult), 5 Lf tetanus toxoid, preservative free, adsorbed",
+      "count": 98
+    },
+    {
+      "label": "COVID-19, mRNA, LNP-S, PF, 100 mcg/0.5mL dose or 50 mcg/0.25mL dose",
+      "count": 72
+    },
+    {
+      "label": "IPV",
+      "count": 58
+    },
+    {
+      "label": "DTaP",
+      "count": 55
+    },
+    {
+      "label": "Pneumococcal conjugate PCV 13",
+      "count": 49
+    },
+    {
+      "label": "zoster vaccine, live",
+      "count": 49
+    },
+    {
+      "label": "meningococcal MCV4P",
+      "count": 45
+    },
+    {
+      "label": "HPV, quadrivalent",
+      "count": 44
+    }
+  ],
+  "Location": [
+    {
+      "label": "active",
+      "count": 316
+    }
+  ],
+  "Medication": [
+    {
+      "label": "1 ML Epoetin Alfa 4000 UNT/ML Injection [Epogen]",
+      "count": 3908
+    },
+    {
+      "label": "sodium fluoride 0.0272 MG/MG Oral Gel",
+      "count": 453
+    },
+    {
+      "label": "10 ML Furosemide 10 MG/ML Injection",
+      "count": 194
+    },
+    {
+      "label": "1 ML tacrolimus 5 MG/ML Injection",
+      "count": 68
+    },
+    {
+      "label": "Acetaminophen 500 MG Oral Tablet",
+      "count": 24
+    },
+    {
+      "label": "0.4 ML Enoxaparin sodium 100 MG/ML Prefilled Syringe",
+      "count": 21
+    },
+    {
+      "label": "Cisplatin 50 MG Injection",
+      "count": 16
+    },
+    {
+      "label": "PACLitaxel 100 MG Injection",
+      "count": 16
+    },
+    {
+      "label": "Etonogestrel 68 MG Drug Implant",
+      "count": 15
+    },
+    {
+      "label": "NDA020503 200 ACTUAT Albuterol 0.09 MG/ACTUAT Metered Dose Inhaler",
+      "count": 14
+    }
+  ],
+  "MedicationAdministration": [
+    {
+      "label": "1 ML Epoetin Alfa 4000 UNT/ML Injection [Epogen]",
+      "count": 3908
+    },
+    {
+      "label": "sodium fluoride 0.0272 MG/MG Oral Gel",
+      "count": 453
+    },
+    {
+      "label": "10 ML Furosemide 10 MG/ML Injection",
+      "count": 194
+    },
+    {
+      "label": "1 ML tacrolimus 5 MG/ML Injection",
+      "count": 68
+    },
+    {
+      "label": "Acetaminophen 500 MG Oral Tablet",
+      "count": 24
+    },
+    {
+      "label": "0.4 ML Enoxaparin sodium 100 MG/ML Prefilled Syringe",
+      "count": 21
+    },
+    {
+      "label": "Cisplatin 50 MG Injection",
+      "count": 16
+    },
+    {
+      "label": "PACLitaxel 100 MG Injection",
+      "count": 16
+    },
+    {
+      "label": "Etonogestrel 68 MG Drug Implant",
+      "count": 15
+    },
+    {
+      "label": "NDA020503 200 ACTUAT Albuterol 0.09 MG/ACTUAT Metered Dose Inhaler",
+      "count": 14
+    }
+  ],
+  "MedicationRequest": [
+    {
+      "label": "Outpatient",
+      "count": 4500
+    },
+    {
+      "label": "amLODIPine 2.5 MG Oral Tablet",
+      "count": 1220
+    },
+    {
+      "label": "insulin isophane, human 70 UNT/ML / insulin, regular, human 30 UNT/ML Injectable Suspension [Humulin]",
+      "count": 1216
+    },
+    {
+      "label": "Hydrochlorothiazide 25 MG Oral Tablet",
+      "count": 989
+    },
+    {
+      "label": "24 HR Metformin hydrochloride 500 MG Extended Release Oral Tablet",
+      "count": 834
+    },
+    {
+      "label": "lisinopril 10 MG Oral Tablet",
+      "count": 591
+    },
+    {
+      "label": "24 HR tacrolimus 1 MG Extended Release Oral Tablet",
+      "count": 429
+    },
+    {
+      "label": "Inpatient",
+      "count": 359
+    },
+    {
+      "label": "Acetaminophen 325 MG Oral Tablet [Tylenol]",
+      "count": 296
+    },
+    {
+      "label": "Simvastatin 10 MG Oral Tablet",
+      "count": 125
+    }
+  ],
+  "Observation": [
+    {
+      "label": "Pain severity - 0-10 verbal numeric rating [Score] - Reported",
+      "count": 6373
+    },
+    {
+      "label": "Weight difference [Mass difference] --pre dialysis - post dialysis",
+      "count": 3908
+    },
+    {
+      "label": "Glomerular filtration rate/1.73 sq M.predicted [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)",
+      "count": 2952
+    },
+    {
+      "label": "Blood pressure panel with all children optional",
+      "count": 2910
+    },
+    {
+      "label": "Body Weight",
+      "count": 2567
+    },
+    {
+      "label": "Heart rate",
+      "count": 2423
+    },
+    {
+      "label": "Respiratory rate",
+      "count": 2423
+    },
+    {
+      "label": "Body Height",
+      "count": 2411
+    },
+    {
+      "label": "Tobacco smoking status",
+      "count": 2378
+    },
+    {
+      "label": "Body mass index (BMI) [Ratio]",
+      "count": 2285
+    }
+  ],
+  "Organization": [
+    {
+      "label": "Healthcare Provider",
+      "count": 315
+    }
+  ],
+  "Patient": [
+    {
+      "label": "Never Married",
+      "count": 69
+    },
+    {
+      "label": "Married",
+      "count": 49
+    },
+    {
+      "label": "Divorced",
+      "count": 18
+    },
+    {
+      "label": "Widowed",
+      "count": 5
+    }
+  ],
+  "PractitionerRole": [
+    {
+      "label": "General Practice Physician",
+      "count": 315
+    }
+  ],
+  "Procedure": [
+    {
+      "label": "Renal dialysis (procedure)",
+      "count": 3908
+    },
+    {
+      "label": "Assessment of health and social care needs (procedure)",
+      "count": 1956
+    },
+    {
+      "label": "Depression screening (procedure)",
+      "count": 1608
+    },
+    {
+      "label": "Depression screening using Patient Health Questionnaire Two-Item score (procedure)",
+      "count": 1506
+    },
+    {
+      "label": "Medication Reconciliation (procedure)",
+      "count": 1348
+    },
+    {
+      "label": "Assessment of substance use (procedure)",
+      "count": 1197
+    },
+    {
+      "label": "Patient referral for dental care (procedure)",
+      "count": 1098
+    },
+    {
+      "label": "Assessment of anxiety (procedure)",
+      "count": 1051
+    },
+    {
+      "label": "Dental consultation and report (procedure)",
+      "count": 966
+    },
+    {
+      "label": "Oral health education (procedure)",
+      "count": 946
+    }
+  ],
+  "SupplyDelivery": [
+    {
+      "label": "Device",
+      "count": 4131
+    }
+  ]
+}
