@@ -56,7 +56,7 @@ If you're interested in clinical intelligence, developing realistic health/medic
     Although Synthea doesn't carry meaningful, clinical signal, it might also be interesting to try fill-in-the-middle and next-clinical-event prediction to test short-term clinical ability. This would work best with real data.
 
 2) **Create a benchmark**:
-  Once we have a good handle on tasks, we'd like to create a benchmark that tests an LLMs ability to perform realistic, multi-step tasks inside an EHR. We imagine that this would be iterative as we figure out new tasks and tools to add. It would be nice to have an EHRbench public leaderboard showcasing the abilities of frontier and open models.
+  Once we have a good handle on tasks, we'd like to create a benchmark that tests an LLMs ability to perform realistic, multi-step tasks inside an EHR. We imagine that this would be iterative and versioned as we figure out new tasks and tools to add. It would be nice to have an EHRbench public leaderboard showcasing the abilities of frontier and open models.
 
 3) **Figure out better tools**:
     Context management is the name of the game! FHIR resources can be extremely long and quickly fill context windows. Because of this, we chose to give agents a persistent terminal to work within. Following all the success of agentic programming, we think we can frame EHR tasks the same way.
