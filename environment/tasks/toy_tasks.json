@@ -14,7 +14,7 @@
     "id": "2",
     "type": ["read"],
     "input": {
-      "task": "what is the fibonacci sequence number for n=21. round to the nearest integer",
+      "task": "what is the fibonacci sequence number for n=21. round to the nearest integer and do not include commas in the number",
       "context": ""
     },
     "output": {
@@ -25,7 +25,7 @@
     "id": "3",
     "type": ["read"],
     "input": {
-      "task": "what is 10!. round to the nearest integer",
+      "task": "what is 10!. round to the nearest integer and do not include commas in the number",
       "context": ""
     },
     "output": {
