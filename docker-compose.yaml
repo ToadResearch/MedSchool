@@ -132,7 +132,7 @@ services:
       context: ./docker/synthea
     container_name: medschool-synthea
     volumes:
-      - synthea_out:/out
+      - synthea_out:/synthea
     restart: "no"
     networks:
       - medschool-net

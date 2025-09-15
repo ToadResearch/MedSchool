@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROP="/app/synthea.properties"
 JAR="/app/synthea.jar"
-OUT_DIR="/out"
+OUT_DIR="/synthea"
 
 mkdir -p "${OUT_DIR}"
 chmod 0777 "${OUT_DIR}" || true

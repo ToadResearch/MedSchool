@@ -7,6 +7,8 @@
     - Patient bundles need to have Practitioner and Hospital resources loaded first to reference!
 - Then uploads all remaining bundles using asyncio for high performance.
 - Retries files that failed with HAPI-1091 after seeding.
+- Skips Synthea run metadata files that start with a timestamp prefix
+  like 'YYYY_MM_DDTHH_MM_SSZ_...' (e.g. 2025_09_15T05_30_55Z_111_Massachusetts_<uuidish>.json).
 """
 from fileinput import filename
 import os, re, time, argparse, sys, asyncio
@@ -17,6 +19,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 HAPI_MATCH_ERR = "Invalid match URL"
+
+# Matches Synthea metadata filenames like:
+# 2025_09_15T05_30_55Z_111_Massachusetts_318b28b2_cde8_4b7e_b364_e5aced5e0db7.json
+# Key signal is the leading timestamp "YYYY_MM_DDTHH_MM_SSZ_"
+_METADATA_PREFIX_RE = re.compile(r"^\d{4}_\d{2}_\d{2}T\d{2}_\d{2}_\d{2}Z_")
 
 def read_bytes(path: str) -> bytes:
     with open(path, "rb") as fh:
@@ -30,11 +37,20 @@ async def post_bundle(session: aiohttp.ClientSession, base_url: str, body: bytes
 def is_seed_file(name: str) -> bool:
     return bool(re.search(r"^(practitionerInformation|hospitalInformation).+\.json$", name, re.IGNORECASE))
 
+def is_metadata_file(name: str) -> bool:
+    # Fast check for the Synthea run metadata naming convention
+    # e.g., 2025_09_15T05_30_55Z_*_.json
+    return name.lower().endswith(".json") and bool(_METADATA_PREFIX_RE.match(name))
+
 def plan_files(root: str):
     all_json = [f for f in os.listdir(root) if f.lower().endswith(".json")]
-    seeds = sorted([f for f in all_json if is_seed_file(f)])
-    rest = sorted([f for f in all_json if f not in seeds])
-    return seeds, rest
+    # Filter out Synthea run metadata files up front
+    meta = sorted([f for f in all_json if is_metadata_file(f)])
+    non_meta = [f for f in all_json if f not in meta]
+
+    seeds = sorted([f for f in non_meta if is_seed_file(f)])
+    rest = sorted([f for f in non_meta if f not in seeds])
+    return seeds, rest, meta
 
 def looks_like_hapi_1091(text: str) -> bool:
     return HAPI_MATCH_ERR in text or "HAPI-1091" in text
@@ -132,7 +148,10 @@ async def main():
         except aiohttp.ClientError as e:
             print(f"Warning: Could not GET /metadata: {e}")
 
-        seeds, rest = plan_files(args.dir)
+        seeds, rest, skipped_meta = plan_files(args.dir)
+        if skipped_meta:
+            print(f"Skipping {len(skipped_meta)} Synthea metadata files (timestamp-prefixed): {skipped_meta}")
+
         seed_failures = await phase_upload_seeds(session, args.base_url, args.dir, seeds, token=args.token)
         if seed_failures:
             print("\nSome seed files failed; address those for references to resolve.")
@@ -157,13 +176,13 @@ async def main():
     if seed_failures:
         print(f"Seed failures ({len(seed_failures)}): {seed_failures}")
     else:
-        print("✅ All seed files uploaded successfully.")
+        print("All seed files uploaded successfully.")
     if final_failure_files:
         print(f"Remaining failures after retries ({len(final_failure_files)}): {final_failure_files}")
         # TODO: figure out why about 3-6 of the synthea files fail to upload. formatting?
         print("Common cause: Unresolved inline match URLs.")
     else:
-        print("✅ All non-seed files uploaded successfully.")
+        print("All non-seed files uploaded successfully.")
     print("="*49)
 
 if __name__ == "__main__":
