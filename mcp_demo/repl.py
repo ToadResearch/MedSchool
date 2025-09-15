@@ -381,17 +381,7 @@ class MCPManager:
             # test-connect by listing tools (fail fast)
             tools = _run_coro_in_thread(self._list_tools_async(client))
         except Exception:
-            # graceful fallback: if URL isn't already /sse, try the SSE mount
-            if not url.endswith("/sse"):
-                transport = infer_transport(url + "/sse")
-                client = MCPClient(
-                    transport,
-                    progress_handler=self._progress_handler,
-                    log_handler=self._log_handler,
-                )
-                tools = _run_coro_in_thread(self._list_tools_async(client))
-            else:
-                raise
+            raise RuntimeError(f"Failed to connect to server '{name}' at {url}.")
 
         self._active[name] = client
         self._tool_cache[name] = tools or []

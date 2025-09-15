@@ -167,12 +167,12 @@ if [[ "${NO_PRUNE:-0}" -ne 1 ]]; then
   # docker builder prune -f >/dev/null || true
 fi
 
-# if [[ $WITH_SYNTHEA -eq 1 ]]; then
-#   echo "Running bulk uploader to load Synthea data..."
-#   docker compose -f "$COMPOSE_FILE" --env-file .env up ${REBUILD:+--build} uploader
-# else
-#   echo "Skipping Synthea data load. Use the --synthea flag to load data."
-# fi
+if [[ $WITH_SYNTHEA -eq 1 ]]; then
+  echo "Running bulk uploader to load Synthea data..."
+  docker compose -f "$COMPOSE_FILE" --env-file .env up ${REBUILD:+--build} uploader
+else
+  echo "Skipping Synthea data load. Use the --synthea flag to load data."
+fi
 
 echo "Counting resources (requires a valid token in .env)..."
 "$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" ${FHIR_BASE_URL} # TODO: the query_hapi.sh fails on --synthea flag if this isn't run first... figure out why
