@@ -10,6 +10,7 @@ synthea_data
 **/chat_logs/**
 *_prompt.txt
 outputs/ 
+dataset_info/fhir
 
 # other stuff
 .env
