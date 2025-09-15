@@ -9,6 +9,15 @@ Medical/clinical data is semi-verifiable: it's a mix of objective and subjective
 We think that EHRs are the gateway to most clinical tasks. From what we've seen with programming, we believe the best way to develop clinical intelligence is by giving models the ability to take action and learn from experience within EHR environments. Some more about *the plan* can be found [here](https://x.com/mkieffer1107/status/1958644405411225788). We might spruce this up in the future and turn it into a blog post.
 
 ---
+
+### How to run:
+
+A basic MCP server demo is available inside [mcp_demo/](mcp_demo) with instructions. 
+
+The full environment is available inside [environment/](environment). It's a work in progress, and we'll eventually put full instructions on how to run it from here.
+
+
+---
 ### Want to help?
 
 ![Under construction](assets/under_construction.gif)
@@ -23,15 +32,6 @@ The two biggest challenges to solve:
 
 If you're interested in clinical intelligence, developing realistic health/medical benchmarks, or creating an open-source copilot for doctors, consider helping out!
 
-
-
----
-
-### How to run:
-
-A basic MCP server demo is available inside [mcp_demo/](mcp_demo) with instructions. 
-
-The full environment is available inside [environment/](environment). It's a work in progress, and we'll eventually put full instructions on how to run it from here.
 
 ---
 
