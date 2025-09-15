@@ -58,7 +58,7 @@ The full environment is available inside [environment/](environment). It's a wor
 2) **Create a benchmark**:
   Once we have a good handle on tasks, we'd like to create a benchmark that tests an LLMs ability to perform realistic, multi-step tasks inside an EHR. We imagine that this would be iterative as we figure out new tasks and tools to add.
 
-3) **Figure out better tools**
+3) **Figure out better tools**:
     Context management is the name of the game! FHIR resources can be extremely long and quickly fill context windows. Because of this, we chose to give agents a persistent terminal to work within. Following all the success of agentic programming, we think we can frame EHR tasks the same way.
 
     - Right now we have naive FHIR get/post tools, but we think it might be best to develop a FHIR REPL. When making a FHIR read request, for example, it might be best to give the agent the ability to peek at the results, e.g., show it the line/char count and head of the result, and let it decide what to do from there. If the result is a 10,000 line json object, it would be best to either pipe it directly into a python process or save it as a json file for further processing, instead of trying to read it.
@@ -81,7 +81,7 @@ The full environment is available inside [environment/](environment). It's a wor
     In general, it would be nice to figure out a framework for curriculum learning inside an EHR. The simplest way we've thought of, so far, is by calculating the minimum path length between FHIR resources required to solve a problem. For example, given the task "convert the SNOMED code found inside <resourceType_id> to ICD-10", the agent would need to at least query the resource, and then follow the reference inside of it to query the patient resource to get the necessary information. This is a relatively simple task. It would be nice to figure out a way to automatically determine the path length of any task. Then when training, you could start with simpler tasks and move to harder, more complex ones.
  
 
-5) **Develop a synthetic EHR dataset 🦛**
+5) **Develop a synthetic EHR dataset**: 🦛
   This one's a longshot... but, the main problem with Synthea dataset that we use is that it's too synthetic for real, longitudinal clinical tasks. And using any real EHR data requires restrictive licenses that prevent disseminating generative models trained on them, to protect patient confidentiality. But we think it might be possible to get around this now!
 
     - **Naive approach 🤓:**
