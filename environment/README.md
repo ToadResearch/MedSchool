@@ -76,7 +76,9 @@ python eval.py \
   -t counts
 ```
 
-Details about the CLI args are available below. In general, any OpenAI-compatible API endpoint should work. The `-t` flag let's you specify the name of the task to run from the `tasks` directory. Right now you can try out `counts` or `toy_tasks`. Feel free to add or modify any tasks you'd like.
+Each task has a dedicated sandbox container for agents to work inside: when a new task is received, a container is spawned and, upon completion, terminated. The number of parallel sessions is specified as `sandbox.max_concurrent_sessions` inside `environment/configs/sandbox.yaml`. Right now this is set to `5`, but you can change this.
+
+In general, any OpenAI-compatible API endpoint should work. The `-t` flag let's you specify the name of the task to run from the `tasks` directory. Right now you can try out `counts` or `toy_tasks`. Feel free to add or modify any tasks you'd like. More details about the CLI args are available below. 
 
 To shutdown the server and stop all services run the following command in the base project directory. The `--purge` flag will stop all services and completely delete all containers, data volumes, and associated images.
 
