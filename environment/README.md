@@ -98,6 +98,6 @@ Note: We've migrated from ephemeral code-execution sandboxes to a full terminal 
 
 So, we'll have to add a way to pipe tool calls or potentially instruct the model about how to make FHIR queries within code using the correct addresses (e.g., to perform many FHIR queries with a single tool call). We're a little wary of this approach right now, and think it might be better to perhaps return line/char counts for FHIR get requests. This way the model can decide to personally inspect it, or save it as a json file within the sandbox to work with. A REPL for FHIR tool calls might help with this.
 
-Notepads (like in Claude plays Pokemon, [here](https://x.com/omarsar0/status/1961073840706203804), or even [here](https://x.com/EyubogluSabri/status/1932106746446905552)) to store additional context could help as long as no data is leaked between patients. Working inside a terminal would let the model just write text files, and also let us use the [CLI FHIR validator](https://github.com/hapifhir/org.hl7.fhir.validator-wrapper), instead of pinging the server, if we wanted.
+Working inside of a terminal would also let us use the [CLI FHIR validator](https://github.com/hapifhir/org.hl7.fhir.validator-wrapper), instead of pinging the server, if we wanted.
 
 
