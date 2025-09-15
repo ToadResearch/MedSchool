@@ -1,6 +1,6 @@
 `dataset_info.json` contains the counts of resources from the dataset we [deterministically generate](../docker/synthea). To find them yourself, download the `fhir` folder inside the `medschool_synthea_out` Docker volume, place inside this folder, and run
 
-```python
+```bash
 python analyze.py
 ```
 
