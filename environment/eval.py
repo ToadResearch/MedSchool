@@ -133,7 +133,7 @@ def main():
     # lines=False ensures a single list [ {...}, {...}, ... ]
     # force_ascii=False preserves unicode characters
     results_file = os.path.join(output_dir, "results.json")
-    results.to_json(results_file, lines=False, force_ascii=False)
+    results.to_json(results_file, lines=False, force_ascii=False, indent=2)
     print(f"Results saved to {results_file}")
 
 

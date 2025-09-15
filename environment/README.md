@@ -25,7 +25,7 @@ python eval.py \
   -m gpt-oss-120b \
   -k CEREBRAS_API_KEY \
   -b https://api.cerebras.ai/v1 \
-  -t single
+  -t counts
 ```
 
 ```bash
@@ -33,16 +33,16 @@ python eval.py \
 python eval.py \
   -m openai/gpt-oss-120b \
   -k GROQ_API_KEY \
-  -b https://api.groq.com/openai/v1
-  -t basic
+  -b https://api.groq.com/openai/v1 \
+  -t counts
 ```
 ```bash
 # OpenRouter
 python eval.py \
   -m openai/gpt-oss-120b \
   -k OPENROUTER_API_KEY \
-  -b https://openrouter.ai/api/v1
-  -t basic
+  -b https://openrouter.ai/api/v1 \
+  -t counts
 ```
 
 Details about the CLI args are available below. In general, any OpenAI-compatible API endpoint should work.
