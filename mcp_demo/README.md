@@ -25,16 +25,16 @@ This is a demo of the previous system we used. We no longer use an MCP server, b
 
 Go back to the root directory and make sure everything is running first, if you haven't already. 
 
-1. Copy the example environment file to `.env` and update the API keys inside:
+1. Copy the example environment file to `.env` and update the API keys inside for any LLMs you'd like to use:
 
    ```bash
    cp .env.example .env
    ```
 
-2. Start all Docker services and download/load synthetic patient data into the server. Make sure to use the `--mcp` flag to start the MCP server.
+2. Start all Docker services and generate/load synthetic patient data into the server. Make sure to use the `--mcp` flag to start the MCP server. Only use the `--synthea` flag the first time the server is started to generate data.
 
    ```bash
-   ./startup.sh --synthea --mcp
+   ./startup.sh --mcp [--synthea]
    ```
 
 
@@ -52,7 +52,7 @@ Connect the MCP server to the client of your choice:
 
 **Option A — Use the interactive API REPL:**
 
-Run `repl.py` with your provider of choice.
+Run `repl.py` with your provider of choice. Any OpenAI-compatible API endpoint should work.
 
 ```sh
 # Cerebras
