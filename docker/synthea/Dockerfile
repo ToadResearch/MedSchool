@@ -24,8 +24,4 @@ COPY generate_data.sh /app/generate_data.sh
 RUN chmod +x /app/generate_data.sh
 
 
-# Output directory (shared volume in compose)
-VOLUME ["/out"]
-
-
 ENTRYPOINT ["/app/generate_data.sh"]
