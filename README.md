@@ -14,7 +14,7 @@ We think that EHRs are the gateway to most clinical tasks. From what we've seen 
 
 A basic MCP server demo is available inside [mcp_demo/](mcp_demo) with instructions. 
 
-The full environment is available inside [environment/](environment). It's a work in progress, and we'll eventually put full instructions on how to run it from here.
+The full environment is available inside [environment/](environment). It's a work in progress, and we'll eventually include full instructions on how to run it from right here.
 
 
 ---
