@@ -77,12 +77,12 @@ The full environment is available inside [environment/](environment). It's a wor
 
     - **Calculations**: To learn some clinical math like in [here](https://arxiv.org/pdf/2406.12036). While this may not be the most relevant for operational EHR tasks, it would be useful for later longitudinal care tasks, and has verifiable rewards.
 
-    - **Further multi-step tasks**
-    In general, it would be nice to figure out a framework for curriculum learning inside an EHR. The simplest way we've thought of, so far, is by calculating the minimum path length between FHIR resources required to solve a problem. For example, given the task "convert the SNOMED code found inside <resourceType_id> to ICD-10", the agent would need to at least query the resource, and then follow the reference inside of it to query the patient resource to get the necessary information. This is a relatively simple task. It would be nice to figure out a way to automatically determine the path length of any task. Then when training, you could start with simpler tasks and move to harder, more complex ones.
+    - **Further multi-step tasks**: In general, it would be nice to figure out a framework for curriculum learning inside an EHR. The simplest way we've thought of, so far, is by calculating the minimum path length between FHIR resources required to solve a problem. For example, given the task "convert the SNOMED code found inside <resourceType_id> to ICD-10", the agent would need to at least query the resource, and then follow the reference inside of it to query the patient resource to get the necessary information. This is a relatively simple task. It would be nice to figure out a way to automatically determine the path length of any task. Then when training, you could start with simpler tasks and move to harder, more complex ones.
  
 
-5) **Develop a synthetic EHR dataset: 🦛**
-  This one's a longshot... but, the main problem with Synthea dataset that we use is that it's too synthetic for real, longitudinal clinical tasks. And using any real EHR data requires restrictive licenses that prevent disseminating generative models trained on them, to protect patient confidentiality. But we think it might be possible to get around this now!
+5) **Develop a synthetic EHR dataset 🦛:**
+
+    This one's a longshot... but, the main problem with Synthea dataset that we use is that it's too synthetic for real, longitudinal clinical tasks. And using any real EHR data requires restrictive licenses that prevent disseminating generative models trained on them, to protect patient confidentiality. But we think it might be possible to get around this now!
 
     - **Naive approach 🤓:**
       - What if you just prompt an LLM to generate synthetic EHR data? LLMs hold some clinical knowledge, and this might result in a dataset that is more realistic than the base Synthea data. It might be relatively cheap to do with open models and could be openly released, but you're not guaranteed clinically accurate data, especially for long-tail data.
