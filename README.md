@@ -82,7 +82,7 @@ If you're interested in clinical intelligence, developing realistic health/medic
 
 5) **Develop a synthetic EHR dataset 🦛:**
 
-    This one's a longshot... but, the main problem with the Synthea dataset that we use is that it's too synthetic for real, longitudinal clinical tasks. And using any real EHR data requires restrictive licenses that prevent disseminating generative models trained on them, to protect patient confidentiality. But we think it might be possible to get around this now!
+    This one's a longshot... but, the main problem with the Synthea dataset that we use is that it's too synthetic for real, longitudinal clinical tasks. And using any real EHR data requires restrictive licenses that prevent disseminating generative models trained on them, to safeguard patient privacy. But we think it might be possible to get around this now!
 
     - **Naive approach 🤓:**
       - What if you just prompt an LLM to generate synthetic EHR data? LLMs hold some clinical knowledge, and this might result in a dataset that is more realistic than the base Synthea data. It might be relatively cheap to do with open models and could be openly released, but you're not guaranteed clinically accurate data, especially for long-tail data.
