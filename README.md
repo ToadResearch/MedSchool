@@ -71,7 +71,7 @@ If you're interested in clinical intelligence, developing realistic health/medic
 4) **Add more tasks**:
   For now, the focus is on short-horizon CRUD tasks within an EHR. But, it would be nice to include all parts of the stack, from patient-doctor interactions to prior auth, to live up to the name MedSchool :)
 
-    - **Patient-doctor conversation**: To probe the patient to illicit the right information like [here](https://arxiv.org/pdf/2406.00922). This is a relatively open-ended task, but recent rubric RLVR has been moving in the right direction to enable this. From this, you get a transcript. 
+    - **Patient-doctor conversation**: To probe the patient to elicit the right information like [here](https://arxiv.org/pdf/2406.00922). This is a relatively open-ended task, but recent rubric RLVR has been moving in the right direction to enable this. From this, you get a transcript. 
 
     - **Clinical notes and/or transcript to discrete fields**: To translate clinical notes or transcripts into FHIR resources and enter them into the EHR. Some related work can be found [here](https://arxiv.org/pdf/2306.02022). This would yield clear, verifiable outputs that could be RLVR'd.
 
