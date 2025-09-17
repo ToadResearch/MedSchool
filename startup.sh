@@ -126,13 +126,6 @@ echo "Rebuilding images and recreating containers in one step…"
 # --build ensures images are rebuilt; --pull can be added if you want to refresh bases
 docker compose -f "$COMPOSE_FILE" --env-file .env up -d --build --force-recreate "${BASE_SERVICES[@]}"
 
-# If Synthea data generation requested, start (or rebuild) the one-shot synthea job now.
-if [[ $WITH_SYNTHEA -eq 1 ]]; then
-  echo "Starting Synthea data generation (one-shot container)..."
-  # Detached so the script can proceed; uploader has depends_on with condition service_completed_successfully.
-  docker compose -f "$COMPOSE_FILE" --env-file .env up -d ${REBUILD:+--build} synthea
-fi
-
 # echo "Kicking off validator pre-warm (runs once in background)..."
 # one-shot job; talks to the validator container directly on 3500 inside the compose network
 # docker compose -f "$COMPOSE_FILE" --env-file .env up -d validator-prewarm || true
@@ -168,7 +161,8 @@ if [[ "${NO_PRUNE:-0}" -ne 1 ]]; then
 fi
 
 if [[ $WITH_SYNTHEA -eq 1 ]]; then
-  echo "Running bulk uploader to load Synthea data..."
+  echo "Starting Synthea data generation and running uploader (one-shot containers)..."
+  # uploader services depends on synthea service service_completed_successfully, so it will invoke the synthea service, and then run uploader
   docker compose -f "$COMPOSE_FILE" --env-file .env up ${REBUILD:+--build} uploader
 else
   echo "Skipping Synthea data load. Use the --synthea flag to load data."
