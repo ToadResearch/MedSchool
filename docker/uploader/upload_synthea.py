@@ -113,7 +113,7 @@ async def phase_upload_parallel(session: aiohttp.ClientSession, base_url: str, r
             print(f"  ✗ [{i+1}/{total_files}] Failed to upload {filename}.")
         else:
             success_count += 1
-            print(f"  ✓ [{i+1}/{total_files}] Successfully uploaded {filename}.")
+            print(f"  ✓ [{i+1}/{total_files}] Successfully uploaded {filename}")
 
     print(f"[{label}] Async upload phase complete. Success: {success_count}, Failures: {len(failures)}")
     return failures

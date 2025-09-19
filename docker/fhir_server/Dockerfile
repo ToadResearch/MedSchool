@@ -1,16 +1,3 @@
-# Old code -- just added busybox for healthcheck
-# # MedSchool/docker/fhir_server/Dockerfile
-
-# # Stage 1: grab a static busybox we can use for healthchecks (no libs, no shell needed)
-# FROM busybox:1.36.1-musl as bb
-
-# # Stage 2: final HAPI image (distroless)
-# FROM hapiproject/hapi:latest
-
-# # Copy a single static binary; place it at /busybox (distroless may not have /bin)
-# COPY --from=bb /bin/busybox /busybox
-
-# New code -- busybox for healthcheck and added validation engine
 # MedSchool/docker/fhir_server/Dockerfile
 # ----------------------------------------------------------------------
 # jars on Maven Central

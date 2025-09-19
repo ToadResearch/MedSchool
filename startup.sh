@@ -32,6 +32,7 @@ WITH_SYNTHEA=0
 REBUILD=0
 RESET=0
 MCP=0
+SAVE_SYNTHEA=0
 
 # --- Services (edit here) ---
 # Base services that are always started with `up -d` (unless optional flags add more).
@@ -51,6 +52,7 @@ Options:
   --rebuild        Rebuild the uploader image before running it (implies --synthea).
   --reset          Tear down the stack completely (removes DB data) before starting.
   --mcp            Include the 'mcp' service in the base services.
+  --save-synthea   Keep the Synthea volume after upload (don't remove it).
   -h, --help       Show this help.
 
 Examples:
@@ -58,6 +60,7 @@ Examples:
   $(basename "$0") --mcp                 # Start base services + mcp
   $(basename "$0") --synthea             # Start services then load Synthea data
   $(basename "$0") --reset --synthea     # Recommended for a clean start with data
+  $(basename "$0") --synthea --save-synthea  # Load Synthea data and keep the volume
 EOF
 }
 
@@ -68,6 +71,7 @@ while [[ $# -gt 0 ]]; do
     --rebuild) REBUILD=1 ;;
     --reset) RESET=1 ;;
     --mcp) MCP=1 ;;
+    --save-synthea) SAVE_SYNTHEA=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
   esac
@@ -164,11 +168,34 @@ if [[ $WITH_SYNTHEA -eq 1 ]]; then
   echo "Starting Synthea data generation and running uploader (one-shot containers)..."
   # uploader services depends on synthea service service_completed_successfully, so it will invoke the synthea service, and then run uploader
   docker compose -f "$COMPOSE_FILE" --env-file .env up ${REBUILD:+--build} uploader
+
+  # if [[ $SAVE_SYNTHEA -ne 1 ]]; then
+  #   # now that the synthea data has been uploaded to the fhir server, we can remove the volume storing the original data we generated
+  #   echo "Upload finished. Removing Synthea volume to reclaim space..."
+
+  #   # Remove the stopped one-shot containers so the volume is no longer referenced
+  #   docker compose -f "$COMPOSE_FILE" --env-file .env rm -f -s synthea uploader || true
+
+  #   # Now the named volume can be removed
+  #   docker volume rm medschool_synthea_out || true
+  # fi
+if [[ $SAVE_SYNTHEA -ne 1 ]]; then
+  # now that the synthea data has been uploaded to the fhir server, we can remove the volume storing the original data we generated
+  echo "Upload finished. Removing Synthea volume to reclaim space..."
+
+  # Remove the stopped one-shot containers so the volume is no longer referenced
+  docker compose -f "$COMPOSE_FILE" --env-file .env rm -f -s synthea uploader || true
+
+  # Now the named volume can be removed
+  docker volume rm medschool_synthea_out || true
+fi
+
+
 else
   echo "Skipping Synthea data load. Use the --synthea flag to load data."
 fi
 
-echo "Counting resources (requires a valid token in .env)..."
+echo "Counting resources..."
 "$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" ${FHIR_BASE_URL} # TODO: the query_hapi.sh fails on --synthea flag if this isn't run first... figure out why
 "$REPO_ROOT/docker/fhir_server/scripts/query_hapi.sh" ${FHIR_BASE_URL} || true # TODO: figure out why this takes a long time when --synthea flag is used
 
