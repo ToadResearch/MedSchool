@@ -1,4 +1,4 @@
-`dataset_info.json` contains the counts of resources from the dataset we [deterministically generate](../docker/synthea). To find them yourself, add the `--save-synthea` flag while generating data on startup to preserve the synthea volume, like
+`dataset_info.json` contains the counts of resources from the dataset we [deterministically generate](../docker/synthea). To find them yourself, add the `--save-synthea` flag while generating data on startup to preserve the synthea volume
 
 ```bash
 ./startup.sh --synthea --save-synthea
