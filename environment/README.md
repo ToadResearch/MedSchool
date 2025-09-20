@@ -2,7 +2,8 @@
 
 - **FHIR:**
   - **fhir_post**: create a FHIR resource
-  - **fhir_get**: read a FHIR resource
+  - **fhir_get**: read a FHIR resource/search
+    - returns metadata (size, keys, bundle counts) and auto-saves the full JSON to the terminal sandbox at `fhir/<resourceType>/<identifier>.json`
   - **fhir_update**: update a FHIR resource
   - **fhir_delete**: delete a FHIR resource
   - **fhir_validate**: validate a FHIR resource
