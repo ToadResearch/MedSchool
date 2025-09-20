@@ -122,6 +122,13 @@ def main():
         if col.endswith("info"):
             results = results.remove_columns(col)
 
+    rewards = results["reward"]
+    average_reward = sum(rewards) / len(rewards) if rewards else 0.0
+    full_reward_count = sum(1 for r in rewards if r == 1.0)
+    total_samples = len(rewards)
+    print(f"Average reward: {average_reward:.4f}")
+    print(f"Samples with full reward (1.0): {full_reward_count}/{total_samples}")
+
     # ---------- save as a single JSON array ----------
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_model_dir = (
