@@ -54,6 +54,7 @@ def _sanitize_oai_tools(tools_list: list[dict]) -> list[dict]:
             return True
         return False
 
+    # TODO: update to check for None defaults or Optional type hints instead of manually writing these out
     # Minimal, canonical required sets for our tools.
     # Anything not listed uses heuristic trimming of the generator's 'required'.
     REQUIRED_BY_TOOL = {

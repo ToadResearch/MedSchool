@@ -1,6 +1,7 @@
 # environment/main.py
 from __future__ import annotations
 
+import unicodedata
 import verifiers as vf
 from datasets import Dataset
 from medschoolenv import MedSchoolEnv
@@ -69,6 +70,9 @@ def load_environment(
     def correctness(parser, completion, answer):
         # reward if final response contains the answer
         response = parser.parse_answer(completion) or ''
+        # Normalize nonstandard spaces and apostrophes
+        response = unicodedata.normalize('NFKC', response)
+        answer = unicodedata.normalize('NFKC', answer)
         return 1.0 if answer.lower().strip() in response.lower().strip() else 0.0
 
     rubric = vf.Rubric(funcs=[correctness], weights=[1.0])
