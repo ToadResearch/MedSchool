@@ -19,11 +19,7 @@ def register_tools(session_manager):
         *,
         session_id: str,
         command: str,
-        args: Optional[List[str]] = None,
-        working_directory: Optional[str] = None,
-        timeout_seconds: Optional[int] = None,
-        user: Optional[str] = None,
-        env: Optional[List[str]] = None,
+        args: List[str] = None,
     ) -> Dict[str, Any]:
         """
         Execute a terminal command in an Alpine Linux sandbox environment.
@@ -36,12 +32,8 @@ def register_tools(session_manager):
         - Standard Unix tools: curl, ca-certificates
         
         Args:
-            session_id (str): The session ID where the command should be executed.
             command (str): The command to execute (e.g., 'ls', 'python', 'bash', 'curl').
             args (List[str], optional): List of arguments to pass to the command.
-            working_directory (str, optional): Directory to execute the command in.
-            timeout_seconds (int, optional): Maximum time to wait for command completion.
-        
         Returns:
             Dict[str, Any]: Dictionary containing command execution results with keys:
                 - 'stdout': Command standard output
@@ -54,10 +46,6 @@ def register_tools(session_manager):
             session_id=session_id,
             command=command,
             args=args or [],
-            working_directory=working_directory,
-            timeout_seconds=timeout_seconds,
-            user=user,
-            env=env,
         )
 
 

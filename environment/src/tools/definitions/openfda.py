@@ -164,8 +164,8 @@ def _summarize_adverse_events(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 def _filter_adverse_events(
     payload: Dict[str, Any],
-    severity: Optional[str] = None,                # "serious" | "non_serious" | None
-    outcomes: Optional[List[str]] = None,          # e.g., ["death","hospitalization","life_threatening"]
+    severity: str = None,                # "serious" | "non_serious" | None
+    outcomes: List[str] = None,          # e.g., ["death","hospitalization","life_threatening"]
 ) -> Dict[str, Any]:
     results = payload.get("results") or []
 
@@ -245,15 +245,14 @@ def register_tools(session_manager):
         session_id: str,
         drug_name: str,
         limit: int = 100,
-        severity: Optional[str] = None,                    # 'serious' | 'non_serious'
-        outcomes: Optional[List[str]] = None,              # any of ['death','hospitalization','life_threatening']
+        severity: str = None,                    # 'serious' | 'non_serious'
+        outcomes: List[str] = None,              # any of ['death','hospitalization','life_threatening']
         sample_n: int = 5,
     ) -> Dict[str, Any]:
         """
         Search FDA FAERS (drug/event) by drug name and return a compact summary plus sample rows.
 
         Args:
-            session_id (str): Current session id (not used directly).
             drug_name (str): Brand or generic string.
             limit (int, optional): Max rows to fetch from OpenFDA (default 100).
             severity (str, optional): 'serious' | 'non_serious'.
@@ -277,14 +276,13 @@ def register_tools(session_manager):
         *,
         session_id: str,
         drug_name: str,
-        sections: Optional[List[str]] = None,
+        sections: List[str] = None,
         limit: int = 10,
     ) -> Dict[str, Any]:
         """
         Fetch FDA drug label records (drug/label) for a brand/generic name and extract key sections.
 
         Args:
-            session_id (str): Current session id (not used directly).
             drug_name (str)
             sections (list[str], optional): e.g., ['indications_and_usage','contraindications','warnings',
                 'adverse_reactions','dosage_and_administration','clinical_pharmacology'].
@@ -338,7 +336,6 @@ def register_tools(session_manager):
         Fetch FDA drug recalls/enforcement actions (drug/enforcement).
 
         Args:
-            session_id (str): Current session id (not used directly).
             drug_name (str)
             limit (int, optional): Max recall notices (default 100)
 
@@ -368,14 +365,13 @@ def register_tools(session_manager):
         session_id: str,
         drug_name: str,
         limit: int = 100,
-        status: Optional[str] = None,
+        status: str = None,
         sample_n: int = 10,
     ) -> Dict[str, Any]:
         """
         Fetch current/archived FDA drug shortage entries (drug/drugshortages) for a brand/generic name.
 
         Args:
-            session_id (str): Current session id (not used directly).
             drug_name (str)
             limit (int, optional): Max rows to fetch (default 100).
             status (str, optional): Filter in-process by status label (e.g., 'Current', 'Resolved').

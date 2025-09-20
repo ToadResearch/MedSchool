@@ -28,10 +28,59 @@ import uuid
 def _sanitize_oai_tools(tools_list: list[dict]) -> list[dict]:
     """
     Make tool schemas provider-friendly and session-safe:
-      - Drop unsupported "strict" flags wherever they appear.
-      - Remove "session_id" from exposed tool parameter schemas so the LLM never tries to supply it.
+      - Drop unsupported/annoying "strict" flags. TODO: probaly should remove this at some point. would need to get rid of Optional type hints.
+      - Remove "session_id" from exposed tool parameter schemas so the LLM never supplies it.
+      - Recompute 'required' so optional args remain optional across strict providers.
       - Deduplicate by function name.
     """
+
+    def _allows_null(schema: dict | None) -> bool:
+        """Return True if the JSON schema allows null."""
+        if not isinstance(schema, dict):
+            return False
+        t = schema.get("type")
+        if t == "null":
+            return True
+        if isinstance(t, list) and "null" in t:
+            return True
+        for key in ("anyOf", "oneOf"):
+            arr = schema.get(key)
+            if isinstance(arr, list):
+                for s in arr:
+                    if isinstance(s, dict) and s.get("type") == "null":
+                        return True
+        # Some generators use non-standard flags:
+        if schema.get("nullable") is True or schema.get("x-nullable") is True:
+            return True
+        return False
+
+    # Minimal, canonical required sets for our tools.
+    # Anything not listed uses heuristic trimming of the generator's 'required'.
+    REQUIRED_BY_TOOL = {
+        # Terminal
+        "terminal_command": ["command"],
+
+        # FHIR
+        "fhir_get": ["request"],
+        "fhir_post": ["path", "body_json"],
+        "fhir_update": ["path", "body_json"],
+        "fhir_delete": ["path"],
+        "fhir_submit_bundle": ["bundle"],
+        "fhir_validate": ["resource_json"],
+        "fhir_doc": ["resource_type"],
+        "fhir_fetch_full": ["file_path"],
+        "fhir_pipe_json": ["file_path", "command"],
+
+        # Terminology
+        "code_lookup": ["code"],
+
+        # openFDA
+        "openfda_adverse_events": ["drug_name"],
+        "openfda_label": ["drug_name"],
+        "openfda_recalls": ["drug_name"],
+        "openfda_drug_shortages": ["drug_name"],
+    }
+
     out: list[dict] = []
     seen: set[str] = set()
 
@@ -44,39 +93,60 @@ def _sanitize_oai_tools(tools_list: list[dict]) -> list[dict]:
         fn = t.get("function")
         if isinstance(fn, dict):
             fn = dict(fn)
+            fn.pop("strict", None)  # nested strict
 
-            # Also remove nested "function.strict" if present
-            if "strict" in fn:
-                fn.pop("strict", None)
-
-            # ---- 2) Remove session_id from the JSON schema the model sees
-            # OpenAI-style schema: function: { name, description?, parameters?: { type: "object", properties: {...}, required: [...] } }
+            # ---- 2) Tidy the parameters schema
             params = fn.get("parameters")
             if isinstance(params, dict):
                 params = dict(params)
 
-                # Remove from properties
+                # Properties
                 props = params.get("properties")
-                if isinstance(props, dict) and "session_id" in props:
+                if not isinstance(props, dict):
+                    props = {}
+
+                # Hide session_id from schema entirely
+                if "session_id" in props:
                     props = dict(props)
                     props.pop("session_id", None)
-                    params["properties"] = props
 
-                # Remove from required list
+                # Current 'required' from generator
                 req = params.get("required")
-                if isinstance(req, list) and "session_id" in req:
-                    req = [r for r in req if r != "session_id"]
-                    # if empty, drop it entirely (some providers dislike empty required)
-                    if req:
-                        params["required"] = req
-                    else:
-                        params.pop("required", None)
+                if not isinstance(req, list):
+                    req = []
+
+                # Remove session_id from required (if present)
+                req = [r for r in req if r != "session_id"]
+
+                # ---- 3) Fix over-strict 'required'
+                fname = (fn.get("name") or "").strip()
+
+                if fname in REQUIRED_BY_TOOL:
+                    # Use our curated list, but only keep fields that actually exist in props
+                    new_required = [r for r in REQUIRED_BY_TOOL[fname] if r in props]
+                else:
+                    # Heuristic: keep only those that do NOT allow null and have no default
+                    new_required = []
+                    for r in req:
+                        sch = props.get(r, {})
+                        if _allows_null(sch):
+                            continue
+                        if isinstance(sch, dict) and ("default" in sch):
+                            continue
+                        new_required.append(r)
+
+                # Reassign sanitized properties/required
+                params["properties"] = props
+                if new_required:
+                    params["required"] = new_required
+                else:
+                    params.pop("required", None)
 
                 fn["parameters"] = params
 
             t["function"] = fn
 
-        # ---- 3) Deduplicate by function name if present
+        # ---- 4) Deduplicate by function name if present
         try:
             fname = t.get("function", {}).get("name")
             if fname:
@@ -89,6 +159,7 @@ def _sanitize_oai_tools(tools_list: list[dict]) -> list[dict]:
         out.append(t)
 
     return out
+
 
 
 class MedSchoolEnv(MultiTurnEnv):

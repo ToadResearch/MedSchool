@@ -179,20 +179,19 @@ def register_tools(session_manager):
     (The terminology lookup itself does not require the session, but the signature stays uniform.)
     """
 
-    async def code_lookup(*, session_id: str, code: str, system: Optional[str] = None) -> Dict[str, Any]:
+    async def code_lookup(*, session_id: str, code: str, system: str = None) -> Dict[str, Any]:
         """
         Return a JSON object with the display name (and any synonyms) for a code
         from SNOMED CT, ICD-10-CM, LOINC, RxNorm, etc.
 
         Args:
-            session_id (str): Current session (not used directly; kept for uniformity).
             code (str): The code value, e.g. 'E11.9' or '44054006'.
             system (str, optional): Canonical system URL or alias; if omitted, inferred.
 
         Returns:
             Dict[str, Any]: {system, code, display, version, synonyms[], url} or an error object.
         """
-        _ = session_id  # unused
+        _ = session_id  # TODO: unused for now. consider having HAPI FHIR route this
         timeout = _timeout_s("code_lookup", default=10.0)
         return await _lookup_request(code, system, timeout, session_id=session_id)
 

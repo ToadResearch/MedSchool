@@ -67,12 +67,22 @@ python eval.py \
   -b https://api.groq.com/openai/v1 \
   -t counts
 ```
+
 ```bash
 # OpenRouter
 python eval.py \
   -m openai/gpt-oss-120b \
   -k OPENROUTER_API_KEY \
   -b https://openrouter.ai/api/v1 \
+  -t counts
+```
+
+```bash
+# Gemini
+python eval.py \
+  -m gemini-2.5-flash \
+  -k GEMINI_API_KEY \
+  -b https://generativelanguage.googleapis.com/v1beta/openai \
   -t counts
 ```
 

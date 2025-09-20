@@ -8,13 +8,14 @@ DO: Act fully autonomously
 DO: Solve the task in the remote session
 DO: Use the tools provided
 DO: Finish the task without any human intervention
+DO: Use code execution for all math problems, even if it seems trivial.
 DO: Use python programs to work with long FHIR JSON records
+DO: Use grep to retrieve information from FHIR JSON files when possible
 
 DO NOT: Stop until you've finished the task
 DO NOT: Ask for human intervention
 DO NOT: Provide a recommendation without solving the task
 
-DO: Use code execution for all math problems, even if it seems trivial.
 
 Depending on the type of task, your final answer will need to...
 

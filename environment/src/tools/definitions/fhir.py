@@ -2,9 +2,23 @@
 from __future__ import annotations
 
 import json
+import base64
 from typing import Any, Dict, Optional
 
 from ...config import get_settings
+from .utils import (
+    _resource_counts, 
+    _top_level_keys, 
+    _per_resource_type_keys,
+    _identifier_for_bundle,
+    _identifier_from_resource,
+    _json_minified,
+    _json_pretty,
+    _counts,
+    _save_path,
+    _short_hash,
+    _write_file_to_container
+)
 
 _settings = get_settings()
 
@@ -36,19 +50,36 @@ def register_tools(session_manager):
     All callables are async and expect `session_id=...` so they can use the
     per-session FHIR client via session_manager.require_session(session_id).
     """
-    async def fhir_get(*, session_id: str, path: str) -> Dict[str, Any]:
+    async def fhir_get(*, session_id: str, request: str, save: bool = True, save_path: str = None) -> Dict[str, Any]:
         """
-        HTTP GET / search against the FHIR server.
-        
+        GET/search the FHIR server and return a **preview** (no bulky JSON).
+        Also auto-saves the full JSON (by default) to a **relative** path:
+          fhir/<resourceType>/<identifier>.json
+
         Args:
-            path (str): Accepts anything after the base URL, e.g. 'Patient?name=Smith&_count=5' or 'Observation/123'.
-        
-        Returns:
-            JSON response from the FHIR server.
+            request: Anything after the base URL, e.g. 'Patient/123' or 'Patient?name=Smith&_count=5'
+            save: If true (default), write the full JSON file.
+            save_path: Optional custom path (relative or absolute). If omitted, the default pattern is used.
+
+        Returns (preview only; full JSON is not returned):
+            {
+              "kind": "preview",
+              "request": "Patient?name=Smith&_count=5",
+              "resourceType": "Bundle" | "<Type>" | null,
+              "bundle": { "type": "...", "total": int, "entry_count": int, "resource_counts": {...} },   # if Bundle
+              "schema": {
+                "top_level_keys": [...],
+                "per_resource_type": {...}   # only for Bundle
+              },
+              "size": {"bytes": int, "lines": int},
+              "saved": {"path": "fhir/Bundle/patient-name-smith_XXXXXXXXXX.json", "bytes": int}  # if save=True
+            }
         """
         ctx = session_manager.require_session(session_id)
-        data = await ctx.fhir_client.get_path(path)
 
+        data = await ctx.fhir_client.get_path(request)
+
+        # TODO: now that we're saving to the sandbox, we can probably remove limits (might want for full search results)
         max_results = _limit_max_results("fhir_get")
         if (
             max_results is not None
@@ -57,7 +88,61 @@ def register_tools(session_manager):
             and isinstance(data.get("entry"), list)
         ):
             data = {**data, "entry": data["entry"][:max_results]}
-        return data
+
+        resource_type = data.get("resourceType") if isinstance(data, dict) else None
+
+        preview: Dict[str, Any] = {
+            "kind": "preview",
+            "request": request,
+            "resourceType": resource_type,
+        }
+        
+        if isinstance(data, dict) and resource_type == "Bundle":
+            preview["bundle"] = {
+                "type": data.get("type"),
+                "total": data.get("total"),
+                "entry_count": len(data.get("entry") or []),
+                "resource_counts": _resource_counts(data),
+            }
+            preview["schema"] = {
+                "top_level_keys": _top_level_keys(data),
+                "per_resource_type": _per_resource_type_keys(data),
+            }
+            identifier = _identifier_for_bundle(request)
+        elif isinstance(data, dict):
+            preview["schema"] = {"top_level_keys": _top_level_keys(data)}
+            identifier = _identifier_from_resource(data)
+        else:
+            preview["schema"] = {"top_level_keys": []}
+            identifier = f"h{_short_hash(_json_minified(data if data is not None else {}))}"
+
+        # Size based on pretty print, purely for human reference
+        s_pretty = _json_pretty(data)
+        bytes_utf8, line_count = _counts(s_pretty)
+        preview["size"] = {"bytes": bytes_utf8, "lines": line_count}
+
+        # Save file (relative path) if requested
+        if save:
+            file_path = _save_path(resource_type, identifier, save_path)
+            s_min = _json_minified(data)
+            b64 = base64.b64encode(s_min.encode("utf-8")).decode("ascii")
+            write_res = await _write_file_to_container(
+                session_manager=session_manager,
+                session_id=session_id,
+                file_path=file_path,
+                content_b64=b64,
+            )
+            # Try to parse size from stdout; fall back to local byte count
+            written = bytes_utf8
+            try:
+                out = (write_res.get("stdout") or "").strip()
+                if out.isdigit():
+                    written = int(out)
+            except Exception:
+                pass
+            preview["saved"] = {"path": file_path, "bytes": written}
+
+        return preview
 
     async def fhir_post(*, session_id: str, path: str, body_json: Dict[str, Any]) -> Dict[str, Any]:
         """

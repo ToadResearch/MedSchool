@@ -55,11 +55,16 @@ services:
       # - spring.datasource.url=jdbc:postgresql://postgres:5432/fhir
       # local config file path for hapi to load from
       
-      # replaces the default config file location -- must be correct path -- fails :(
+      # TODO: replaces the default config file location -- must be correct path -- fails :(
       # SPRING_CONFIG_LOCATION: "file:/app/config/application.yaml" # 
       
       # adds additional search locations for the application.yaml file -- works :)
-      SPRING_CONFIG_ADDITIONAL_LOCATION: "file:/app/config/"  
+      # SPRING_CONFIG_ADDITIONAL_LOCATION: "file:/app/config/"  
+
+
+      SPRING_CONFIG_ADDITIONAL_LOCATION: "optional:file:/app/config/"  # add to defaults, don't replace
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_CONTEXT_CONFIG: "DEBUG"   # show where config loads from
+
 
       # remote when TERMINOLOGY_MODE=remote, else false
       REMOTE_TS_ENABLED: ${REMOTE_TS_ENABLED}
@@ -68,7 +73,8 @@ services:
 
     volumes:
       # inject local config file into container (local file path and container path), ro for read only
-      - ./docker/fhir_server/config/application.yaml:/app/config/application.yaml:ro
+      # - ./docker/fhir_server/config/application.yaml:/app/config/application.yaml:ro
+      - ./docker/fhir_server/config:/app/config:ro
       # Optional but useful if you enable Lucene later and bulk export
       # - hapi_appdata:/app/target
     healthcheck:
@@ -148,6 +154,7 @@ services:
         condition: service_healthy
       synthea:
         condition: service_completed_successfully # wait for synthea data generation to finish
+        # condition: service_completed_successfully # wait for synthea data generation to finish
     environment: 
       # FHIR_BASE_URL: ${FHIR_PROXY_INTERNAL_BASE}/fhir # never used by client machine, so just use internal url
       FHIR_BASE_URL: ${HAPI_INTERNAL_FHIR_BASE} # never used by client machine, so just use internal url. don't go through middleman for now to reduce passthroughs

@@ -1,0 +1,13 @@
+[
+  {
+    "id": "1",
+    "type": ["read"],
+    "input": {
+      "task": "find the name of the patient",
+      "context": "patient identifier mrn: 0b0a8a15-c7ba-64e8-dc34-7eced4cb6d69"
+    },
+    "output": {
+      "answer": "Brad867 Derrick232 Ritchie586"
+    }
+  }
+]
