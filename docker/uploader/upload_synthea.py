@@ -11,8 +11,8 @@
   like 'YYYY_MM_DDTHH_MM_SSZ_...' (e.g. 2025_09_15T05_30_55Z_111_Massachusetts_<uuidish>.json).
 """
 from fileinput import filename
-import os, re, time, argparse, sys, asyncio
-from typing import List, Tuple, Optional
+import os, re, time, argparse, sys, asyncio, json
+from typing import List, Tuple, Optional, Dict, Any
 import aiohttp
 from dotenv import load_dotenv
 
@@ -29,10 +29,83 @@ def read_bytes(path: str) -> bytes:
     with open(path, "rb") as fh:
         return fh.read()
 
-async def post_bundle(session: aiohttp.ClientSession, base_url: str, body: bytes, token: Optional[str] = None, timeout: int = 120) -> aiohttp.ClientResponse:
+async def send_fhir(
+    session: aiohttp.ClientSession,
+    method: str,
+    url: str,
+    body: bytes,
+    token: Optional[str] = None,
+    timeout: int = 120,
+) -> Tuple[int, bytes, Optional[str]]:
+    """Send a FHIR HTTP request with standard headers and fully consume the response.
+
+    Returning the HTTP status, raw response body, and declared content type allows callers to
+    log errors without leaking connections from the aiohttp pool. Fully reading the payload is
+    essential for high concurrency because it makes the connection immediately reusable.
+    """
     headers = {"Content-Type": "application/fhir+json", "Accept": "application/fhir+json"}
-    if token: headers["Authorization"] = f"Bearer {token}"
-    return await session.post(base_url, data=body, headers=headers, timeout=aiohttp.ClientTimeout(total=timeout))
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    timeout_cfg = aiohttp.ClientTimeout(total=timeout)
+    async with session.request(method.upper(), url, data=body, headers=headers, timeout=timeout_cfg) as resp:
+        payload = await resp.read()
+        return resp.status, payload, resp.headers.get("Content-Type")
+
+def _transform_bundle_to_update_create(bundle: Dict[str, Any]) -> Dict[str, Any]:
+    """Ensure a Bundle is a transaction using PUT per-entry with explicit id (update-as-create).
+
+    - For each entry with a resource having resourceType and id, set request to PUT on [type]/[id].
+    - Set bundle.type to 'transaction'.
+    """
+    if not isinstance(bundle, dict):
+        return bundle
+    if bundle.get("resourceType") != "Bundle":
+        return bundle
+    entries = bundle.get("entry") or []
+    changed = False
+    for e in entries:
+        if not isinstance(e, dict):
+            continue
+        res = e.get("resource")
+        if not isinstance(res, dict):
+            continue
+        rtype = res.get("resourceType")
+        rid = res.get("id")
+        if rtype and rid:
+            # Force PUT to [type]/[id]
+            e["request"] = {"method": "PUT", "url": f"{rtype}/{rid}"}
+            changed = True
+    if changed:
+        bundle["type"] = "transaction"
+    return bundle
+
+def _prepare_request_for_content(base_url: str, raw: bytes) -> Tuple[str, str, bytes]:
+    """Return (method, url, body) for upload-as-create.
+
+    - If Bundle: convert entries to PUT and POST the transaction Bundle to base.
+    - If single resource with id: PUT to [base]/[type]/[id].
+    - Else: POST body to base unchanged.
+    """
+    base = base_url.rstrip("/")
+    try:
+        data = json.loads(raw)
+    except Exception:
+        return ("POST", base, raw)
+
+    if isinstance(data, dict) and data.get("resourceType") == "Bundle":
+        transformed = _transform_bundle_to_update_create(data)
+        body = json.dumps(transformed, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        return ("POST", base, body)
+
+    if isinstance(data, dict) and data.get("resourceType") and data.get("id"):
+        rtype = data["resourceType"]
+        rid = data["id"]
+        url = f"{base}/{rtype}/{rid}"
+        # Server SHALL ignore meta.versionId/lastUpdated on update; send as-is
+        return ("PUT", url, raw)
+
+    return ("POST", base, raw)
 
 def is_seed_file(name: str) -> bool:
     return bool(re.search(r"^(practitionerInformation|hospitalInformation).+\.json$", name, re.IGNORECASE))
@@ -55,17 +128,38 @@ def plan_files(root: str):
 def looks_like_hapi_1091(text: str) -> bool:
     return HAPI_MATCH_ERR in text or "HAPI-1091" in text
 
+def _to_printable(body: bytes, content_type: Optional[str], limit: int = 300) -> str:
+    if not body:
+        return ""
+    charset = "utf-8"
+    if content_type:
+        match = re.search(r"charset=([^;]+)", content_type, re.IGNORECASE)
+        if match:
+            charset = match.group(1).strip()
+    try:
+        text = body.decode(charset, errors="replace")
+    except LookupError:
+        text = body.decode("utf-8", errors="replace")
+    text = text.replace("\n", " ")
+    if len(text) > limit:
+        text = text[:limit]
+    return text
+
 async def upload_file_worker(session: aiohttp.ClientSession, sem: asyncio.Semaphore, base_url: str, root_dir: str, filename: str, token: Optional[str]) -> Tuple[str, Optional[str]]:
     path = os.path.join(root_dir, filename)
     async with sem: # Acquire semaphore to limit concurrency
         try:
-            body = read_bytes(path) # File I/O is still synchronous, but generally fast enough
-            resp = await post_bundle(session, base_url, body, token=token)
-            text = await resp.text()
-            if 200 <= resp.status < 300:
+            if hasattr(asyncio, "to_thread"):
+                raw = await asyncio.to_thread(read_bytes, path)
+            else:  # Python < 3.9 fallback
+                loop = asyncio.get_running_loop()
+                raw = await loop.run_in_executor(None, read_bytes, path)
+            method, url, body = _prepare_request_for_content(base_url, raw)
+            status, resp_body, resp_ct = await send_fhir(session, method, url, body, token=token)
+            if 200 <= status < 300:
                 return filename, None
-            body = text[:300].replace('\n',' ')
-            return filename, f"status={resp.status} body={body}"
+            preview = _to_printable(resp_body, resp_ct)
+            return filename, f"status={status} body={preview}"
         except aiohttp.ClientError as e:
             return filename, str(e)
         except Exception as e:
@@ -79,14 +173,14 @@ async def phase_upload_seeds(session: aiohttp.ClientSession, base_url: str, root
         path = os.path.join(root, name)
         print(f"[seed] Uploading {name} ...")
         try:
-            body = read_bytes(path)
-            resp = await post_bundle(session, base_url, body, token=token)
-            if 200 <= resp.status < 300:
-                print(f"  ✓ Success ({resp.status})")
+            raw = read_bytes(path)
+            method, url, body = _prepare_request_for_content(base_url, raw)
+            status, resp_body, resp_ct = await send_fhir(session, method, url, body, token=token)
+            if 200 <= status < 300:
+                print(f"  ✓ Success ({status})")
             else:
-                text = await resp.text()
-                preview = text[:300].replace("\n", " ")
-                print(f"  ✗ Failed ({resp.status}): {preview}")
+                preview = _to_printable(resp_body, resp_ct)
+                print(f"  ✗ Failed ({status}): {preview}")
                 failures.append(name)
         except aiohttp.ClientError as e:
             print(f"  ✗ Request failed: {e}"); failures.append(name)
@@ -100,11 +194,11 @@ async def phase_upload_parallel(session: aiohttp.ClientSession, base_url: str, r
     failures = []
     success_count = 0
     total_files = len(files)
-    print(f"[{label}] Starting async upload of {total_files} patient bundle files...")
+    print(f"[{label}] Starting async upload of {total_files} patient bundle files with concurrency={max_workers}...")
     
     sem = asyncio.Semaphore(max_workers)
-    tasks = [upload_file_worker(session, sem, base_url, root, f, token) for f in files]
-    
+    tasks = [asyncio.create_task(upload_file_worker(session, sem, base_url, root, f, token)) for f in files]
+
     for i, future in enumerate(asyncio.as_completed(tasks)):
         filename, error_text = await future
         
@@ -140,7 +234,12 @@ async def main():
 
     if not os.path.isdir(args.dir): raise SystemExit(f"Directory not found: {args.dir}")
 
-    async with aiohttp.ClientSession() as session:
+    if args.workers < 1:
+        raise SystemExit("--workers must be >= 1")
+
+    connector = aiohttp.TCPConnector(limit=args.workers * 2, limit_per_host=args.workers)
+
+    async with aiohttp.ClientSession(connector=connector) as session:
         try:
             async with session.get(f"{args.base_url}/metadata", timeout=aiohttp.ClientTimeout(total=30)) as meta:
                 if meta.status // 100 != 2:
