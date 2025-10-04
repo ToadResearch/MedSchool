@@ -285,6 +285,21 @@ services:
       timeout: 5s
       retries: 30
 
+  web_ui:
+    build:
+      context: ./web_ui
+    container_name: medschool-web-ui
+    restart: unless-stopped
+    environment:
+      WEB_UI_PORT: ${WEB_UI_PORT}
+    ports:
+      - "${WEB_UI_PORT:-725}:${WEB_UI_PORT:-725}"
+    networks:
+      - medschool-net
+    depends_on:
+      middleman:
+        condition: service_healthy
+
 networks:
   medschool-net:
 
