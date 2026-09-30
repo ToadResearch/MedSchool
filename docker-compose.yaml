@@ -2,7 +2,7 @@
 #   db (Postgres) becomes healthy.
 #   hapi waits for db → becomes healthy.
 #   validator (HL7 validator-wrapper) waits for hapi → starts.
-#   uploader waits for hapi → runs one-shot to load data (optional).
+#   uploader waits for hapi and Synthea → writes resources to PostgreSQL and reindexes.
 #   mcp waits for hapi → becomes healthy.
 #   prewarm waits for validator → runs one-shot to prewarm the validator.
 
@@ -145,25 +145,28 @@ services:
         
   uploader:
     build:
-      context: ./docker/uploader
-    container_name: medschool-uploader
+      context: ./docker/direct_loader
+    container_name: medschool-fhir-db-loader
     depends_on:
       hapi:
         condition: service_healthy
-      middleman:
-        condition: service_healthy
       synthea:
-        condition: service_completed_successfully # wait for synthea data generation to finish
-        # condition: service_completed_successfully # wait for synthea data generation to finish
-    environment: 
-      # FHIR_BASE_URL: ${FHIR_PROXY_INTERNAL_BASE}/fhir # never used by client machine, so just use internal url
-      FHIR_BASE_URL: ${HAPI_INTERNAL_FHIR_BASE} # never used by client machine, so just use internal url. don't go through middleman for now to reduce passthroughs
-      UPLOADER_CONTAINER_PORT: ${UPLOADER_CONTAINER_PORT}
-      LOCAL_ADDRESS: ${LOCAL_ADDRESS}
+        condition: service_completed_successfully
+    environment:
+      PGHOST: db
+      PGPORT: ${DB_CONTAINER_PORT}
+      PGUSER: ${PGUSER}
+      PGPASSWORD: ${PGPASSWORD}
+      PGDATABASE: ${PGDATABASE}
+      INPUT_DIR: /synthea
+      # Append makes normal Compose restarts idempotent; the CLI itself defaults to safer initialize mode.
+      IMPORT_MODE: ${FHIR_IMPORT_MODE:-append}
+      FHIR_BASE_URL: ${HAPI_INTERNAL_FHIR_BASE}
+      REINDEX_TIMEOUT_SECONDS: ${REINDEX_TIMEOUT_SECONDS:-3600}
     networks:
       - medschool-net
     volumes:
-      # Read-only access to generated Synthea output, to upload to the HAPI server
+      # Read-only access to generated Synthea output.
       - synthea_out:/synthea:ro
     restart: "no"
 
@@ -192,6 +195,8 @@ services:
         condition: service_healthy
       middleman:
         condition: service_healthy
+      uploader:
+        condition: service_completed_successfully
     environment:
       MCP_HOST: ${MCP_HOST}
       MCP_CONTAINER_PORT: ${MCP_CONTAINER_PORT}

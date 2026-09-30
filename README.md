@@ -16,6 +16,8 @@ A basic MCP server demo is available inside [mcp_demo/](mcp_demo) with instructi
 
 The full environment is available inside [environment/](environment). It's a work in progress, and we'll eventually include full instructions on how to run it from right here.
 
+Synthea seed data is loaded by the standalone Rust tool in [docker/direct_loader/](docker/direct_loader). It streams resources directly into PostgreSQL and then lets HAPI build its version-specific search indexes locally; see its README for local usage and safety constraints.
+
 
 ---
 ### Want to help?

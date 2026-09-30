@@ -1,5 +1,5 @@
-# Use the official Rust image as the base image
-FROM rust:1.85-slim as builder
+# Keep this aligned with the minimum Rust version required by Cargo.lock.
+FROM rust:1.92-slim AS builder
 
 # Install required dependencies for building
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
@@ -7,14 +7,14 @@ RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/li
 # Set the working directory
 WORKDIR /app
 
-# Copy the Cargo.toml file
-COPY Cargo.toml ./
+# Copy the manifest and lockfile so dependency resolution is reproducible.
+COPY Cargo.toml Cargo.lock ./
 
 # Copy the source code
 COPY src ./src
 
-# Build the application in release mode (this will generate Cargo.lock)
-RUN cargo build --release
+# Fail if the manifest and checked-in lockfile drift apart.
+RUN cargo build --locked --release
 
 # Use a smaller base image for the final image
 FROM debian:bookworm-slim
