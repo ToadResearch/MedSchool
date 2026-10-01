@@ -1,0 +1,121 @@
+[
+  {
+    "id": "sh-count-AllergyIntolerance",
+    "type": [
+      "read"
+    ],
+    "meta": {
+      "dataset": "synthetic_hospital",
+      "split": "train"
+    },
+    "input": {
+      "task": "How many AllergyIntolerance resources are in the FHIR database? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 251
+    }
+  },
+  {
+    "id": "sh-count-Condition",
+    "type": [
+      "read"
+    ],
+    "meta": {
+      "dataset": "synthetic_hospital",
+      "split": "train"
+    },
+    "input": {
+      "task": "How many Condition resources are in the FHIR database? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 2545
+    }
+  },
+  {
+    "id": "sh-count-DocumentReference",
+    "type": [
+      "read"
+    ],
+    "meta": {
+      "dataset": "synthetic_hospital",
+      "split": "train"
+    },
+    "input": {
+      "task": "How many DocumentReference resources are in the FHIR database? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 4339
+    }
+  },
+  {
+    "id": "sh-count-Encounter",
+    "type": [
+      "read"
+    ],
+    "meta": {
+      "dataset": "synthetic_hospital",
+      "split": "train"
+    },
+    "input": {
+      "task": "How many Encounter resources are in the FHIR database? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 3539
+    }
+  },
+  {
+    "id": "sh-count-MedicationStatement",
+    "type": [
+      "read"
+    ],
+    "meta": {
+      "dataset": "synthetic_hospital",
+      "split": "train"
+    },
+    "input": {
+      "task": "How many MedicationStatement resources are in the FHIR database? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 2291
+    }
+  },
+  {
+    "id": "sh-count-Patient",
+    "type": [
+      "read"
+    ],
+    "meta": {
+      "dataset": "synthetic_hospital",
+      "split": "train"
+    },
+    "input": {
+      "task": "How many Patient resources are in the FHIR database? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 800
+    }
+  },
+  {
+    "id": "sh-count-Practitioner",
+    "type": [
+      "read"
+    ],
+    "meta": {
+      "dataset": "synthetic_hospital",
+      "split": "train"
+    },
+    "input": {
+      "task": "How many Practitioner resources are in the FHIR database? Do not use commas in the numbers.",
+      "context": ""
+    },
+    "output": {
+      "answer": 3539
+    }
+  }
+]

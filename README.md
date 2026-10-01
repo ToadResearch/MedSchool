@@ -16,7 +16,9 @@ A basic MCP server demo is available inside [mcp_demo/](mcp_demo) with instructi
 
 The full environment is available inside [environment/](environment). It's a work in progress, and we'll eventually include full instructions on how to run it from right here.
 
-Synthea seed data is loaded by the standalone Rust tool in [docker/direct_loader/](docker/direct_loader). It streams resources directly into PostgreSQL and then lets HAPI build its version-specific search indexes locally; see its README for local usage and safety constraints.
+Synthetic Hospital v1.3 is the seed dataset. Run `./startup.sh --data --mcp` to download the pinned training split, convert it to FHIR R4, and load it through the [direct PostgreSQL loader](docker/direct_loader/). See the [import guide](docker/synthetic_hospital/) for replacing an existing Synthea database, split selection, data mappings, and validation. Existing data is never erased automatically.
+
+Use `synthetic_hospital_counts` for the new dataset's count tasks; `counts` and `names` are legacy Synthea fixtures. The roadmap below predates this dataset replacement.
 
 
 ---

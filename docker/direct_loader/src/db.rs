@@ -68,7 +68,7 @@ impl<'a> LoaderTransaction<'a> {
 
         transaction.batch_execute(
             r#"
-            CREATE TEMP TABLE synthea_direct_stage (
+            CREATE TEMP TABLE fhir_direct_stage (
                 ordinal bigint NOT NULL,
                 res_type varchar(40) NOT NULL,
                 fhir_id varchar(64) NOT NULL,
@@ -90,7 +90,7 @@ impl<'a> LoaderTransaction<'a> {
         F: FnOnce(&mut dyn FnMut(StagedResource) -> Result<()>) -> Result<crate::input::LoadStats>,
     {
         let sink = self.transaction.copy_in(
-            "COPY synthea_direct_stage (ordinal, res_type, fhir_id, res_body, hash_sha256) FROM STDIN WITH (FORMAT text)",
+            "COPY fhir_direct_stage (ordinal, res_type, fhir_id, res_body, hash_sha256) FROM STDIN WITH (FORMAT text)",
         )?;
         let mut writer = sink;
         let mut count = 0_u64;
@@ -113,11 +113,38 @@ impl<'a> LoaderTransaction<'a> {
         Ok((count, stats))
     }
 
+    pub fn require_matching_patients(&mut self) -> Result<()> {
+        let incompatible: i64 = self
+            .transaction
+            .query_one(
+                r#"SELECT count(*)::bigint FROM hfj_resource r
+               WHERE r.res_type = 'Patient' AND r.res_deleted_at IS NULL
+               AND NOT EXISTS (SELECT 1 FROM fhir_direct_stage s
+                               WHERE s.res_type = 'Patient' AND s.fhir_id = r.fhir_id)"#,
+                &[],
+            )?
+            .get(0);
+        if incompatible != 0 {
+            bail!("found {incompatible} existing patients outside the selected seed cohort; use a fresh database for replacement (back up existing data before an explicit --reset --data)");
+        }
+        Ok(())
+    }
+
     pub fn insert(mut self) -> Result<InsertSummary> {
         let staged: i64 = self
             .transaction
-            .query_one("SELECT count(*)::bigint FROM synthea_direct_stage", &[])?
+            .query_one("SELECT count(*)::bigint FROM fhir_direct_stage", &[])?
             .get(0);
+
+        let resource_types = self
+            .transaction
+            .query(
+                "SELECT DISTINCT res_type FROM fhir_direct_stage ORDER BY res_type",
+                &[],
+            )?
+            .into_iter()
+            .map(|row| row.get::<_, String>(0))
+            .collect();
 
         // HAPI 8.4 introduced this lookup table. allocationSize=1, so direct nextval is safe.
         self.transaction.batch_execute(
@@ -126,21 +153,21 @@ impl<'a> LoaderTransaction<'a> {
             SELECT nextval('seq_resource_type')::smallint, missing.res_type
             FROM (
                 SELECT DISTINCT s.res_type
-                FROM synthea_direct_stage s
+                FROM fhir_direct_stage s
                 LEFT JOIN hfj_resource_type rt ON rt.res_type = s.res_type
                 WHERE rt.res_type_id IS NULL
                 ORDER BY s.res_type
             ) missing
             ON CONFLICT (res_type) DO NOTHING;
 
-            UPDATE synthea_direct_stage s
+            UPDATE fhir_direct_stage s
             SET res_type_id = rt.res_type_id
             FROM hfj_resource_type rt
             WHERE rt.res_type = s.res_type;
 
             -- Existing logical IDs are intentionally skipped in append mode. This loader never
             -- fabricates a HAPI history version or deletes live indexes behind the server's back.
-            DELETE FROM synthea_direct_stage s
+            DELETE FROM fhir_direct_stage s
             USING hfj_resource r
             WHERE r.res_type = s.res_type
               AND r.fhir_id = s.fhir_id
@@ -148,7 +175,7 @@ impl<'a> LoaderTransaction<'a> {
 
             -- HAPI's sequence generator uses a pooled allocation size of 50. Calling nextval here
             -- consumes pool boundary values, leaving all later HAPI-allocated ranges disjoint.
-            UPDATE synthea_direct_stage
+            UPDATE fhir_direct_stage
             SET res_id = nextval('seq_resource_id'),
                 res_ver_pid = nextval('seq_resource_history_id');
 
@@ -169,7 +196,7 @@ impl<'a> LoaderTransaction<'a> {
                 false, false, false,
                 false, false, false,
                 false, res_type, 1, res_type_id
-            FROM synthea_direct_stage
+            FROM fhir_direct_stage
             ORDER BY ordinal;
 
             INSERT INTO hfj_res_ver (
@@ -183,24 +210,15 @@ impl<'a> LoaderTransaction<'a> {
                 false, transaction_timestamp(), transaction_timestamp(), 'JSON', NULL,
                 NULL, res_id, res_body, res_type, 1, NULL,
                 res_type_id
-            FROM synthea_direct_stage
+            FROM fhir_direct_stage
             ORDER BY ordinal;
             "#,
         )?;
 
         let inserted: i64 = self
             .transaction
-            .query_one("SELECT count(*)::bigint FROM synthea_direct_stage", &[])?
+            .query_one("SELECT count(*)::bigint FROM fhir_direct_stage", &[])?
             .get(0);
-        let resource_types = self
-            .transaction
-            .query(
-                "SELECT DISTINCT res_type FROM synthea_direct_stage ORDER BY res_type",
-                &[],
-            )?
-            .into_iter()
-            .map(|row| row.get::<_, String>(0))
-            .collect();
 
         self.transaction
             .commit()

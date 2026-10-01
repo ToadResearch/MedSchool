@@ -2,7 +2,7 @@
 #   db (Postgres) becomes healthy.
 #   hapi waits for db → becomes healthy.
 #   validator (HL7 validator-wrapper) waits for hapi → starts.
-#   uploader waits for hapi and Synthea → writes resources to PostgreSQL and reindexes.
+#   uploader waits for hapi and Synthetic Hospital → writes resources to PostgreSQL and reindexes.
 #   mcp waits for hapi → becomes healthy.
 #   prewarm waits for validator → runs one-shot to prewarm the validator.
 
@@ -133,24 +133,29 @@ services:
     networks: [medschool-net]
     restart: "no"
 
-  synthea:
+  synthetic_hospital:
+    profiles: [seed]
     build:
-      context: ./docker/synthea
-    container_name: medschool-synthea
+      context: ./docker/synthetic_hospital
+    container_name: medschool-synthetic-hospital
+    environment:
+      SYNTHETIC_HOSPITAL_SPLIT: ${SYNTHETIC_HOSPITAL_SPLIT:-train}
     volumes:
-      - synthea_out:/synthea
+      - synthetic_hospital_cache:/data
+      - synthetic_hospital_fhir:/output
     restart: "no"
     networks:
       - medschool-net
-        
+
   uploader:
+    profiles: [seed]
     build:
       context: ./docker/direct_loader
     container_name: medschool-fhir-db-loader
     depends_on:
       hapi:
         condition: service_healthy
-      synthea:
+      synthetic_hospital:
         condition: service_completed_successfully
     environment:
       PGHOST: db
@@ -158,16 +163,17 @@ services:
       PGUSER: ${PGUSER}
       PGPASSWORD: ${PGPASSWORD}
       PGDATABASE: ${PGDATABASE}
-      INPUT_DIR: /synthea
+      INPUT_DIR: /seed
       # Append makes normal Compose restarts idempotent; the CLI itself defaults to safer initialize mode.
+      REQUIRE_MATCHING_PATIENTS: "true"
       IMPORT_MODE: ${FHIR_IMPORT_MODE:-append}
       FHIR_BASE_URL: ${HAPI_INTERNAL_FHIR_BASE}
       REINDEX_TIMEOUT_SECONDS: ${REINDEX_TIMEOUT_SECONDS:-3600}
     networks:
       - medschool-net
     volumes:
-      # Read-only access to generated Synthea output.
-      - synthea_out:/synthea:ro
+      # Read-only access to converted Synthetic Hospital FHIR resources.
+      - synthetic_hospital_fhir:/seed:ro
     restart: "no"
 
   # termloader:
@@ -195,8 +201,6 @@ services:
         condition: service_healthy
       middleman:
         condition: service_healthy
-      uploader:
-        condition: service_completed_successfully
     environment:
       MCP_HOST: ${MCP_HOST}
       MCP_CONTAINER_PORT: ${MCP_CONTAINER_PORT}
@@ -311,5 +315,5 @@ networks:
 volumes:
   pgdata:
   # hapi_appdata:
-  # Holds generated Synthea export bundles from the one-shot synthea container
-  synthea_out:
+  synthetic_hospital_cache:
+  synthetic_hospital_fhir:

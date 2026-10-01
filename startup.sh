@@ -7,10 +7,10 @@
 #       ./startup.sh
 #       → Starts Postgres + HAPI FHIR server and waits for /fhir/metadata.
 #
-#   With Synthea data:
-#       ./startup.sh --synthea
+#   With Synthetic Hospital data:
+#       ./startup.sh --data
 #       → Starts the server and runs the uploader job to download
-#         and load Synthea sample data into the server.
+#         and load Synthetic Hospital sample data into the server.
 #
 #   Clean slate:
 #       ./startup.sh --reset
@@ -19,7 +19,7 @@
 #
 #   Enable MCP:
 #       ./startup.sh --mcp
-#       → Includes the mcp service in the base services started with `up -d`.
+#       → Starts MCP after any requested data import completes.
 # ------------------------------------------------------------
 
 set -euo pipefail
@@ -28,11 +28,10 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_FILE="$REPO_ROOT/docker-compose.yaml"
 
-WITH_SYNTHEA=0
+WITH_DATA=0
 REBUILD=0
 RESET=0
 MCP=0
-SAVE_SYNTHEA=0
 
 # --- Services (edit here) ---
 # Base services that are always started with `up -d` (unless optional flags add more).
@@ -48,30 +47,27 @@ usage() {
 Usage: $(basename "$0") [options]
 
 Options:
-  --synthea        Also run the one-shot uploader to download and load Synthea data.
-  --rebuild        Rebuild the uploader image before running it (implies --synthea).
+  --data           Also run the one-shot uploader to download and load Synthetic Hospital data.
+  --rebuild        Rebuild the uploader image before running it (implies --data).
   --reset          Tear down the stack completely (removes DB data) before starting.
-  --mcp            Include the 'mcp' service in the base services.
-  --save-synthea   Keep the Synthea volume after upload (don't remove it).
+  --mcp            Start MCP after any requested seed import completes.
   -h, --help       Show this help.
 
 Examples:
   $(basename "$0")                        # Start Postgres + HAPI + other base services
   $(basename "$0") --mcp                 # Start base services + mcp
-  $(basename "$0") --synthea             # Start services then load Synthea data
-  $(basename "$0") --reset --synthea     # Recommended for a clean start with data
-  $(basename "$0") --synthea --save-synthea  # Load Synthea data and keep the volume
+  $(basename "$0") --data                # Start services then load Synthetic Hospital data
+  $(basename "$0") --reset --data        # Recommended for a clean start with data
 EOF
 }
 
 # ---------- Parse args ----------
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --synthea) WITH_SYNTHEA=1 ;;
+    --data) WITH_DATA=1 ;;
     --rebuild) REBUILD=1 ;;
     --reset) RESET=1 ;;
     --mcp) MCP=1 ;;
-    --save-synthea) SAVE_SYNTHEA=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
   esac
@@ -79,17 +75,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ $REBUILD -eq 1 ]]; then
-  WITH_SYNTHEA=1
+  WITH_DATA=1
 fi
 
-# Optionally include mcp in the base services
-if [[ $MCP -eq 1 ]]; then
-  BASE_SERVICES+=(mcp)
-fi
 
-# All services to show in the service summary (conditionally include one-shots like `synthea` + `uploader`).
-if [[ $WITH_SYNTHEA -eq 1 ]]; then
-  ALL_SERVICES=("${BASE_SERVICES[@]}" synthea uploader)
+# All services to show in the service summary (conditionally include one-shots like `synthetic_hospital` + `uploader`).
+if [[ $WITH_DATA -eq 1 ]]; then
+  ALL_SERVICES=("${BASE_SERVICES[@]}" synthetic_hospital uploader)
 else
   ALL_SERVICES=("${BASE_SERVICES[@]}" uploader)
 fi
@@ -109,7 +101,7 @@ fi
 
 # Build the custom Alpine image
 echo "Building custom Alpine sandbox image..."
-docker compose -f "$COMPOSE_FILE" --env-file .env build alpine_sandbox
+docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" build alpine_sandbox
 
 # --- Configuration ---
 # Fail fast if required vars are missing
@@ -119,20 +111,20 @@ docker compose -f "$COMPOSE_FILE" --env-file .env build alpine_sandbox
 if [[ $RESET -eq 1 ]]; then
   echo "--reset flag detected. Tearing down the full stack first..."
   # The '-v' flag removes the named volumes, clearing the database.
-  docker compose -f "$COMPOSE_FILE" --env-file .env down -v || true
+  docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" down -v || true
 fi
 
 echo "Stopping running base services (to avoid dangling <none> images)…"
 # If they’re not running, this is a no-op.
-docker compose -f "$COMPOSE_FILE" --env-file .env stop "${BASE_SERVICES[@]}" || true
+docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" stop "${BASE_SERVICES[@]}" || true
 
 echo "Rebuilding images and recreating containers in one step…"
 # --build ensures images are rebuilt; --pull can be added if you want to refresh bases
-docker compose -f "$COMPOSE_FILE" --env-file .env up -d --build --force-recreate "${BASE_SERVICES[@]}"
+docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" up -d --build --force-recreate "${BASE_SERVICES[@]}"
 
 # echo "Kicking off validator pre-warm (runs once in background)..."
 # one-shot job; talks to the validator container directly on 3500 inside the compose network
-# docker compose -f "$COMPOSE_FILE" --env-file .env up -d validator-prewarm || true
+# docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" up -d validator-prewarm || true
 
 # Use HAPI_PORT from environment/.env file, with a fallback to 8080
 HAPI_PORT="${HAPI_PORT:-8081}"
@@ -164,42 +156,30 @@ if [[ "${NO_PRUNE:-0}" -ne 1 ]]; then
   # docker builder prune -f >/dev/null || true
 fi
 
-if [[ $WITH_SYNTHEA -eq 1 ]]; then
-  echo "Starting Synthea data generation and running uploader (one-shot containers)..."
-  # uploader services depends on synthea service service_completed_successfully, so it will invoke the synthea service, and then run uploader
-  docker compose -f "$COMPOSE_FILE" --env-file .env up ${REBUILD:+--build} uploader
-
-  # if [[ $SAVE_SYNTHEA -ne 1 ]]; then
-  #   # now that the synthea data has been uploaded to the fhir server, we can remove the volume storing the original data we generated
-  #   echo "Upload finished. Removing Synthea volume to reclaim space..."
-
-  #   # Remove the stopped one-shot containers so the volume is no longer referenced
-  #   docker compose -f "$COMPOSE_FILE" --env-file .env rm -f -s synthea uploader || true
-
-  #   # Now the named volume can be removed
-  #   docker volume rm medschool_synthea_out || true
-  # fi
-if [[ $SAVE_SYNTHEA -ne 1 ]]; then
-  # now that the synthea data has been uploaded to the fhir server, we can remove the volume storing the original data we generated
-  echo "Upload finished. Removing Synthea volume to reclaim space..."
-
-  # Remove the stopped one-shot containers so the volume is no longer referenced
-  docker compose -f "$COMPOSE_FILE" --env-file .env rm -f -s synthea uploader || true
-
-  # Now the named volume can be removed
-  docker volume rm medschool_synthea_out || true
+if [[ $WITH_DATA -eq 1 ]]; then
+  echo "Converting Synthetic Hospital data and running the FHIR loader..."
+  # Run each maintenance job once and propagate its exit status before starting MCP.
+  # Do not attach compose up to the long-running database/HAPI dependencies.
+  docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" stop mcp
+  if [[ $REBUILD -eq 1 ]]; then
+    docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" build synthetic_hospital uploader
+  fi
+  docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" run --build --rm --no-deps synthetic_hospital
+  "$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" "$FHIR_BASE_URL"
+  docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" run --build --rm --no-deps uploader
+else
+  echo "Skipping seed data load. Use --data to load Synthetic Hospital."
 fi
 
-
-else
-  echo "Skipping Synthea data load. Use the --synthea flag to load data."
+if [[ $MCP -eq 1 ]]; then
+  docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" up -d --build mcp
 fi
 
 echo "Counting resources..."
-"$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" ${FHIR_BASE_URL} # TODO: the query_hapi.sh fails on --synthea flag if this isn't run first... figure out why
-"$REPO_ROOT/docker/fhir_server/scripts/query_hapi.sh" ${FHIR_BASE_URL} || true # TODO: figure out why this takes a long time when --synthea flag is used
+"$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" "${FHIR_BASE_URL}"
+"$REPO_ROOT/docker/fhir_server/scripts/query_hapi.sh" "${FHIR_BASE_URL}" || true
 
 echo -e "\nDone."
-if [[ $WITH_SYNTHEA -eq 0 ]]; then
-  echo "   To load Synthea data later, run: ./startup.sh --synthea"
+if [[ $WITH_DATA -eq 0 ]]; then
+  echo "   To load Synthetic Hospital data later, run: ./startup.sh --data"
 fi

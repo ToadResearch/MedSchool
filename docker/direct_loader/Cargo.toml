@@ -1,8 +1,8 @@
 [package]
-name = "synthea-fhir-db-loader"
+name = "fhir-db-loader"
 version = "0.1.0"
 edition = "2021"
-description = "Fast, direct PostgreSQL loader for Synthea bundles and HAPI FHIR JPA 8.4"
+description = "Fast, direct PostgreSQL loader for FHIR R4 bundles and HAPI FHIR JPA 8.4"
 license = "Apache-2.0"
 
 [dependencies]

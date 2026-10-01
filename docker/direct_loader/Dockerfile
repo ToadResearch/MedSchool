@@ -10,8 +10,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /build/target/release/synthea-fhir-db-loader /usr/local/bin/synthea-fhir-db-loader
+COPY --from=builder /build/target/release/fhir-db-loader /usr/local/bin/fhir-db-loader
 
 USER 65532:65532
-ENTRYPOINT ["synthea-fhir-db-loader"]
+ENTRYPOINT ["fhir-db-loader"]
 

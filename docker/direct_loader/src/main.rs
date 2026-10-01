@@ -26,13 +26,17 @@ impl From<ModeArg> for ImportMode {
 #[derive(Debug, Parser)]
 #[command(version, about)]
 struct Args {
-    /// Directory containing Synthea FHIR JSON bundles or NDJSON files.
-    #[arg(long, env = "INPUT_DIR", default_value = "/synthea")]
+    /// Directory containing FHIR JSON bundles or NDJSON files.
+    #[arg(long, env = "INPUT_DIR", default_value = "/seed")]
     input: PathBuf,
 
     /// Refuse a non-empty repository (initialize) or add only missing Type/id pairs (append).
     #[arg(long, env = "IMPORT_MODE", value_enum, default_value = "initialize")]
     mode: ModeArg,
+
+    /// Refuse to mix seed cohorts with existing patients absent from this import.
+    #[arg(long, env = "REQUIRE_MATCHING_PATIENTS", default_value_t = false)]
+    require_matching_patients: bool,
 
     /// HAPI R4 base URL used only to start its local search reindexer after the direct write.
     #[arg(long, env = "FHIR_BASE_URL", default_value = "http://hapi:8080/fhir")]
@@ -101,6 +105,9 @@ fn run() -> Result<()> {
     if copied == 0 {
         bail!("input files contained no FHIR resources with stable logical IDs");
     }
+    if args.require_matching_patients {
+        loader.require_matching_patients()?;
+    }
     let summary = loader.insert()?;
     println!(
         "database_load_complete files={} resources={} staged={} copied={} duplicates={} references_rewritten={} inserted={} skipped_existing={} elapsed_seconds={:.2}",
@@ -115,10 +122,6 @@ fn run() -> Result<()> {
         started.elapsed().as_secs_f64()
     );
 
-    if summary.inserted == 0 {
-        println!("reindex_skipped reason=no_new_resources");
-        return Ok(());
-    }
     if args.skip_reindex {
         eprintln!(
             "warning: reindex skipped; direct Type/id reads work, but FHIR parameter searches are incomplete"
