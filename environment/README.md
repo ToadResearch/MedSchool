@@ -42,10 +42,10 @@ source .venv/bin/activate
 uv sync
 ```
 
-Make sure the HAPI server is running by executing the following command inside the base project directory (make sure Docker Desktop is running). If this is your first time running it, please be sure to add the `--synthea` flag to generate data. Omit this flag on subsequent runs, as the current setup will regenerate the data.
+Make sure the HAPI server is running by executing the following command inside the base project directory (make sure Docker Desktop is running). If this is your first time running it, please be sure to add the `--data` flag to import Synthetic Hospital. Omit this flag on subsequent runs. See [the import guide](../docker/synthetic_hospital/) before replacing an existing Synthea database.
 
    ```bash
-   ./startup.sh [--synthea]
+   ./startup.sh [--data]
    ```
 
 To run evals, come back to this directory and run any of the following
@@ -57,7 +57,7 @@ python eval.py \
   -m gpt-oss-120b \
   -k CEREBRAS_API_KEY \
   -b https://api.cerebras.ai/v1 \
-  -t counts
+  -t synthetic_hospital_counts
 ```
 
 ```bash
@@ -66,7 +66,7 @@ python eval.py \
   -m openai/gpt-oss-120b \
   -k GROQ_API_KEY \
   -b https://api.groq.com/openai/v1 \
-  -t counts
+  -t synthetic_hospital_counts
 ```
 
 ```bash
@@ -75,7 +75,7 @@ python eval.py \
   -m openai/gpt-oss-120b \
   -k OPENROUTER_API_KEY \
   -b https://openrouter.ai/api/v1 \
-  -t counts
+  -t synthetic_hospital_counts
 ```
 
 ```bash
@@ -84,12 +84,12 @@ python eval.py \
   -m gemini-2.5-flash \
   -k GEMINI_API_KEY \
   -b https://generativelanguage.googleapis.com/v1beta/openai \
-  -t counts
+  -t synthetic_hospital_counts
 ```
 
 Each task has a dedicated sandbox container for agents to work inside: when a new task is received, a container is spawned and, upon completion, terminated. The number of parallel sessions is specified as `sandbox.max_concurrent_sessions` inside `configs/sandbox.yaml`. Right now this is set to `5`, but you can change this.
 
-In general, any OpenAI-compatible API endpoint should work. The `-t` flag let's you specify the name of the task to run from the `tasks` directory. Right now you can try out `counts` or `toy_tasks`. Feel free to add or modify any tasks you'd like. More details about the CLI args are available below. 
+In general, any OpenAI-compatible API endpoint should work. The `-t` flag let's you specify the name of the task to run from the `tasks` directory. Right now you can try out `synthetic_hospital_counts` or `toy_tasks` (the old `counts` and `names` fixtures require Synthea). Feel free to add or modify any tasks you'd like. More details about the CLI args are available below.
 
 To shutdown the server and stop all services run the following command in the base project directory. The `--purge` flag will stop all services and completely delete all containers, data volumes, and associated images.
 

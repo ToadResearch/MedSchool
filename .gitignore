@@ -19,6 +19,9 @@ __pycache__
 # middleman
 docker/middleman/target/*
 
+# direct FHIR database loader
+docker/direct_loader/target/*
+
 # vm_handler
 vm_handler/target/*
 vm_handler/.vm/*

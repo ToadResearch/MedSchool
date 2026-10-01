@@ -1,0 +1,25 @@
+[package]
+name = "fhir-db-loader"
+version = "0.1.0"
+edition = "2021"
+description = "Fast, direct PostgreSQL loader for FHIR R4 bundles and HAPI FHIR JPA 8.4"
+license = "Apache-2.0"
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive", "env"] }
+flate2 = "1.1"
+postgres = "0.19"
+rayon = "1.10"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+url = "2.5"
+walkdir = "2.5"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+
