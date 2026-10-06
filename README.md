@@ -20,6 +20,8 @@ reindexing. `--mcp` adds the MCP tool server; the benchmark runner uses Middlema
 and does not require MCP.
 
 For subsequent runs, use `./startup.sh` or `./startup.sh --mcp` to reuse the data.
+After removing old services, use `./startup.sh --remove-orphans` to remove their
+leftover containers while keeping data volumes.
 The seed jobs are opt-in and do not run during ordinary `docker compose up`.
 See the [Synthetic Hospital import guide](docker/synthetic_hospital/README.md)
 for cohort selection, mappings, checksums, and migration from an existing database,

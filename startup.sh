@@ -32,6 +32,7 @@ WITH_DATA=0
 REBUILD=0
 RESET=0
 MCP=0
+REMOVE_ORPHANS=0
 
 # --- Services (edit here) ---
 # Base services that are always started with `up -d` (unless optional flags add more).
@@ -50,6 +51,7 @@ Options:
   --rebuild        Rebuild the uploader image before running it (implies --data).
   --reset          Tear down the stack completely (removes DB data) before starting.
   --mcp            Start MCP after any requested seed import completes.
+  --remove-orphans Remove containers for services retired from this Compose project.
   -h, --help       Show this help.
 
 Examples:
@@ -67,6 +69,7 @@ while [[ $# -gt 0 ]]; do
     --rebuild) REBUILD=1 ;;
     --reset) RESET=1 ;;
     --mcp) MCP=1 ;;
+    --remove-orphans|--remove-orphan) REMOVE_ORPHANS=1 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
   esac
@@ -75,6 +78,13 @@ done
 
 if [[ $REBUILD -eq 1 ]]; then
   WITH_DATA=1
+fi
+
+COMPOSE_UP_ARGS=(-d --build)
+COMPOSE_DOWN_ARGS=(-v)
+if [[ $REMOVE_ORPHANS -eq 1 ]]; then
+  COMPOSE_UP_ARGS+=(--remove-orphans)
+  COMPOSE_DOWN_ARGS+=(--remove-orphans)
 fi
 
 
@@ -110,7 +120,7 @@ docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" build alpine_sand
 if [[ $RESET -eq 1 ]]; then
   echo "--reset flag detected. Tearing down the full stack first..."
   # The '-v' flag removes the named volumes, clearing the database.
-  docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" down -v || true
+  docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" down "${COMPOSE_DOWN_ARGS[@]}" || true
 fi
 
 echo "Stopping running base services (to avoid dangling <none> images)…"
@@ -119,7 +129,7 @@ docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" stop "${BASE_SERV
 
 echo "Rebuilding images and recreating containers in one step…"
 # --build ensures images are rebuilt; --pull can be added if you want to refresh bases
-docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" up -d --build --force-recreate "${BASE_SERVICES[@]}"
+docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" up "${COMPOSE_UP_ARGS[@]}" --force-recreate "${BASE_SERVICES[@]}"
 
 print_service_info() {
   echo ""
@@ -160,7 +170,7 @@ else
 fi
 
 if [[ $MCP -eq 1 ]]; then
-  docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" up -d --build mcp
+  docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" up "${COMPOSE_UP_ARGS[@]}" mcp
 fi
 
 if [[ $MCP -eq 1 ]]; then

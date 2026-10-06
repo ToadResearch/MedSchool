@@ -40,6 +40,62 @@ Run commands from this directory so the task and config paths resolve correctly.
 Concurrency is capped by `sandbox.max_concurrent_sessions` in
 `configs/sandbox.yaml` and the number of examples.
 
+## Your first benchmark run
+
+Start with [`tasks/starter.json`](tasks/starter.json): 25 read-only questions
+covering resource counts, empty resource types, totals, and count differences.
+The first question asks the agent to count Patient resources, with an expected
+answer of 800 for the pristine Synthetic Hospital training split. Expected
+answers are used by the scorer and are not included in the agent's prompt.
+Use `uv run eval.py -t starter` to run the full starter list.
+
+1. Open Docker Desktop and wait until its engine is running. From the repository
+   root, run `./startup.sh --data` to import the training seed. If that seed is
+   already loaded, use `./startup.sh` instead. These commands preserve existing
+   data; an incompatible old cohort is rejected. Do not use `--reset` unless you
+   intend to delete all stack volumes.
+2. Check the dataset with
+   `bash docker/fhir_server/scripts/query_hapi.sh`. Patient should be 800 and
+   Encounter should be 3539 for the pristine training split.
+3. From `environment/`, run `uv sync --frozen` to install the locked dependencies.
+4. Select your provider's model, endpoint, and API-key variable. The following
+   example uses the runner's Cerebras defaults and expects `CEREBRAS_API_KEY` in
+   your root `.env` or shell environment:
+
+   ```bash
+   uv run eval.py -t starter --requested 1
+   ```
+
+   For a different OpenAI-compatible provider, supply all three settings:
+
+   ```bash
+   uv run eval.py -t starter --requested 1 \
+     -m YOUR_MODEL -b YOUR_API_BASE_URL -k YOUR_KEY_VARIABLE
+   ```
+
+5. The runner creates one sandbox, lets the agent query FHIR/use its tools, scores
+   the final answer, and stops the sandbox. A successful answer produces:
+
+   ```text
+   Average reward: 1.0000
+   Samples with full reward (1.0): 1/1
+   Results saved to outputs/<model>/<timestamp>/results.json
+   ```
+
+   Open the exact results path printed by the runner to inspect the completion
+   and reward. A zero score means the expected answer was absent from the final
+   response; inspect the trajectory for tool errors or an incorrect answer.
+6. Run all seven resource-count questions with
+   `uv run eval.py -t synthetic_hospital_counts` (plus your provider flags).
+   `--requested` caps the number of examples, not the model's token budget.
+7. From the repository root, run `./shutdown.sh` when finished to stop services
+   while keeping the imported data.
+
+This starter verifies the evaluation plumbing and simple FHIR retrieval. A 1/1
+score is not a measure of general clinical ability. The current answer scorer
+checks whether the expected value appears in the response. Model calls use your
+provider account; no live model calls are made by the offline regression tests.
+
 ## Tasks and scoring
 
 `synthetic_hospital_counts` matches the pinned pristine training split (800

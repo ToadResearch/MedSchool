@@ -16,7 +16,7 @@ from main import load_environment
 
 class BenchmarkTests(unittest.TestCase):
     def test_retained_task_suites_load_into_environment(self):
-        for name in ('synthetic_hospital_counts', 'toy_tasks'):
+        for name in ('starter', 'synthetic_hospital_counts', 'toy_tasks'):
             with self.subTest(suite=name), tempfile.TemporaryDirectory() as cache, \
                  patch('datasets.config.HF_DATASETS_CACHE', Path(cache)), \
                  patch('main.MedSchoolEnv') as env_class:
