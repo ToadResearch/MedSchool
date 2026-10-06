@@ -1,12 +1,49 @@
 # environment/main.py
 from __future__ import annotations
 
+import json
 import unicodedata
 import verifiers as vf
 from datasets import Dataset
 from medschoolenv import MedSchoolEnv
 from datasets.utils.logging import disable_progress_bar
 disable_progress_bar() # so map doesn't print progress bars
+
+
+def _structured_equal(expected, actual) -> bool:
+    if isinstance(expected, dict):
+        return (isinstance(actual, dict) and set(expected) == set(actual)
+                and all(_structured_equal(value, actual[key]) for key, value in expected.items()))
+    if isinstance(expected, list):
+        return (isinstance(actual, list) and len(expected) == len(actual)
+                and all(_structured_equal(e, a) for e, a in zip(expected, actual)))
+    if isinstance(expected, bool) or isinstance(actual, bool):
+        return type(expected) is type(actual) and expected == actual
+    return expected == actual
+
+
+def answer_matches(response: str, answer: str) -> bool:
+    """Compare JSON answer fields, retaining the existing scalar substring rubric."""
+    response = unicodedata.normalize('NFKC', response)
+    answer = unicodedata.normalize('NFKC', answer)
+    try:
+        expected = json.loads(answer)
+    except (ValueError, TypeError):
+        expected = None
+    if isinstance(expected, (dict, list)):
+        text = response.strip()
+        if text.startswith('```') and text.endswith('```'):
+            text = '\n'.join(text.splitlines()[1:-1])
+        try:
+            actual = json.loads(text)
+        except (ValueError, TypeError):
+            return False
+        # Upstream prompts request an answer/evidence envelope. Evidence is
+        # retained in the task file, but this project's rubric checks answers only.
+        if isinstance(actual, dict) and 'answer' in actual:
+            actual = actual['answer']
+        return _structured_equal(expected, actual)
+    return answer.lower().strip() in response.lower().strip()
 
 
 def to_vf_format(example: dict, system_prompt: str) -> dict:
@@ -27,7 +64,7 @@ def to_vf_format(example: dict, system_prompt: str) -> dict:
 
     # Ensure answer is a string for comparison
     ans = example.get("output", {}).get("answer", "")
-    ans = str(ans)
+    ans = json.dumps(ans, ensure_ascii=False) if isinstance(ans, (dict, list)) else str(ans)
 
     return {
         "id": example.get("id", ""),
@@ -68,12 +105,8 @@ def load_environment(
 
     # ---- rubric ----
     def correctness(parser, completion, answer):
-        # reward if final response contains the answer
         response = parser.parse_answer(completion) or ''
-        # Normalize nonstandard spaces and apostrophes
-        response = unicodedata.normalize('NFKC', response)
-        answer = unicodedata.normalize('NFKC', answer)
-        return 1.0 if answer.lower().strip() in response.lower().strip() else 0.0
+        return 1.0 if answer_matches(response, answer) else 0.0
 
     rubric = vf.Rubric(funcs=[correctness], weights=[1.0])
     

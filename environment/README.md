@@ -98,6 +98,12 @@ provider account; no live model calls are made by the offline regression tests.
 
 ## Tasks and scoring
 
+`fhir_env_train` and `fhir_env_dev` contain 19,530 and 2,186 converted questions
+from ToadResearch/fhir-env across 37 workflow families. See the
+[imported benchmark guide](tasks/fhir_env_README.md) for provenance, conversion,
+and fixture requirements. These questions require upstream's expanded FHIR
+charts; the current Synthetic Hospital seed does not contain those fixtures.
+
 `synthetic_hospital_counts` matches the pinned pristine training split (800
 patients, 17,304 resources). Regenerate it with the converter's `--tasks-dir`
 option for other splits. Concurrent writes change counts, so benchmark a pristine
@@ -117,9 +123,11 @@ Custom tasks use this format:
 ]
 ```
 
-The current rubric awards 1 when the normalized expected answer occurs in the
-final response, otherwise 0. This is a basic answer check; it does not implement
-Synthetic Hospital's upstream clinical scorers.
+For scalar answers, the rubric awards 1 when the normalized expected answer
+occurs in the final response, otherwise 0. For JSON objects/lists, it compares
+the structured fields, accepting the upstream `answer`/`evidence` envelope.
+This is an answer check; it does not verify evidence or chart mutations and does
+not implement Synthetic Hospital's upstream clinical scorers.
 
 ## Tools and checks
 
