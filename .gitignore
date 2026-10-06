@@ -1,27 +1,27 @@
-# project specific
-extras
-todo.txt
-**/old/**
-.DS_Store
-notes 
-logs
-ehr_env
-synthea_data
-**/chat_logs/**
-*_prompt.txt
-outputs/ 
-dataset_info/fhir
-
-# other stuff
+# Local credentials and generated files
 .env
-__pycache__
+.env.*
+!.env.example
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+outputs/
+logs/
 
-# middleman
-docker/middleman/target/*
+# Build artifacts and editor settings
+**/target/
+node_modules/
+.svelte-kit/
+.vscode/
 
-# direct FHIR database loader
-docker/direct_loader/target/*
-
-# vm_handler
-vm_handler/target/*
-vm_handler/.vm/*
+# Local scratch work
+extras/
+notes/
+todo.txt
+**/old/
+**/chat_logs/
+*_prompt.txt
+synthea_data/

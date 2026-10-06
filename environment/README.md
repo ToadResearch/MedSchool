@@ -1,116 +1,84 @@
-### Current tools available:
+# Benchmark environment
 
-- **FHIR:**
-  - **fhir_post**: create a FHIR resource
-  - **fhir_get**: read a FHIR resource/search
-    - returns metadata (size, keys, bundle counts) and auto-saves the full JSON to the terminal sandbox at `fhir/<resourceType>/<identifier>.json`
-  - **fhir_update**: update a FHIR resource
-  - **fhir_delete**: delete a FHIR resource
-  - **fhir_validate**: validate a FHIR resource
+The Verifiers-based runner evaluates an agent through FHIR tools and a dedicated
+Docker terminal sandbox for each task. It scores final answers and saves
+trajectories and rewards as JSON.
 
+## Setup and evaluation
 
-- **Code Sandbox**
-  - **terminal_command**: execute a terminal command in a persistent sandbox
+Start Docker from the repository root with `./startup.sh --data` on the first run,
+then `./startup.sh` on subsequent runs. See the
+[Synthetic Hospital import guide](../docker/synthetic_hospital/README.md) before
+replacing an existing database or changing cohorts.
 
-- **Terminology:**
-  - **code_lookup**: get display name and synonyms for a given code (e.g., ICD-10, CPT/HCPCS, SNOMED, LOINC, RxNorm)
-
-- **OpenFDA:**
-  - **openfda_label**: fetch FDA drug label (SPL) sections like indications, warnings, contraindications, dosage
-  - **openfda_adverse_events**: query FAERS adverse event reports (serious %, top reactions, sample cases, outcome filters)
-  - **openfda_recalls**: search FDA drug enforcement reports (recalls) with classification, status, and reason
-  - **openfda_drug_shortages**: fetch FDA drug shortages (current/archived) with status, last-updated, and reason
-
-
-Note: We've migrated from ephemeral code-execution sandboxes to a full terminal environment because FHIR records are very large json objects that quickly fill context windows. For example, if the model is doing payment analysis over a patient record, it might be best to pipe FHIR query results directly into a python process, rather than wasting context to copy and paste them into a python file it's writing. This is especially a problem when running models locally. 
-
-So, we'll have to add a way to pipe tool calls or potentially instruct the model about how to make FHIR queries within code using the correct addresses (e.g., to perform many FHIR queries with a single tool call). We're a little wary of this approach right now, and think it might be better to perhaps return line/char counts for FHIR get requests. This way the model can decide to personally inspect it, or save it as a json file within the sandbox to work with. A REPL for FHIR tool calls might help with this.
-
-Working inside of a terminal would also let us use the [CLI FHIR validator](https://github.com/hapifhir/org.hl7.fhir.validator-wrapper), instead of pinging the server, if we wanted.
-
----
-
-### How to run:
-
-We use the [Verifiers library](https://github.com/willccbb/verifiers). We're still in early development, so bear with us as we improve the workflow :)
-
-First, set up the environment:
+From this directory (Python 3.12+ and `uv`):
 
 ```bash
-uv venv --python 3.12 --seed
-source .venv/bin/activate
-uv sync
-```
-
-Make sure the HAPI server is running by executing the following command inside the base project directory (make sure Docker Desktop is running). If this is your first time running it, please be sure to add the `--data` flag to import Synthetic Hospital. Omit this flag on subsequent runs. See [the import guide](../docker/synthetic_hospital/) before replacing an existing Synthea database.
-
-   ```bash
-   ./startup.sh [--data]
-   ```
-
-To run evals, come back to this directory and run any of the following
-
-
-```bash
-# Cerebras
-python eval.py \
+uv sync --frozen
+uv run eval.py \
   -m gpt-oss-120b \
   -k CEREBRAS_API_KEY \
   -b https://api.cerebras.ai/v1 \
   -t synthetic_hospital_counts
 ```
 
-```bash
-# Groq
-python eval.py \
-  -m openai/gpt-oss-120b \
-  -k GROQ_API_KEY \
-  -b https://api.groq.com/openai/v1 \
-  -t synthetic_hospital_counts
+Set your provider's API key in the repository `.env`. The runner accepts any
+OpenAI-compatible endpoint. Outputs are written to
+`outputs/<model>/<timestamp>/results.json`, alongside console reward summaries.
+
+| Option | Purpose |
+| --- | --- |
+| `-m`, `--model` | Provider model name (default: `gpt-oss-120b`) |
+| `-k`, `--api-key-var` | API key environment variable (default: `CEREBRAS_API_KEY`) |
+| `-b`, `--base-url` | API endpoint (default: `https://api.cerebras.ai/v1`) |
+| `-t`, `--task-filename` | Name under `tasks/`, without `.json` |
+| `--task-filepath` | Custom task JSON path |
+| `--requested` | Maximum examples to evaluate (default: 1000) |
+
+Supply a task filename or path; the filename takes precedence when both are given.
+Run commands from this directory so the task and config paths resolve correctly.
+Concurrency is capped by `sandbox.max_concurrent_sessions` in
+`configs/sandbox.yaml` and the number of examples.
+
+## Tasks and scoring
+
+`synthetic_hospital_counts` matches the pinned pristine training split (800
+patients, 17,304 resources). Regenerate it with the converter's `--tasks-dir`
+option for other splits. Concurrent writes change counts, so benchmark a pristine
+seed. `toy_tasks` contains small terminal exercises and is the default for
+`load_environment()`.
+
+Custom tasks use this format:
+
+```json
+[
+  {
+    "id": "patient-count",
+    "type": ["read"],
+    "input": {"task": "How many patients are in the FHIR database?", "context": ""},
+    "output": {"answer": 800}
+  }
+]
 ```
 
-```bash
-# OpenRouter
-python eval.py \
-  -m openai/gpt-oss-120b \
-  -k OPENROUTER_API_KEY \
-  -b https://openrouter.ai/api/v1 \
-  -t synthetic_hospital_counts
-```
+The current rubric awards 1 when the normalized expected answer occurs in the
+final response, otherwise 0. This is a basic answer check; it does not implement
+Synthetic Hospital's upstream clinical scorers.
+
+## Tools and checks
+
+`configs/tools.yaml` controls enabled tools and timeouts; `configs/system-prompt.txt`
+sets the agent instructions. Available tools cover FHIR reads and CRUD,
+validation, terminal commands, terminology lookup, and OpenFDA queries.
+FHIR reads save the full JSON in the sandbox and return compact metadata.
+CRUD tools are disabled by default.
+
+Offline benchmark regression checks:
 
 ```bash
-# Gemini
-python eval.py \
-  -m gemini-2.5-flash \
-  -k GEMINI_API_KEY \
-  -b https://generativelanguage.googleapis.com/v1beta/openai \
-  -t synthetic_hospital_counts
+uv run python -m unittest discover -s tests -v
 ```
 
-Each task has a dedicated sandbox container for agents to work inside: when a new task is received, a container is spawned and, upon completion, terminated. The number of parallel sessions is specified as `sandbox.max_concurrent_sessions` inside `configs/sandbox.yaml`. Right now this is set to `5`, but you can change this.
-
-In general, any OpenAI-compatible API endpoint should work. The `-t` flag let's you specify the name of the task to run from the `tasks` directory. Right now you can try out `synthetic_hospital_counts` or `toy_tasks` (the old `counts` and `names` fixtures require Synthea). Feel free to add or modify any tasks you'd like. More details about the CLI args are available below.
-
-To shutdown the server and stop all services run the following command in the base project directory. The `--purge` flag will stop all services and completely delete all containers, data volumes, and associated images.
-
-   ```bash
-   ./shutdown.sh [--purge]
-   ```
-
----
-
-**CLI Args**
-
-The `eval.py` script supports various options:
-- `-m, --model`: Model alias or provider model name (default: gpt-oss-120b)
-- `-k, --api-key-var`: Environment variable for API key (default: CEREBRAS_API_KEY)
-- `-b, --base-url`: Base URL for the API (default: https://api.cerebras.ai/v1)
-- `-t, --task-filename`: Task name to load from ./tasks/ directory (appends .json automatically)
-- `--task-filepath`: Full path to the task JSON file
-- `--requested`: Max number of examples to evaluate (default: 1000)
-
-**Note**: Either `--task-filepath` or `--task-filename` must be provided.
-
-New tasks can be added as `<task_name>.json` to the [tasks directory](tasks), and may be called using the flag `-t <task_name>`.
-
----
+Use the [interactive REPLs](repls/README.md) for FHIR queries and session/tool
+checks against Docker. The repository README lists the live FHIR and validator
+test scripts and shutdown commands.

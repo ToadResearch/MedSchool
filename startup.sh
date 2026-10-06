@@ -24,7 +24,7 @@
 
 set -euo pipefail
 
-# REPO_ROOT is now the current directory where startup.sh is executed.
+# Resolve paths relative to this script.
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_FILE="$REPO_ROOT/docker-compose.yaml"
 
@@ -39,7 +39,6 @@ BASE_SERVICES=(
   db
   hapi
   middleman
-  # validator
 )
 
 usage() {
@@ -83,7 +82,7 @@ fi
 if [[ $WITH_DATA -eq 1 ]]; then
   ALL_SERVICES=("${BASE_SERVICES[@]}" synthetic_hospital uploader)
 else
-  ALL_SERVICES=("${BASE_SERVICES[@]}" uploader)
+  ALL_SERVICES=("${BASE_SERVICES[@]}")
 fi
 
 # Ensure .env is present in the root directory
@@ -122,13 +121,6 @@ echo "Rebuilding images and recreating containers in one step…"
 # --build ensures images are rebuilt; --pull can be added if you want to refresh bases
 docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" up -d --build --force-recreate "${BASE_SERVICES[@]}"
 
-# echo "Kicking off validator pre-warm (runs once in background)..."
-# one-shot job; talks to the validator container directly on 3500 inside the compose network
-# docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" up -d validator-prewarm || true
-
-# Use HAPI_PORT from environment/.env file, with a fallback to 8080
-HAPI_PORT="${HAPI_PORT:-8081}"
-
 print_service_info() {
   echo ""
   echo "Service info summary:"
@@ -146,14 +138,10 @@ print_service_info() {
   echo ""
 }
 
-print_service_info
-
 # clean up dangling images produced by rebuilds
 if [[ "${NO_PRUNE:-0}" -ne 1 ]]; then
   echo "Pruning dangling images created during rebuild…"
   docker image prune -f >/dev/null || true
-  # If you also want to remove old build cache layers (bigger cleanup):
-  # docker builder prune -f >/dev/null || true
 fi
 
 if [[ $WITH_DATA -eq 1 ]]; then
@@ -174,6 +162,11 @@ fi
 if [[ $MCP -eq 1 ]]; then
   docker compose -f "$COMPOSE_FILE" --env-file "$REPO_ROOT/.env" up -d --build mcp
 fi
+
+if [[ $MCP -eq 1 ]]; then
+  ALL_SERVICES+=(mcp)
+fi
+print_service_info
 
 echo "Counting resources..."
 "$REPO_ROOT/docker/fhir_server/scripts/wait_for_fhir.sh" "${FHIR_BASE_URL}"

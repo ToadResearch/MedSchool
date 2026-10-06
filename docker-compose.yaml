@@ -1,11 +1,4 @@
-# flow:
-#   db (Postgres) becomes healthy.
-#   hapi waits for db → becomes healthy.
-#   validator (HL7 validator-wrapper) waits for hapi → starts.
-#   uploader waits for hapi and Synthetic Hospital → writes resources to PostgreSQL and reindexes.
-#   mcp waits for hapi → becomes healthy.
-#   prewarm waits for validator → runs one-shot to prewarm the validator.
-
+# Docker testing stack; seed import is opt-in via startup.sh --data.
 services:
 
   db:
@@ -22,13 +15,9 @@ services:
       timeout: 5s
       retries: 30
     volumes:
-      # data persists in this volume
       - pgdata:/var/lib/postgresql/data
     networks:
       - medschool-net
-    # ports:
-    #   # only open port during testing
-    #   - "${DB_PORT}:${DB_CONTAINER_PORT}"
 
   hapi:
     mem_limit: 6g # compose (non-swarm) memory limit for this container
@@ -37,57 +26,31 @@ services:
     container_name: medschool-hapi
     depends_on:
       db:
-        # hapi will wait until db is ready before starting
-        condition: service_healthy 
+        condition: service_healthy
     restart: unless-stopped
     environment:
-      # initial heap of 2GiB and max of 4GiB, exits onOOM
-      # JAVA_TOOL_OPTIONS: "-Xms2g -Xmx4g -XX:+ExitOnOutOfMemoryError"
-      # initial heap of 50% and max of 70% of the container's memory, exits on OOM
-      # JAVA_TOOL_OPTIONS: "-XX:InitialRAMPercentage=50 -XX:MaxRAMPercentage=70 -XX:+ExitOnOutOfMemoryError"
       JAVA_TOOL_OPTIONS: "-XX:InitialRAMPercentage=40 -XX:MaxRAMPercentage=80 -XX:+ExitOnOutOfMemoryError -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
 
       PGUSER: ${PGUSER}
       PGPASSWORD: ${PGPASSWORD}
       PGDATABASE: ${PGDATABASE}
-      # - spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.PostgresDialect
-      # - spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.Postgres94Dialect
-      # - spring.datasource.url=jdbc:postgresql://postgres:5432/fhir
-      # local config file path for hapi to load from
-      
-      # TODO: replaces the default config file location -- must be correct path -- fails :(
-      # SPRING_CONFIG_LOCATION: "file:/app/config/application.yaml" # 
-      
-      # adds additional search locations for the application.yaml file -- works :)
-      # SPRING_CONFIG_ADDITIONAL_LOCATION: "file:/app/config/"  
-
 
       SPRING_CONFIG_ADDITIONAL_LOCATION: "optional:file:/app/config/"  # add to defaults, don't replace
       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_CONTEXT_CONFIG: "DEBUG"   # show where config loads from
 
-
-      # remote when TERMINOLOGY_MODE=remote, else false
       REMOTE_TS_ENABLED: ${REMOTE_TS_ENABLED}
       REMOTE_TS_BASE: ${REMOTE_TS_BASE}
       LOCAL_ADDRESS: ${LOCAL_ADDRESS}
 
     volumes:
-      # inject local config file into container (local file path and container path), ro for read only
-      # - ./docker/fhir_server/config/application.yaml:/app/config/application.yaml:ro
       - ./docker/fhir_server/config:/app/config:ro
-      # Optional but useful if you enable Lucene later and bulk export
-      # - hapi_appdata:/app/target
     healthcheck:
-      # once the metadata is available, we know the server is running
-      # busybox wget added to the hapi image in Dockerfile for healthcheck
       test: ["CMD", "/busybox", "nc", "-z", "127.0.0.1", "${HAPI_CONTAINER_PORT}"]
       interval: 5s
       timeout: 5s
       retries: 40
     networks:
       - medschool-net
-    # ports:
-    #   - "${HAPI_PORT}:${HAPI_CONTAINER_PORT}"
 
   validator:
     build:
@@ -95,7 +58,6 @@ services:
     container_name: medschool-fhir-validator
     restart: unless-stopped
     environment:
-      # Optional: tweak/disable prewarm without rebuilding
       - TX_SERVER_URL=${TX_SERVER_URL:-https://tx.fhir.org}
       - VALIDATOR_PREWARM=${VALIDATOR_PREWARM:-true}
       - VALIDATOR_PREWARM_SV=${VALIDATOR_PREWARM_SV:-4.0.1}
@@ -111,11 +73,8 @@ services:
       retries: 30
     depends_on:
       hapi:
-        # because we need validator to download some fhir stuff via prewarm
-        # we'll just wait for hapi to have started so everything happens in parallel
         condition: service_started
 
-  # One-shot job that warms the validator after it's healthy
   validator-prewarm:
     image: curlimages/curl:8.8.0
     container_name: medschool-validator-prewarm
@@ -164,7 +123,6 @@ services:
       PGPASSWORD: ${PGPASSWORD}
       PGDATABASE: ${PGDATABASE}
       INPUT_DIR: /seed
-      # Append makes normal Compose restarts idempotent; the CLI itself defaults to safer initialize mode.
       REQUIRE_MATCHING_PATIENTS: "true"
       IMPORT_MODE: ${FHIR_IMPORT_MODE:-append}
       FHIR_BASE_URL: ${HAPI_INTERNAL_FHIR_BASE}
@@ -172,24 +130,8 @@ services:
     networks:
       - medschool-net
     volumes:
-      # Read-only access to converted Synthetic Hospital FHIR resources.
       - synthetic_hospital_fhir:/seed:ro
     restart: "no"
-
-  # termloader:
-  #   build:
-  #     context: ./docker/term_loader
-  #     args:
-  #       HAPI_VERSION: ${HAPI_VERSION:-8.6.0}
-  #   environment:
-  #     TARGET_FHIR_BASE: http://hapi:${HAPI_CONTAINER_PORT}/fhir   # inside the compose network, no auth needed
-  #     JAVA_TOOL_OPTIONS: "-Xms1g -Xmx6g"
-  #   depends_on:
-  #     - hapi
-  #   volumes:
-  #     - ./data/terminology:/data:ro
-  #   restart: "no"
-
 
   mcp:
     build:
@@ -205,17 +147,14 @@ services:
       MCP_HOST: ${MCP_HOST}
       MCP_CONTAINER_PORT: ${MCP_CONTAINER_PORT}
       MCP_HTTP_PATH: ${MCP_HTTP_PATH}
-      
-      # the external port on the host machine or other to bind to 
+
       LOOPBACK_HOST: ${LOOPBACK_HOST}
 
-      # not used: canonical client URLs from .env if calling from host machine external to docker
       FHIR_BASE_URL: ${FHIR_BASE_URL}
       TERMINOLOGY_BASE_URL: ${TERMINOLOGY_BASE_URL}
       VALIDATION_BASE_URL: ${VALIDATION_BASE_URL}
       OPENFDA_BASE_URL: ${OPENFDA_BASE_URL}
-      
-      # used: internal proxy bases (service-name:container-port) so MCP talks within the Docker network:
+
       FHIR_PROXY_INTERNAL_BASE: ${FHIR_PROXY_INTERNAL_BASE}/fhir
       TERMINOLOGY_PROXY_INTERNAL_BASE: ${TERMINOLOGY_PROXY_INTERNAL_BASE}
       VALIDATION_PROXY_INTERNAL_BASE: ${VALIDATION_PROXY_INTERNAL_BASE}
@@ -223,23 +162,18 @@ services:
     networks:
       - medschool-net
     healthcheck:
-      # use python since the base image is python:3.11-slim
       test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://127.0.0.1:${MCP_CONTAINER_PORT}/health'); sys.exit(0)"]
       interval: 5s
       timeout: 5s
       retries: 40
     ports:
-      # pin port to loopback to only allow access to host machine
       - "${LOOPBACK_HOST}:${MCP_PORT:-8000}:${MCP_CONTAINER_PORT:-8000}"
 
-  # Custom Alpine image for sandbox sessions
   alpine_sandbox:
     build:
       context: ./docker/alpine_sandbox
     image: medschool-alpine-sandbox
     container_name: medschool-alpine-builder
-    # This service is only for building the image; it doesn't need to run
-    # To build: docker-compose build alpine_sandbox
     networks:
       - medschool-net
 
@@ -254,11 +188,9 @@ services:
       alpine_sandbox:
         condition: service_completed_successfully
     environment:
-      # bind & port
       MIDDLEMAN_PORT: ${MIDDLEMAN_CONTAINER_PORT}
       LOCAL_ADDRESS: ${LOCAL_ADDRESS}
 
-      # client-facing route slugs
       FHIR_ROUTE: ${FHIR_ROUTE}
       TERMINOLOGY_ROUTE: ${TERMINOLOGY_ROUTE}
       VALIDATION_ROUTE: ${VALIDATION_ROUTE}
@@ -266,18 +198,14 @@ services:
       MCP_ROUTE: ${MCP_ROUTE}
       VM_ROUTE: ${VM_ROUTE}
 
-      # upstream targets (container-internal URLs)
       FHIR_UPSTREAM_BASE: ${FHIR_UPSTREAM_BASE}
       TERMINOLOGY_UPSTREAM_BASE: ${TERMINOLOGY_UPSTREAM_BASE}
       VALIDATION_UPSTREAM_BASE: ${VALIDATION_UPSTREAM_BASE}
       OPENFDA_UPSTREAM_BASE: ${OPENFDA_UPSTREAM_BASE}
       MCP_UPSTREAM_BASE: ${MCP_UPSTREAM_BASE}
 
-      # TODO: add these to .env
-      # Alpine container defaults
       ALPINE_IMAGE: ${ALPINE_IMAGE:-medschool-alpine-sandbox}
       DOCKER_NETWORK: ${DOCKER_NETWORK:-medschool-net}
-      # Optional soft resource caps for sessions
       ALPINE_MEM_MB: ${ALPINE_MEM_MB:-256}
       ALPINE_CPUS: ${ALPINE_CPUS:-0.5}
 
@@ -286,7 +214,6 @@ services:
     networks:
       - medschool-net
     volumes:
-      # let middleman control Docker
       - /var/run/docker.sock:/var/run/docker.sock:rw
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${MIDDLEMAN_CONTAINER_PORT}/sessions/health >/dev/null || exit 1"]
@@ -294,26 +221,10 @@ services:
       timeout: 5s
       retries: 30
 
-  web_ui:
-    build:
-      context: ./web_ui
-    container_name: medschool-web-ui
-    restart: unless-stopped
-    environment:
-      WEB_UI_PORT: ${WEB_UI_PORT}
-    ports:
-      - "${WEB_UI_PORT:-725}:${WEB_UI_PORT:-725}"
-    networks:
-      - medschool-net
-    depends_on:
-      middleman:
-        condition: service_healthy
-
 networks:
   medschool-net:
 
 volumes:
   pgdata:
-  # hapi_appdata:
   synthetic_hospital_cache:
   synthetic_hospital_fhir:

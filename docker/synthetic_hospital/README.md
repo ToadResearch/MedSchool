@@ -20,7 +20,6 @@ The converter runs before the existing Rust loader, which loads PostgreSQL and
 waits for HAPI search reindexing. Later starts can use `./startup.sh --mcp`.
 The one-shot services use the `seed` Compose profile so ordinary `docker compose up`
 does not import data. Use `startup.sh --data` to sequence import and MCP startup.
-`--synthea` and `--save-synthea` are retired; the new download cache is retained.
 
 An existing Synthea database is rejected, not silently combined with the new data.
 Back up anything you need first. To explicitly discard **all stack volumes** and
@@ -84,5 +83,4 @@ accepts an offline database without downloading (its actual checksum is recorded
 The checked-in `environment/tasks/synthetic_hospital_counts.json` matches the
 pinned training export (17,304 resources, 800 patients, 3,539 encounters).
 Regenerate it with `--tasks-dir` for a different split. Counts assume a pristine
-seed with no subsequent CRUD changes. Old `counts.json` and `names.json` are
-legacy Synthea fixtures and must not be used with this dataset.
+seed with no subsequent CRUD changes.
